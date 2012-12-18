@@ -7,19 +7,31 @@ Installation
 Installation procedure
 **********************
 
-The `latest version available on PyPI`_ can be installed using either::
+1. Get the source by running::
 
-   sudo pip install SpanishAcquisition
+	git clone https://github.com/ghwatson/SpanishAcquisitionIQC.git
 
-or::
+2. From the SpanishAcquisitionIQC directory, run::
 
-   sudo easy_install SpanishAcquisition
+	sudo python setup.py install
 
-Alternatively, this package can be installed from source in the usual way::
+3. Copy the example apps to another directory (eg. ~/spacq_apps)
 
-   sudo python setup.py install
+4. While in the SpanishAcquisitionIQC directory, build the offline docs with:: 
 
-.. _`latest version available on PyPI`: http://pypi.python.org/pypi/SpanishAcquisition/
+	make -C docs html
+
+5. Create desktop shortcuts ("launchers"):
+
+    * Application:
+
+      * Acquisition -> ~/spacq-apps/acquisition.py
+      * Data Explorer -> ~/spacq-apps/data_explorer.py
+
+    * Location:
+
+      * Spanish Acquisition Documentation -> http://ghwatson.github.com/SpanishAcquisitionIQC/docs/
+      * Spanish Acquisition Documentation (Offline) -> file://path/to/SpanishAcquisition/docs/_build/html/index.html
 
 Dependencies
 ************

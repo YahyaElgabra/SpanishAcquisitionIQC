@@ -3,18 +3,21 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; Spanish Acquisition v1.0.3 documentation</title>
+    <title>Installation &mdash; Spanish Acquisition IQC 2.0.0a1 documentation</title>
+    
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0.3',
+        VERSION:     '2.0.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +27,13 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.3 documentation" href="index.html" />
+    <link rel="top" title="Spanish Acquisition IQC 2.0.0a1 documentation" href="index.html" />
     <link rel="next" title="User’s Guide" href="user/index.html" />
     <link rel="prev" title="Spanish Acquisition" href="index.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
-          <span>Spanish Acquisition v1.0.3 documentation</span></a></h1>
+          <span>Spanish Acquisition IQC 2.0.0a1 documentation</span></a></h1>
         <h2 class="heading"><span>Installation</span></h2>
       </div>
       <div class="topnav">
@@ -51,15 +54,38 @@
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation-procedure">
 <h2>Installation procedure<a class="headerlink" href="#installation-procedure" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="http://pypi.python.org/pypi/SpanishAcquisition/">latest version available on PyPI</a> can be installed using either:</p>
-<div class="highlight-python"><pre>sudo pip install SpanishAcquisition</pre>
+<ol class="arabic">
+<li><p class="first">Get the source by running:</p>
+<div class="highlight-python"><pre>git clone https://github.com/ghwatson/SpanishAcquisitionIQC.git</pre>
 </div>
-<p>or:</p>
-<div class="highlight-python"><pre>sudo easy_install SpanishAcquisition</pre>
-</div>
-<p>Alternatively, this package can be installed from source in the usual way:</p>
+</li>
+<li><p class="first">From the SpanishAcquisitionIQC directory, run:</p>
 <div class="highlight-python"><pre>sudo python setup.py install</pre>
 </div>
+</li>
+<li><p class="first">Copy the example apps to another directory (eg. ~/spacq_apps)</p>
+</li>
+<li><p class="first">While in the SpanishAcquisitionIQC directory, build the offline docs with:</p>
+<div class="highlight-python"><pre>make -C docs html</pre>
+</div>
+</li>
+<li><p class="first">Create desktop shortcuts (&#8220;launchers&#8221;):</p>
+<blockquote>
+<div><ul class="simple">
+<li>Application:<ul>
+<li>Acquisition -&gt; ~/spacq-apps/acquisition.py</li>
+<li>Data Explorer -&gt; ~/spacq-apps/data_explorer.py</li>
+</ul>
+</li>
+<li>Location:<ul>
+<li>Spanish Acquisition Documentation -&gt; <a class="reference external" href="http://ghwatson.github.com/SpanishAcquisitionIQC/docs/">http://ghwatson.github.com/SpanishAcquisitionIQC/docs/</a></li>
+<li>Spanish Acquisition Documentation (Offline) -&gt; <a class="reference external" href="file://path/to/SpanishAcquisition/docs/_build/html/index.html">file://path/to/SpanishAcquisition/docs/_build/html/index.html</a></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
 </div>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
@@ -123,7 +149,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Dmitri Iouchtchenko.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

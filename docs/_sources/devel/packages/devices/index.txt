@@ -21,6 +21,7 @@ Device implementation notes
 
    awg5014b
    dpo7104
+   model4g
 
 Testing
 *******

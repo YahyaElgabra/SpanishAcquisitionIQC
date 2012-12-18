@@ -3,18 +3,21 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Variables &mdash; Spanish Acquisition v1.0.3 documentation</title>
+    <title>Variables &mdash; Spanish Acquisition IQC 2.0.0a1 documentation</title>
+    
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.3',
+        VERSION:     '2.0.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +27,14 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.3 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition IQC 2.0.0a1 documentation" href="../../index.html" />
     <link rel="up" title="General concepts" href="index.html" />
     <link rel="next" title="Pulse programs" href="../pulse_programs.html" />
     <link rel="prev" title="Resources" href="resources.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.3 documentation</span></a></h1>
+          <span>Spanish Acquisition IQC 2.0.0a1 documentation</span></a></h1>
         <h2 class="heading"><span>Variables</span></h2>
       </div>
       <div class="topnav">
@@ -139,6 +142,45 @@
 <p class="last"><a class="reference internal" href="../gui/config/measurement_config.html#measurement-config"><em>Measurement configuration</em></a></p>
 </div>
 </div>
+<div class="section" id="condition-variables">
+<span id="general-concepts-condition-variables"></span><h2>Condition variables<a class="headerlink" href="#condition-variables" title="Permalink to this headline">¶</a></h2>
+<p>Condition variables provide a way to halt a sweep until user-defined conditions are satisfied.</p>
+<div class="section" id="general-concepts-condition-variables-order">
+<span id="id1"></span><h3>Order<a class="headerlink" href="#general-concepts-condition-variables-order" title="Permalink to this headline">¶</a></h3>
+<p>Each condition variable can be assigned an order, which serves a similar purpose as an output variable&#8217;s <a class="reference internal" href="#general-concepts-condition-variables-order"><em>order</em></a>.  Whenever the output variables in a particular order have iterated through their values, condition variables with this same order are repeatedly checked to see if they are all true (in effect, &#8216;AND&#8217;ing). The sweep will not progress in any fashion until this is so. Every time a condition variable is checked, a new set of measurements are obtained, as defined by the input variables.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">For every check of an order&#8217;s condition variables, variables in lower orders are not re-iterated.  The sweep is halted until the conditions are true.</p>
+</div>
+<p>If a condition variable is assigned an order that has no output variables present, then it is treated as if it had the same order as the nearest order below it containing an output variable.
+There is one important exception: if a condition variable is assigned an order with no output variables present, and there are no lesser orders that contain any output variables, then the condition variable will be checked after every single iteration of a sweep. This is useful for taking measurements while some resource is changing in response to the last iteration&#8217;s assigned values.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">If a device&#8217;s interface has the ability to perform sweeps, then condition variables can be used to take measurements while this sweep is      occurring by using the exception discussed above.</p>
+</div>
+</div>
+<div class="section" id="conditions">
+<span id="general-concepts-condition-variables-conditions"></span><h3>Conditions<a class="headerlink" href="#conditions" title="Permalink to this headline">¶</a></h3>
+<p>A condition variable can have multiple conditions defined within it.  The boolean value associated with a condition variable is achieved by taking the sum (&#8216;OR&#8217;ing) of the conditions&#8217; boolean values.
+A condition is defined by the boolean expression resulting from a left argument, an operator and a right argument. The operator is one of&#8217;&lt;&#8217;,&#8217;&gt;&#8217;,&#8217;==&#8217;, or &#8216;!=&#8217;. The arguments each have a type, which includes the output variable&#8217;s <a class="reference internal" href="#general-concepts-output-variables-type"><em>types</em></a>, with the addition of:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>String</dt>
+<dd><p class="first">Simply a string.</p>
+<p class="last">For example, &#8220;on&#8221;.</p>
+</dd>
+<dt>Resource</dt>
+<dd><p class="first">The name of a resource.</p>
+<p class="last">For example, &#8220;sweep_target&#8221;, which might be present in a power supply with sweeping capabilities.</p>
+</dd>
+</dl>
+</div></blockquote>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../gui/config/variable_config.html#variable-config"><em>Variable configuration</em></a></p>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -157,7 +199,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Dmitri Iouchtchenko.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

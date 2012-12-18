@@ -64,7 +64,13 @@ The sweep consists of the following stages:
       If one is configured, a pulse program is run.
 
    Taking measurements
-      All measurements are read from their resources.
+      All measurements are read from their resources. Any resources defined in the condition variables are also internally checked.
+
+   Testing conditions
+      All condition variables in the changing order are checked.
+
+   Waiting for conditions to settle
+      If any condition variable was false, a delay occurs for the condition variable with the longest wait time.  Measurements are then taken again.
 
    Smooth setting
       A smooth transition occurs from the last value to the variables' constant values, as required.

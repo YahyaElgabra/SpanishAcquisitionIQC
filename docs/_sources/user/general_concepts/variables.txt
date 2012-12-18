@@ -99,3 +99,46 @@ Typically referred to as "measurements", input variables provide a way of gather
 There exist two types of measurements: scalar and list. Scalar measurements correspond to the acquisition of single values over time (eg. an amplitude or a frequency); list measurements correspond to the acquisition of a list of values over time (eg. a waveform captured by an oscilloscope). Naturally, if the measurements are done several times, scalar measurements produce one-dimensional data, while list measurements produce two-dimensional data.
 
 .. seealso:: :ref:`measurement_config`
+
+.. _general_concepts_condition_variables:
+
+Condition variables
+*******************
+
+Condition variables provide a way to halt a sweep until user-defined conditions are satisfied.
+
+.. _general_concepts_condition_variables_order:
+
+Order
+=====
+
+Each condition variable can be assigned an order, which serves a similar purpose as an output variable's :ref:`order <general_concepts_condition_variables_order>`.  Whenever the output variables in a particular order have iterated through their values, condition variables with this same order are repeatedly checked to see if they are all true (in effect, 'AND'ing). The sweep will not progress in any fashion until this is so. Every time a condition variable is checked, a new set of measurements are obtained, as defined by the input variables.
+
+.. warning::
+   For every check of an order's condition variables, variables in lower orders are not re-iterated.  The sweep is halted until the conditions are true.
+
+If a condition variable is assigned an order that has no output variables present, then it is treated as if it had the same order as the nearest order below it containing an output variable.
+There is one important exception: if a condition variable is assigned an order with no output variables present, and there are no lesser orders that contain any output variables, then the condition variable will be checked after every single iteration of a sweep. This is useful for taking measurements while some resource is changing in response to the last iteration's assigned values.
+
+.. tip::
+   If a device's interface has the ability to perform sweeps, then condition variables can be used to take measurements while this sweep is 	 occurring by using the exception discussed above.
+
+.. _general_concepts_condition_variables_conditions:
+
+Conditions
+==========
+
+A condition variable can have multiple conditions defined within it.  The boolean value associated with a condition variable is achieved by taking the sum ('OR'ing) of the conditions' boolean values.
+A condition is defined by the boolean expression resulting from a left argument, an operator and a right argument. The operator is one of'<','>','==', or '!='. The arguments each have a type, which includes the output variable's :ref:`types <general_concepts_output_variables_type>`, with the addition of:
+
+   String
+      Simply a string.
+
+      For example, "on".
+
+   Resource
+      The name of a resource.
+
+      For example, "sweep_target", which might be present in a power supply with sweeping capabilities.
+
+.. seealso:: :ref:`variable_config`

@@ -1,3 +1,9 @@
 # Aptana Studio 3 project files.
 .project
 .pydevproject
+
+# Build files.
+/build/
+/dist/
+/docs/_build/
+/SpanishAcquisition.egg-info/

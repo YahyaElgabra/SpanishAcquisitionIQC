@@ -7,3 +7,6 @@
 /dist/
 /docs/_build/
 /SpanishAcquisition.egg-info/
+
+# Garbage
+.pyc

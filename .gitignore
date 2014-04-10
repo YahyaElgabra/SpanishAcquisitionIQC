@@ -1,5 +1,6 @@
 *.pyc
 *.py~
+*.swp
 
 # Aptana Studio 3 project files.
 .project

@@ -15,7 +15,7 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 	A generic virtual list.
 	"""
 
-	max_value_len = 250 # Characters.
+	max_value_len = 10 # Characters.
 
 	@staticmethod
 	def find_type(value):

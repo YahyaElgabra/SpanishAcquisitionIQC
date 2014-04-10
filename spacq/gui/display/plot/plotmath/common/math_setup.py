@@ -42,9 +42,9 @@ class AxisSelectionPanel(wx.Panel):
 
 		self.selection_callback(result)
 		
-class MathSetupDialog(Dialog):
+class MathSetupDialog_Derivative(Dialog):
 	"""
-	Math configuration dialog.
+	Math configuration dialog (for derivative).
 	"""
 
 	def __init__(self, parent, headings, axis_names, *args, **kwargs):
@@ -98,6 +98,61 @@ class MathSetupDialog(Dialog):
         	self.step_size = self.step_slider.GetValue()
 
         	self.reading.SetLabel(str(self.step_size))        
+
+	def OnOk(self, evt=None):
+		title, d_data = self.calculate()
+		self.dheading = title
+		self.ddata = d_data
+		self.Destroy()
+
+class MathSetupDialog_Function(Dialog):
+	"""
+	Math configuration dialog(for functions).
+	"""
+
+	def __init__(self, parent, headings, axis_names, *args, **kwargs):
+		Dialog.__init__(self, parent, *args, **kwargs)
+
+		self.axes = [None for _ in axis_names]
+		
+		self.step_size = 1
+
+		# Dialog.
+		dialog_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Axis setup.
+		axis_panel = AxisSelectionPanel(self, axis_names, headings, self.OnAxisSelection)
+		dialog_box.Add(axis_panel)
+
+		## Inputs.
+		input_sizer = wx.FlexGridSizer(rows=1, cols=2, hgap=5)
+		input_sizer.AddGrowableCol(1, 1)
+		dialog_box.Add(input_sizer, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+
+		input_sizer.Add(wx.StaticText(self, label='Function:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.function_input = wx.TextCtrl(self)
+		self.function_input.SetMinSize((300, -1))
+		input_sizer.Add(self.function_input, flag=wx.EXPAND)
+
+		## End buttons.
+		button_box = wx.BoxSizer(wx.HORIZONTAL)
+		dialog_box.Add(button_box, flag=wx.CENTER)
+
+		self.ok_button = wx.Button(self, wx.ID_OK)
+		self.ok_button.Disable()
+		self.Bind(wx.EVT_BUTTON, self.OnOk, self.ok_button)
+		button_box.Add(self.ok_button)
+
+		cancel_button = wx.Button(self, wx.ID_CANCEL)
+		button_box.Add(cancel_button)
+
+		self.SetSizerAndFit(dialog_box)
+
+	def OnAxisSelection(self, values):
+		self.axes = values
+
+		self.ok_button.Enable(all(axis is not None for axis in self.axes))      
 
 	def OnOk(self, evt=None):
 		title, d_data = self.calculate()

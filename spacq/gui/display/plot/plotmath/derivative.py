@@ -1,16 +1,16 @@
 import wx
 
 from ....tool.box import MessageDialog
-from .common.math_setup import MathSetupDialog
+from .common.math_setup import MathSetupDialog_Derivative
 from numpy import concatenate
 
-class DerivativeMathSetupDialog(MathSetupDialog):
+class DerivativeMathSetupDialog(MathSetupDialog_Derivative):
 
 	dheading = []
 	ddata = []
 	
 	def __init__(self, parent, headings, data, *args, **kwargs):
-		MathSetupDialog.__init__(self, parent, headings, ['d', '/d'], *args, **kwargs)
+		MathSetupDialog_Derivative.__init__(self, parent, headings, ['d', '/d'], *args, **kwargs)
 
 		self.parent = parent
 		self.headings = headings

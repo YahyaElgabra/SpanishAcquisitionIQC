@@ -6,7 +6,6 @@ from .....tool.box import Dialog
 Plot configuration.
 """
 
-
 class AxisSelectionPanel(wx.Panel):
 	"""
 	A panel for choosing the headings to be used for the axes.
@@ -49,13 +48,17 @@ class AxisSelectionPanel(wx.Panel):
 
 
 class PlotSetupDialog(Dialog):
+
+	bounds_format = '{0:.4e}'
 	"""
 	Plot configuration dialog.
 	"""
 
-	def __init__(self, parent, headings, axis_names, *args, **kwargs):
+	def __init__(self, parent, headings, axis_names, max_mesh = [-1, -1], *args, **kwargs):
 		Dialog.__init__(self, parent, *args, **kwargs)
 
+		self.max_mesh = max_mesh #derivative classes can choose to call this constructor with or wihtout the  max_mesh argument;
+					 # defaults to [-1, -1] meaning 'skip'
 		self.axes = [None for _ in axis_names]
 
 		# Dialog.
@@ -64,6 +67,37 @@ class PlotSetupDialog(Dialog):
 		## Axis setup.
 		axis_panel = AxisSelectionPanel(self, axis_names, headings, self.OnAxisSelection)
 		dialog_box.Add(axis_panel)
+
+		## Input: Max Grid Points
+		if (all (item > 0 for item in max_mesh)):
+			self.has_max_mesh_value = True
+
+			grid_box = wx.BoxSizer(wx.HORIZONTAL)
+			button_static_box = wx.StaticBox(self, label='Max Grid Points')
+			settings_box = wx.StaticBoxSizer(button_static_box, wx.HORIZONTAL)
+			grid_box.Add(settings_box, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+
+			dialog_box.Add(grid_box, flag=wx.CENTER)
+
+			### Max X mesh size.
+			settings_box.Add(wx.StaticText(self, label='X: '),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+			self.mesh_x_value = wx.TextCtrl(self,
+				value=str(max_mesh[0]),
+				size=(100, -1), style=wx.TE_PROCESS_ENTER)
+			self.Bind(wx.EVT_TEXT_ENTER, self.OnXValue, self.mesh_x_value)
+			settings_box.Add(self.mesh_x_value, flag=wx.RIGHT, border=20)
+
+			### Max Y mesh size.
+			settings_box.Add(wx.StaticText(self, label='Y: '),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+			self.mesh_y_value = wx.TextCtrl(self,
+				value=str(max_mesh[1]),
+				size=(100, -1), style=wx.TE_PROCESS_ENTER)
+			self.Bind(wx.EVT_TEXT_ENTER, self.OnYValue, self.mesh_y_value)
+			settings_box.Add(self.mesh_y_value, flag=wx.RIGHT, border=20)
+		else:
+			self.has_max_mesh_value = False			
 
 		## End buttons.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -85,7 +119,36 @@ class PlotSetupDialog(Dialog):
 		self.ok_button.Enable(all(axis is not None for axis in self.axes))
 
 	def OnOk(self, evt=None):
+		if self.has_max_mesh_value: # update the values typed in (but ENTER not pressed) for max_x, max_y
+			self.OnXValue()
+			self.OnYValue()
 		if self.make_plot():
 			self.Destroy()
 
 			return True
+
+	def OnXValue(self, evt=None):
+		value = self.mesh_x_value.Value
+		try:
+			value = int(value)
+		except ValueError:
+			value = self.max_mesh[0]
+
+		if (value > 0):
+			self.max_mesh[0] = value
+
+		# Update the text box.
+		self.mesh_x_value.Value = str(self.max_mesh[0])
+
+	def OnYValue(self, evt=None):
+		value = self.mesh_y_value.Value
+		try:
+			value = int(value)
+		except ValueError:
+			value = self.max_mesh[1]
+
+		if (value > 0):
+			self.max_mesh[1] = value
+
+		# Update the text box.
+		self.mesh_y_value.Value = str(self.max_mesh[1])

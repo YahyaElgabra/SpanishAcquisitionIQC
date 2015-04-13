@@ -1,6 +1,13 @@
 #######
 Changes
 #######
+* 2015-04-13: **2.0.2b**
+        Kaveh Gharavi (kayghar@gmail.com)
+
+* Memory issues bugging plotting of large data files sloved; merge into second branch *
+* Enhancements made by Kyle brought into second branch (version-merge-remote).
+
+
 * 2014-04-10: **2.0.1a**
 
   Kaveh Gharavi is now the maintainer

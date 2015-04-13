@@ -17,8 +17,6 @@ from spacq.gui.display.plot.plotmath.function import FunctionMathSetupDialog
 from spacq.gui.tool.box import load_csv, MessageDialog
 
 
-
-
 class DataExplorerApp(wx.App):
 	default_title = 'Data Explorer'
 
@@ -152,6 +150,7 @@ class DataExplorerApp(wx.App):
 			self.OnMenuFileClose()
 
 		has_header, values, filename = result
+
 		self.csv_frame.display_panel.from_csv_data(has_header, values)
 		self.csv_frame.Title = '{0} - {1}'.format(filename, self.default_title)
 

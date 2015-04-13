@@ -6,7 +6,6 @@ from ....tool.box import MessageDialog
 from ..colormapped import ColormappedPlot
 from .common.plot_setup import PlotSetupDialog
 
-
 class ColormappedPlotPanel(wx.Panel):
 	def __init__(self, parent, color_data, x_bounds, y_bounds, x_label, y_label,
 			*args, **kwargs):
@@ -94,7 +93,9 @@ class ColormappedPlotFrame(wx.Frame):
 
 class ColormappedPlotSetupDialog(PlotSetupDialog):
 	def __init__(self, parent, headings, data, *args, **kwargs):
-		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'],
+		#Limit the number of grid points on each axis:
+		self.max_mesh = [400, 400] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
+		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh,
 				*args, **kwargs)
 
 		self.parent = parent
@@ -109,7 +110,7 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 			return
 
 		try:
-			color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data)
+			color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data, self.max_mesh)
 		except Exception as e:
 			MessageDialog(self, str(e), 'Conversion failure').Show()
 			return

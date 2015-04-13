@@ -24,7 +24,7 @@ def sift(items, cls):
 	return [item for item in items if isinstance(item, cls)]
 
 
-def triples_to_mesh(x, y, z):
+def triples_to_mesh(x, y, z, max_mesh=[-1,-1]):
 	"""
 	Convert 3 equal-sized lists of co-ordinates into an interpolated 2D mesh of z-values.
 
@@ -36,14 +36,21 @@ def triples_to_mesh(x, y, z):
 	"""
 
 	x_values, y_values = sort(unique(x)), sort(unique(y))
+	
+	if (all (item > 0 for item in max_mesh)):
+		display_len_x = min (len(x_values), max_mesh[0])
+		display_len_y = min (len(y_values), max_mesh[1])
+	else:
+		display_len_x = len(x_values)
+		display_len_y = len(y_values)
 
-	x_space = linspace(x_values[0], x_values[-1], len(x_values))
-	y_space = linspace(y_values[0], y_values[-1], len(y_values))
+	x_space = linspace(x_values[0], x_values[-1], display_len_x)
+	y_space = linspace(y_values[0], y_values[-1], display_len_y)
 
 	target_x, target_y = meshgrid(x_space, y_space)
-
+	
 	target_z = griddata((x, y), z, (target_x, target_y), method='cubic')
-
+	
 	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
 			(min(z), max(z)))
 

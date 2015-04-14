@@ -80,7 +80,7 @@ class PlotSetupDialog(Dialog):
 			dialog_box.Add(grid_box, flag=wx.CENTER)
 
 			### Max X mesh size.
-			settings_box.Add(wx.StaticText(self, label='X: '),
+			settings_box.Add(wx.StaticText(self, label='x: '),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 			self.mesh_x_value = wx.TextCtrl(self,
 				value=str(max_mesh[0]),
@@ -89,7 +89,7 @@ class PlotSetupDialog(Dialog):
 			settings_box.Add(self.mesh_x_value, flag=wx.RIGHT, border=20)
 
 			### Max Y mesh size.
-			settings_box.Add(wx.StaticText(self, label='Y: '),
+			settings_box.Add(wx.StaticText(self, label='y: '),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 			self.mesh_y_value = wx.TextCtrl(self,
 				value=str(max_mesh[1]),

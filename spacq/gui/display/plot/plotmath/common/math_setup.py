@@ -115,8 +115,6 @@ class MathSetupDialog_Function(Dialog):
 
 		self.axes = [None for _ in axis_names]
 		
-		self.step_size = 1
-
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
@@ -129,7 +127,7 @@ class MathSetupDialog_Function(Dialog):
 		input_sizer.AddGrowableCol(1, 1)
 		dialog_box.Add(input_sizer, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
 
-		input_sizer.Add(wx.StaticText(self, label='Function (# is data):'),
+		input_sizer.Add(wx.StaticText(self, label='Scalar function of '+', '.join(axis_names)+':'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.function_input = wx.TextCtrl(self)
 		self.function_input.SetMinSize((300, -1))

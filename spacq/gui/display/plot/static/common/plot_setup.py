@@ -1,6 +1,7 @@
 import wx
 
-from .....tool.box import Dialog
+from .....tool.box import Dialog, MessageDialog
+from spacq.tool.box import Enum
 
 """
 Plot configuration.
@@ -54,11 +55,13 @@ class PlotSetupDialog(Dialog):
 	Plot configuration dialog.
 	"""
 
-	def __init__(self, parent, headings, axis_names, max_mesh = [-1, -1], *args, **kwargs):
+	def __init__(self, parent, headings, axis_names, max_mesh = [-1, -1], interp_mode = '_remove', *args, **kwargs):
 		Dialog.__init__(self, parent, *args, **kwargs)
 
-		self.max_mesh = max_mesh #derivative classes can choose to call this constructor with or wihtout the  max_mesh argument;
-					 # defaults to [-1, -1] meaning 'skip'
+		self.max_mesh = max_mesh #derivative classes can choose to call this constructor with or wihtout the max_mesh argument;
+					 #defaults to [-1, -1] meaning 'skip'
+		self.interp_mode = interp_mode  #derivative classes can call this constructor with or without the interp_mode argument;
+						#defualt is -1 meaning 'skip' -- show no radio buttons and do no interpolation (for 2D plots)
 		self.axes = [None for _ in axis_names]
 
 		# Dialog.
@@ -67,6 +70,45 @@ class PlotSetupDialog(Dialog):
 		## Axis setup.
 		axis_panel = AxisSelectionPanel(self, axis_names, headings, self.OnAxisSelection)
 		dialog_box.Add(axis_panel)
+
+		## Input: Interpolation Mode: Radio Buttons
+		InterpolationModes = Enum(['_none','_x','_y','_2d'])
+		self.InterpolationModes = InterpolationModes
+		if (not interp_mode == '_remove'):
+			try:
+				if not any( interp_mode == x for x in InterpolationModes ):
+					raise ValueError(interp_mode)
+			except ValueError as e:
+				MessageDialog(self, 'Bad interpolation mode '+str(e)+'. No interplolation assumed.', 'ValueError').Show()
+				self.interp_mode = '_remove'
+
+		if (not self.interp_mode == '_remove'):
+			radio_box = wx.BoxSizer(wx.HORIZONTAL)
+			radio_static_box = wx.StaticBox(self, label='Interpolation Mode:')
+			radio_settings_box = wx.StaticBoxSizer(radio_static_box, wx.HORIZONTAL)
+			radio_box.Add(radio_settings_box, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+			dialog_box.Add(radio_box, flag=wx.CENTER)
+
+			self.rb1 = wx.RadioButton(self, -1, 'None', (10, 10), style=wx.RB_GROUP)
+			self.rb2 = wx.RadioButton(self, -1, 'x-axis only', (10, 10))
+			self.rb3 = wx.RadioButton(self, -1, 'y-axis only', (10, 10))
+			self.rb4 = wx.RadioButton(self, -1, '2D (warning: slow)', (10, 10))
+
+			radio_settings_box.Add(self.rb1, flag=wx.RIGHT, border=10)
+			radio_settings_box.Add(self.rb2, flag=wx.RIGHT, border=10)
+			radio_settings_box.Add(self.rb3, flag=wx.RIGHT, border=10)
+			radio_settings_box.Add(self.rb4, flag=wx.RIGHT, border=10)
+		
+			#Boy I miss C-style swith-case	
+			if self.interp_mode == InterpolationModes._none:
+				self.rb1.SetValue(True)
+			elif self.interp_mode == InterpolationModes._x:
+				self.rb2.SetValue(True)
+			elif self.interp_mode == InterpolationModes._y:
+				self.rb3.SetValue(True)
+			else:
+				self.rb4.SetValue(True)
+
 
 		## Input: Max Grid Points
 		if (all (item > 0 for item in max_mesh)):
@@ -119,6 +161,16 @@ class PlotSetupDialog(Dialog):
 		self.ok_button.Enable(all(axis is not None for axis in self.axes))
 
 	def OnOk(self, evt=None):
+		if not self.interp_mode == '_remove':
+			if self.rb1.GetValue():
+				self.interp_mode = self.InterpolationModes._none
+			if self.rb2.GetValue():
+				self.interp_mode = self.InterpolationModes._x
+			if self.rb3.GetValue():
+				self.interp_mode = self.InterpolationModes._y
+			if self.rb4.GetValue():
+				self.interp_mode = self.InterpolationModes._2d
+
 		if self.has_max_mesh_value: # update the values typed in (but ENTER not pressed) for max_x, max_y
 			self.OnXValue()
 			self.OnYValue()

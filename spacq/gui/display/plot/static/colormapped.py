@@ -1,6 +1,6 @@
 import wx
 
-from spacq.tool.box import triples_to_mesh
+from spacq.tool.box import triples_to_mesh, triples_to_mesh_y
 
 from ....tool.box import MessageDialog
 from ..colormapped import ColormappedPlot
@@ -94,7 +94,7 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		#Limit the number of grid points on each axis:
 		self.max_mesh = [401, 401] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
-		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh, '_2d',
+		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh, '_y',
 				*args, **kwargs)
 
 		self.parent = parent
@@ -111,8 +111,10 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 		try:
 			if self.interp_mode == '_2d':
 				color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data, self.max_mesh)
+			elif self.interp_mode == '_y':
+				color_data, x_bounds, y_bounds, _ = triples_to_mesh_y(x_data, y_data, z_data, self.max_mesh)
 			else:
-				MessageDialog(self, 'Feature not yet impelemted. Sorry!', 'Sorry!').Show()
+				MessageDialog(self, 'This feature is not yet impelemted. Sorry!', 'Not immplemented!').Show()
 		except Exception as e:
 			MessageDialog(self, str(e), 'Conversion failure').Show()
 			return

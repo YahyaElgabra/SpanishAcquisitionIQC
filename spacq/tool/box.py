@@ -1,6 +1,7 @@
 from functools import wraps
 from itertools import chain
-from numpy import linspace, meshgrid, sort, unique
+from numpy import linspace, meshgrid, sort, unique, where, nan, ones
+from numpy import min as npmin
 from scipy.interpolate import griddata
 
 """
@@ -22,6 +23,30 @@ def sift(items, cls):
 	"""
 
 	return [item for item in items if isinstance(item, cls)]
+
+def get_mask(x,y, tx, ty):
+	dx = (tx[-1] - tx[0])/(tx.size -1)
+	dy = (ty[-1] - ty[0])/(ty.size -1)
+
+	d2 = dx**2 + dy**2
+
+	xgrid = meshgrid(x,tx)
+	ygrid = meshgrid(y,ty)
+	
+	xdist = (xgrid[0] - xgrid[1])**2
+	ydist = (ygrid[0] - ygrid[1])**2
+
+	mask = ones((tx.shape[0], ty.shape[0]))
+	
+	for i in range (mask.shape[0]):
+		for j in range (mask.shape[1]):
+			mask[i,j] = npmin(xdist[i] + ydist[j])
+
+	mask = (mask < d2)*1
+	mask = where(mask, mask, nan)
+
+	return mask.T
+	
 
 
 def triples_to_mesh(x, y, z, max_mesh=[-1,-1]):
@@ -48,9 +73,12 @@ def triples_to_mesh(x, y, z, max_mesh=[-1,-1]):
 	y_space = linspace(y_values[0], y_values[-1], display_len_y)
 
 	target_x, target_y = meshgrid(x_space, y_space)
+
+	mask =	get_mask (x, y, x_space, y_space)
 	
 	target_z = griddata((x, y), z, (target_x, target_y), method='cubic')
-	
+	target_z = target_z * mask
+
 	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
 			(min(z), max(z)))
 

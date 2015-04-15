@@ -39,7 +39,6 @@ class ColormappedPlotFrame(wx.Frame):
 				x_label, y_label)
 		self.panel.SetMinSize((400, 300))
 		frame_box.Add(self.panel, proportion=1, flag=wx.EXPAND)
-
 		## Settings.
 		settings_box = wx.BoxSizer(wx.HORIZONTAL)
 		frame_box.Add(settings_box, flag=wx.CENTER)
@@ -94,7 +93,7 @@ class ColormappedPlotFrame(wx.Frame):
 class ColormappedPlotSetupDialog(PlotSetupDialog):
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		#Limit the number of grid points on each axis:
-		self.max_mesh = [400, 400] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
+		self.max_mesh = [401, 401] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
 		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh,
 				*args, **kwargs)
 

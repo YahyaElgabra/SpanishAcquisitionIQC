@@ -72,7 +72,7 @@ class PlotSetupDialog(Dialog):
 		dialog_box.Add(axis_panel)
 
 		## Input: Interpolation Mode: Radio Buttons
-		InterpolationModes = Enum(['_none','_x','_y','_2d'])
+		InterpolationModes = Enum(['_none','_x','_y','_2d_no_mask', '_2d_full_mask'])
 		self.InterpolationModes = InterpolationModes
 		if (not interp_mode == '_remove'):
 			try:
@@ -89,15 +89,17 @@ class PlotSetupDialog(Dialog):
 			radio_box.Add(radio_settings_box, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
 			dialog_box.Add(radio_box, flag=wx.CENTER)
 
-			self.rb1 = wx.RadioButton(self, -1, 'None', (10, 10), style=wx.RB_GROUP)
-			self.rb2 = wx.RadioButton(self, -1, 'x-axis only', (10, 10))
-			self.rb3 = wx.RadioButton(self, -1, 'y-axis only', (10, 10))
-			self.rb4 = wx.RadioButton(self, -1, '2D (warning: slow)', (10, 10))
+			self.rb1 = wx.RadioButton(self, -1, 'None\n(Not Implemented Yet)', (10, 10), style=wx.RB_GROUP)
+			self.rb2 = wx.RadioButton(self, -1, 'x-axis only\n(Not Implemented Yet)', (10, 10))
+			self.rb3 = wx.RadioButton(self, -1, 'y-axis only\n(SLOW!)', (10, 10))
+			self.rb4 = wx.RadioButton(self, -1, '2D (no mask)', (10, 10))
+			self.rb5 = wx.RadioButton(self, -1, '2D with mask\n(warning: very high memory usage)', (10, 10))
 
 			radio_settings_box.Add(self.rb1, flag=wx.RIGHT, border=10)
 			radio_settings_box.Add(self.rb2, flag=wx.RIGHT, border=10)
 			radio_settings_box.Add(self.rb3, flag=wx.RIGHT, border=10)
 			radio_settings_box.Add(self.rb4, flag=wx.RIGHT, border=10)
+			radio_settings_box.Add(self.rb5, flag=wx.RIGHT, border=10)
 		
 			#Boy I miss C-style swith-case	
 			if self.interp_mode == InterpolationModes._none:
@@ -106,10 +108,10 @@ class PlotSetupDialog(Dialog):
 				self.rb2.SetValue(True)
 			elif self.interp_mode == InterpolationModes._y:
 				self.rb3.SetValue(True)
-			else:
+			elif self.interp_mode == InterpolationModes._2d_no_mask:
 				self.rb4.SetValue(True)
-
-
+			else: 
+				self.rb5.SetValue(True)
 		## Input: Max Grid Points
 		if (all (item > 0 for item in max_mesh)):
 			self.has_max_mesh_value = True
@@ -169,7 +171,9 @@ class PlotSetupDialog(Dialog):
 			if self.rb3.GetValue():
 				self.interp_mode = self.InterpolationModes._y
 			if self.rb4.GetValue():
-				self.interp_mode = self.InterpolationModes._2d
+				self.interp_mode = self.InterpolationModes._2d_no_mask
+			if self.rb5.GetValue():
+				self.interp_mode = self.InterpolationModes._2d_full_mask
 
 		if self.has_max_mesh_value: # update the values typed in (but ENTER not pressed) for max_x, max_y
 			self.OnXValue()

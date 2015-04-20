@@ -94,7 +94,7 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		#Limit the number of grid points on each axis:
 		self.max_mesh = [401, 401] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
-		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh, '_y',
+		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'color'], self.max_mesh, '_2d_no_mask',
 				*args, **kwargs)
 
 		self.parent = parent
@@ -109,8 +109,10 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 			return
 
 		try:
-			if self.interp_mode == '_2d':
-				color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data, self.max_mesh)
+			if self.interp_mode == '_2d_no_mask':
+				color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data, self.max_mesh, has_mask=False)
+			elif self.interp_mode == '_2d_full_mask':
+				color_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data, self.max_mesh, has_mask=True)
 			elif self.interp_mode == '_y':
 				color_data, x_bounds, y_bounds, _ = triples_to_mesh_y(x_data, y_data, z_data, self.max_mesh)
 			else:

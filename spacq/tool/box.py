@@ -1,6 +1,6 @@
 from functools import wraps
 from itertools import chain
-from numpy import linspace, meshgrid, sort, unique, where, nan, zeros, ones, arange
+from numpy import linspace, meshgrid, sort, unique, where, nan, zeros, ones, arange, fliplr
 from numpy import min as npmin
 from scipy.interpolate import griddata, interp1d
 
@@ -49,7 +49,7 @@ def get_mask(x,y, tx, ty):
 	
 
 
-def triples_to_mesh(x, y, z, max_mesh=[-1,-1]):
+def triples_to_mesh(x, y, z, max_mesh=[-1,-1], has_mask=False):
 	"""
 	Convert 3 equal-sized lists of co-ordinates into an interpolated 2D mesh of z-values.
 
@@ -74,10 +74,11 @@ def triples_to_mesh(x, y, z, max_mesh=[-1,-1]):
 
 	target_x, target_y = meshgrid(x_space, y_space)
 
-	mask =	get_mask (x, y, x_space, y_space)
-	
 	target_z = griddata((x, y), z, (target_x, target_y), method='cubic')
-	target_z = target_z * mask
+
+	if (has_mask):	
+		mask =	get_mask (x, y, x_space, y_space)
+		target_z = target_z * mask
 
 	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
 			(min(z), max(z)))
@@ -95,7 +96,6 @@ def triples_to_mesh_y(x, y, z, max_mesh=[-1,-1]):
 		the y bounds
 		the z bounds
 	"""
-
 	x_values, y_values = sort(unique(x)), sort(unique(y))
 
 	display_len_x = len(x_values)
@@ -104,20 +104,21 @@ def triples_to_mesh_y(x, y, z, max_mesh=[-1,-1]):
 	else:
 		display_len_y = len(y_values)
 
+	x_space = x_values
 	y_space = linspace(y_values[0], y_values[-1], display_len_y)
-
 	xperiod = float(len(x)) / len(x_values)
 
 	target_z = zeros([display_len_x, display_len_y])
 
-	for i, xi in enumerate(x_values):
+	for i, xi in enumerate(x_space):
 		yrange = arange(i*xperiod, (i+1)*xperiod-1).tolist()
 		fy = interp1d (y[yrange], z[yrange], kind='cubic', bounds_error=False)
 		tempy = fy(y_space)
 		target_z[i] = tempy
 
 	target_z = target_z.T
-	
+	if(x[0] - x[-1])>0:
+		target_z = fliplr(target_z)	
 
 	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
 			(min(z), max(z)))

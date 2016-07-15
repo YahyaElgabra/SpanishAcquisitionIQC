@@ -106,7 +106,7 @@ class ListLiveViewPanel(wx.Panel):
 		# Defaults.
 		self.plot_settings = PlotSettings()
 
-		self.enabled = False
+		self.enabled = True
 		self.capturing_data = False
 		self.resource_backup = None
 

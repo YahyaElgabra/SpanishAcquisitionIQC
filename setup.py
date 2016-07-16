@@ -9,7 +9,7 @@ def included_package(p):
 
 setup(
 	name='SpanishAcquisition',
-	version='2.0.2b',
+	version='2.0.3',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
 	maintainer='Kaveh Gharavi',
@@ -17,7 +17,7 @@ setup(
 	description='Package for interfacing with devices and building user '
 			'interfaces.',
 	license='BSD',
-	url='http://ghwatson.github.com/SpanishAcquisitionIQC/',
+	url='https://github.com/mainCSG/SpanishAcquisitionIQC',
 	packages=[p for p in find_packages() if included_package(p)],
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',

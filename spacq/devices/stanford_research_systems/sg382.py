@@ -139,7 +139,7 @@ class SG382(AbstractDevice):
 	@quantity_unwrapped('V')
 	def BNCAmplitude(self,value):
 		if value < self.minBNCAmp or value > self.maxBNCAmp:
-			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minFreq, self.maxFreq))
+			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minBNCAmp, self.maxBNCAmp))
 		
 		self.write('AMPL {0} VPP'.format(value))
 		
@@ -154,7 +154,7 @@ class SG382(AbstractDevice):
 	@quantity_unwrapped('V')
 	def typeNAmplitude(self,value):
 		if value < self.minTypeNAmp or value > self.maxTypeNAmp:
-			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minFreq, self.maxFreq))
+			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minTypeNAmp, self.maxTypeNAmp))
 		
 		self.write('AMPR {0} VPP'.format(value))
 		

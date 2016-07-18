@@ -184,7 +184,10 @@ class ch6VoltageSourceSettingsPanel(wx.Panel):
 			port_box = wx.StaticBoxSizer(port_static_box, wx.HORIZONTAL)
 			ports_box.Add(port_box, flag=wx.ALL, border=5)
 
-			spin = FloatSpin(self, value=0, min_val=-5, max_val=5, increment=1, digits=6)
+			if port < 4:
+				spin = FloatSpin(self, value=0, min_val=-5, max_val=5, increment=1, digits=6)
+			else:
+				spin = FloatSpin(self, value=0, min_val=-10, max_val=10, increment=1, digits=6)
 			self.port_value_inputs.append(spin)
 			port_box.Add(spin)
 

@@ -42,8 +42,15 @@ class SR830DSP(AbstractDevice):
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		read_only = ['amplitude_x', 'amplitude_y', 'amplitude_R', 'angle_theta']
+		for name in read_only:
+			self.resources[name] = Resource(self, name, name, name, name)
+
 		self.resources['reference_amplitude'].units = 'V'
 		self.resources['reference_freq'].units = 'Hz'
+		self.resources['amplitude_x'].units = 'V'
+		self.resources['amplitude_y'].units = 'V'
+		self.resources['amplitude_R'].units = 'V'
 		#self.resources['integration_time'].allowed_values = self.allowed_nplc
 		#self.resources['auto_zero'].allowed_values = self.allowed_auto_zero
 
@@ -95,6 +102,41 @@ class SR830DSP(AbstractDevice):
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_amp, self.max_amp))
 
 		self.write('SLVL {0}'.format(value))
+
+	@property
+	@quantity_wrapped('V')
+	def amplitude_x(self):
+		"""
+		The amplitude of the x component of lock-in signal
+		"""
+
+		return float(self.ask('OUTP? 1'))
+
+	@property
+	@quantity_wrapped('V')
+	def amplitude_y(self):
+		"""
+		The amplitude of the y component of lock-in signal
+		"""
+
+		return float(self.ask('OUTP? 2'))
+
+	@property
+	@quantity_wrapped('V')
+	def amplitude_R(self):
+		"""
+		The amplitude of the R magnitude of lock-in signal
+		"""
+
+		return float(self.ask('OUTP? 3'))
+
+	@property
+	def angle_theta(self):
+		"""
+		The amplitude of the angle theta of lock-in signal
+		"""
+
+		return float(self.ask('OUTP? 4'))
 
 
 name = 'SR830 DSP'

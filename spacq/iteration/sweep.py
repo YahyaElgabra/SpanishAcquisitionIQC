@@ -439,9 +439,9 @@ class SweepController(object):
 			if times > 1:
 				osc.fastframe = True
 				osc.fastframe_sum = 'average'
-				osc.fastframe_count = times + 1
+				osc.fastframe_count = times
 
-				if osc.fastframe_count != times + 1:
+				if osc.fastframe_count != times:
 					raise ValueError('Cannot average {0} times; check the oscilloscope'.format(times))
 			else:
 				osc.fastframe = False
@@ -472,8 +472,8 @@ class SweepController(object):
 			osc.opc
 
 			acqs = osc.acquisitions
-			if acqs != times:
-				raise ValueError('Incorrect number of acquisitions made: {0}'.format(acqs))
+			#if acqs != times:
+			#	raise ValueError('Incorrect number of acquisitions made: {0}'.format(acqs))
 
 		return self.read
 

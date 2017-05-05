@@ -70,6 +70,7 @@ class SR830DSP(AbstractDevice):
 		self.write('*rst')
 
 	@property
+	@Synchronized()
 	@quantity_wrapped('Hz')
 	def reference_freq(self):
 		"""
@@ -79,6 +80,7 @@ class SR830DSP(AbstractDevice):
 		return float(self.ask('FREQ?'))
 
 	@reference_freq.setter
+	@Synchronized()
 	@quantity_unwrapped('Hz')
 	def reference_freq(self, value):
 		if value < self.min_freq or value > self.max_freq:
@@ -87,6 +89,7 @@ class SR830DSP(AbstractDevice):
 		self.write('FREQ {0}'.format(value))
 
 	@property
+	@Synchronized()
 	@quantity_wrapped('V')
 	def reference_amplitude(self):
 		"""
@@ -96,6 +99,7 @@ class SR830DSP(AbstractDevice):
 		return float(self.ask('SLVL?'))
 
 	@reference_amplitude.setter
+	@Synchronized()
 	@quantity_unwrapped('V')
 	def reference_amplitude(self, value):
 		if value < self.min_amp or value > self.max_amp:
@@ -104,6 +108,7 @@ class SR830DSP(AbstractDevice):
 		self.write('SLVL {0}'.format(value))
 
 	@property
+	@Synchronized()
 	@quantity_wrapped('V')
 	def amplitude_x(self):
 		"""
@@ -113,6 +118,7 @@ class SR830DSP(AbstractDevice):
 		return float(self.ask('OUTP? 1'))
 
 	@property
+	@Synchronized()
 	@quantity_wrapped('V')
 	def amplitude_y(self):
 		"""
@@ -122,6 +128,7 @@ class SR830DSP(AbstractDevice):
 		return float(self.ask('OUTP? 2'))
 
 	@property
+	@Synchronized()
 	@quantity_wrapped('V')
 	def amplitude_R(self):
 		"""
@@ -131,6 +138,7 @@ class SR830DSP(AbstractDevice):
 		return float(self.ask('OUTP? 3'))
 
 	@property
+	@Synchronized()
 	def angle_theta(self):
 		"""
 		The amplitude of the angle theta of lock-in signal

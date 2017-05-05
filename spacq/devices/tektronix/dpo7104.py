@@ -382,7 +382,7 @@ class DPO7104(AbstractDevice):
 		if value not in self.allowed_fastframe_sums:
 			raise ValueError('Invalid summary frame mode: {0}'.format(value))
 
-		return self.write('horizontal:fastframe:state {0}'.format(value))
+		return self.write('horizontal:fastframe:sumframe {0}'.format(value))
 
 	@property
 	def fastframe_count(self):

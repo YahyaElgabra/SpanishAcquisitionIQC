@@ -70,8 +70,7 @@ class Port(AbstractSubdevice):
 		if self.do_apply_settings:
 			self.apply_settings(calibrate=False)
 
-	def __init__(self, device, num, resolution=20, apply_settings=True, min_value=-10,
-			max_value=+10, adaptive_filtering=True, calibrate_connected=False,
+	def __init__(self, device, num, max_value, resolution=20, apply_settings=True, adaptive_filtering=True, calibrate_connected=False,
 			fast_settling=True,	freq=100, *args, **kwargs):
 		"""
 		Initialize the output port.
@@ -96,7 +95,7 @@ class Port(AbstractSubdevice):
 		self.num = num
 		self.resolution = resolution
 		self.do_apply_settings = apply_settings
-		self.min_value = min_value
+		self.min_value = -max_value
 		self.max_value = max_value
 		self.adaptive_filtering = adaptive_filtering
 		self.calibrate_connected = calibrate_connected
@@ -288,7 +287,12 @@ class VoltageSource(AbstractDevice):
 
 		self.ports = []
 		for num in xrange(16):
-			port = Port(self, num, **self.port_settings)
+			if num < 6:
+				port = Port(self, num, 1, **self.port_settings)
+			elif num < 12:
+				port = Port(self, num, 2.5, **self.port_settings)
+			else:
+				port = Port(self, num, 10, **self.port_settings)
 			self.ports.append(port)
 			self.subdevices['port{0:02}'.format(num)] = port
 

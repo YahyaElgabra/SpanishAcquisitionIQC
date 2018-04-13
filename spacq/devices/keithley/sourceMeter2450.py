@@ -74,6 +74,7 @@ class sm2450(AbstractDevice):
 	@quantity_unwrapped('V')
 	def voltageOut(self,value):
 		self.write('SOUR:VOLT {0}'.format(value))
+		self.currentOutputVoltage = value
 		
 	@property
 	@quantity_wrapped('A')
@@ -84,6 +85,7 @@ class sm2450(AbstractDevice):
 	@quantity_unwrapped('A')
 	def currentOut(self,value):
 		self.write('SOUR:CURR {0}'.format(value))
+		self.currentOutputCurrent = value
 
 
 name = 'sourceMeter 2450'

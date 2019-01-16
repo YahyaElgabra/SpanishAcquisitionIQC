@@ -28,6 +28,7 @@ else:
 
 try:
 	import visa
+	legacyVisa = visa.__version__ < '1.5'
 except ImportError:
 	pass
 else:
@@ -211,17 +212,22 @@ class AbstractDevice(SuperDevice):
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.pyvisa_usb:
-			class USBDevice(visa.Instrument):
-				"""
-				Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
-				"""
+			try:		
+				if not(legacyVisa):
+					rm = visa.ResourceManager()
+					self.device = rm.open_resource(**self.connection_resource)
+				else:
+					class USBDevice(visa.Instrument):
+						"""
+						Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
+						"""
 
-				def __init__(self, *args, **kwargs):
-					# Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
-					visa.ResourceTemplate.__init__(self, *args, **kwargs)
+						def __init__(self, *args, **kwargs):
+							# Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
+							visa.ResourceTemplate.__init__(self, *args, **kwargs)
 
-			try:
-				self.device = USBDevice(**self.connection_resource)
+					self.device = USBDevice(**self.connection_resource)
+				
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
@@ -311,7 +317,10 @@ class AbstractDevice(SuperDevice):
 					raise
 		elif self.driver == drivers.pyvisa_usb:
 			# Send the message raw.
-			visa.vpp43.write(self.device.vi, message)
+			if not(legacyVisa):
+				self.device.write_raw(message)
+			else:
+				visa.vpp43.write(self.device.vi, message)
 
 	@Synchronized()
 	def read_raw(self, chunk_size=512):
@@ -327,10 +336,7 @@ class AbstractDevice(SuperDevice):
 			try:
 				buf = self.device.read_raw()
 			except visa.VisaIOError as e:
-				if e.error_code == visa.VI_ERROR_TMO:
-					raise DeviceTimeout(e)
-				else:
-					raise
+				raise
 		elif self.driver == drivers.lgpib:
 			status = 0
 			while status == 0:
@@ -463,3 +469,4 @@ class AbstractSubdevice(SuperDevice):
 		self.device = device
 
 		self._setup()
+

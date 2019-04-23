@@ -28,7 +28,11 @@ else:
 
 try:
 	import visa
-	legacyVisa = visa.__version__ < '1.5'
+	try:
+		legacyVisa = visa.__version__ < '1.5'
+	except:
+		legacyVisa = 1 # Some of the mutilated/old visas don't have __version__, but they are all legacy
+	
 except ImportError:
 	pass
 else:

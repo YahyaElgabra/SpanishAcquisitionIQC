@@ -1,16 +1,20 @@
+#!/usr/bin/env python2
+
+import logging
+logging.basicConfig(level=logging.WARNING)
+
 import wx
 import numpy
 
-# from spacq.gui.config.variables import VariablesPanel
+from spacq import VERSION
 from spacq.gui.global_store import GlobalStore
 from spacq.gui.config.virtual_variables import MultipleVariableConfigPanel, DependentVariableConfigPanel
 from spacq.iteration.virtual_variables import virtLinSpaceConfig, DependentConfig, virtSweepController, sort_output_variables
 from spacq.gui.tool.box import Dialog, MessageDialog, save_csv
 
-# C:\Users\Zachary\github\SpanishAcquisitionIQC\spacq\gui\config\virtual_variables.py
 
 class VariableSweepFrame(wx.Frame):
-	def __init__(self, parent, global_store, *args, **kwargs):
+	def __init__(self, parent, *args, **kwargs):
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
 		# for evaluation MessageDialog
@@ -74,9 +78,8 @@ class VariableSweepFrame(wx.Frame):
 
 		# Reconfigure shape
 		dependentValues = RetrieveValues[0]
-		print(numpy.shape(dependentValues))
+
 		for values in RetrieveValues[1:]:
-			print(numpy.shape(values))
 			dependentValues = numpy.column_stack((dependentValues, values))
 
 		# Prepare headings and virtual and dependent values for csv writing
@@ -87,22 +90,18 @@ class VariableSweepFrame(wx.Frame):
 		# TODO: need to sort out parent stuff for message dialog
 		try:
 			result = save_csv(self, outputTable, PrintNames)
-			
+
 		except IOError as e:
 			# May need to be self.parent if this error ever gets called
 			# TODO: probably doesnt work hard to test
 			MessageDialog(self, str(e), 'Could not save data').Show()
 			return
 
-class ExplorerApp(wx.App):
-	# def OnIt(self):
-	def __init__(self):
-		wx.App.__init__(self, redirect=False)
-
-		self.global_store = GlobalStore()
+class VirtualSetupApp(wx.App):
+	def OnInit(self):
 
 		#Frames
-		self.exp_frame = VariableSweepFrame(None, self.global_store, title='Explorer')
+		self.exp_frame = VariableSweepFrame(None, title='Virtual Setup')
 
 		# Menu.
 		menuBar = wx.MenuBar()
@@ -127,13 +126,15 @@ class ExplorerApp(wx.App):
 		self.exp_frame.Raise()
 
 		self.exp_frame.Show(True)
-		# return True
+
+		return True
 
 	def OnMenuHelpAbout(self, evt=None):
 		info = wx.AboutDialogInfo()
-		info.SetName('Acquisition')
+		info.SetName('Virtual Setup')
 		info.SetDescription(
-			'An application for sweeping device values and acquiring data.\n'
+			'An application for setting up linear sweeps of virtual\n'
+			'variables for output variables.\n'
 			'\n'
 			'Using Spanish Acquisition version {0}.'.format(VERSION)
 		)
@@ -141,5 +142,5 @@ class ExplorerApp(wx.App):
 		wx.AboutBox(info)
 
 if __name__ == "__main__":
-	app = ExplorerApp()
+	app = VirtualSetupApp()
 	app.MainLoop()

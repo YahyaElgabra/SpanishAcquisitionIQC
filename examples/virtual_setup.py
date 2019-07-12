@@ -79,12 +79,17 @@ class VariableSweepFrame(wx.Frame):
 		# Reconfigure shape
 		dependentValues = RetrieveValues[0]
 
-		for values in RetrieveValues[1:]:
-			dependentValues = numpy.column_stack((dependentValues, values))
+		if len(RetrieveValues) == 1:
+			# Go from list to numpy column
+			dependentValues = numpy.c_[dependentValues]
+		else:
+			for values in RetrieveValues[1:]:
+				dependentValues = numpy.column_stack((dependentValues, values))
 
 		# Prepare headings and virtual and dependent values for csv writing
 		PrintNames = sweepSweep.names
 		PrintNames.extend(dependentNames)
+		
 		outputTable = numpy.append(sweepSweep.value_history,dependentValues, axis=1)
 
 		# TODO: need to sort out parent stuff for message dialog

@@ -1,5 +1,4 @@
 import wx
-
 # TODO: replace 6 with some variable
 """
 An interface for defining virtual swept variables and writing to
@@ -9,19 +8,19 @@ class MultipleVariableConfigPanel(wx.Panel):
 	def __init__(self, parent, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
-		# Panel
-		multiple_static_box = wx.StaticBox(self, label= 'Virtual Variable Setup')
-		# sizer_box = wx.StaticBoxSizer(multiple_static_box, wx.VERTICAL)
+		self.initial_var_count = 4
 
-		panel_box = wx.StaticBoxSizer(multiple_static_box,wx.VERTICAL)
-		# sizer_box.Add(panel_box)
-		# self.current_count = 4
+		# Panel
+
+		multiple_static_box = wx.StaticBox(self, label= 'Virtual Variable Setup')
+
+		self.panel_box = wx.StaticBoxSizer(multiple_static_box,wx.VERTICAL)
 
 		count_setup = wx.BoxSizer(wx.HORIZONTAL)
-		panel_box.Add(count_setup, flag=wx.ALL, border=5)
+		self.panel_box.Add(count_setup, flag=wx.ALL, border=5)
 		# TODO: determine max count
 		label = wx.StaticText(self, label='Number of Virtual Variables')
-		self.var_count = wx.SpinCtrl(self, min=1, initial=2, max=6)
+		self.var_count = wx.SpinCtrl(self, min=1, initial=2, max=100)
 		button = wx.Button(self, label='Update')
 		self.Bind(wx.EVT_BUTTON, self.OnUpdate, button)
 
@@ -29,30 +28,37 @@ class MultipleVariableConfigPanel(wx.Panel):
 		count_setup.Add(self.var_count, flag=wx.ALL, border=5)
 		count_setup.Add(button, flag=wx.ALL, border=5)
 
-		value_setup = wx.BoxSizer(wx.HORIZONTAL)
-		panel_box.Add(value_setup, flag=wx.ALL, border=5)
+		# Class attribute so can add to in OnUpdate
+		self.value_setup = wx.BoxSizer(wx.HORIZONTAL)
+		self.panel_box.Add(self.value_setup, flag=wx.ALL, border=5)
 
+		# Labels for virtual variable inputs
 		label_setup = wx.BoxSizer(wx.VERTICAL)
-		value_setup.Add(label_setup, flag=wx.EXPAND|wx.ALL, border=5)
+		label_setup.AddSpacer(5)
 		label_setup.Add(wx.StaticText(self, label='Name'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		label_setup.AddSpacer(8)
 		label_setup.Add(wx.StaticText(self, label='Initial:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		label_setup.AddSpacer(8)
 		label_setup.Add(wx.StaticText(self, label='Final:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		label_setup.AddSpacer(8)
 		label_setup.Add(wx.StaticText(self, label='Steps:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		label_setup.AddSpacer(8)
 		label_setup.Add(wx.StaticText(self, label='Order:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		self.value_setup.Add(label_setup, flag=wx.EXPAND|wx.ALL, border=5)
 
 		# for i in range(0,self.variable_count.GetValue()):
-		self.name_value = [None]*6
-		self.start_value = [None]*6
-		self.end_value = [None]*6
-		self.step_value = [None]*6
-		self.order_value = [None]*6
+		self.name_value = [None]*self.initial_var_count
+		self.start_value = [None]*self.initial_var_count
+		self.end_value = [None]*self.initial_var_count
+		self.step_value = [None]*self.initial_var_count
+		self.order_value = [None]*self.initial_var_count
 
-		for i in range(0,6):
+		for i in range(0,self.initial_var_count):
 			mini_setup = wx.BoxSizer(wx.VERTICAL)
 			self.name_value[i] = wx.TextCtrl(self, value="VirtVar{0}".format(i))
 			mini_setup.Add(self.name_value[i], flag=wx.EXPAND|wx.ALL, border=5)
@@ -65,24 +71,47 @@ class MultipleVariableConfigPanel(wx.Panel):
 			self.order_value[i] = wx.SpinCtrl(self, min=1, initial=1, max=1e9)
 			mini_setup.Add(self.order_value[i], flag=wx.EXPAND|wx.ALL, border=5)
 
-			value_setup.Add(mini_setup, flag=wx.EXPAND|wx.ALL, border=5)
+			self.value_setup.Add(mini_setup, flag=wx.EXPAND|wx.ALL, border=5)
 
-		self.SetSizerAndFit(panel_box)
+		self.SetSizerAndFit(self.panel_box)
 
 	def OnUpdate(self, evt=None):
 		EnableCount = self.var_count.Value
+
+		# Adding more than initially setup with
+		if EnableCount > self.initial_var_count:
+			for i in range(self.initial_var_count,EnableCount):
+				self.name_value.append(wx.TextCtrl(self, value="VirtVar{0}".format(i)))
+				self.start_value.append(wx.TextCtrl(self, value="1"))
+				self.end_value.append(wx.TextCtrl(self, value="2"))
+				self.step_value.append(wx.SpinCtrl(self, min=1, initial=3, max=1e9))
+				self.order_value.append(wx.SpinCtrl(self, min=1, initial=1, max=1e9))
+
+				mini_setup = wx.BoxSizer(wx.VERTICAL)
+				mini_setup.Add(self.name_value[i], flag=wx.EXPAND|wx.ALL, border=5)
+				mini_setup.Add(self.start_value[i], flag=wx.EXPAND|wx.ALL, border=5)
+				mini_setup.Add(self.end_value[i], flag=wx.EXPAND|wx.ALL, border=5)
+				mini_setup.Add(self.step_value[i], flag=wx.EXPAND|wx.ALL, border=5)
+				mini_setup.Add(self.order_value[i], flag=wx.EXPAND|wx.ALL, border=5)
+
+				self.value_setup.Add(mini_setup, flag=wx.EXPAND|wx.ALL, border=5)
+			self.SetSizerAndFit(self.panel_box)
+			self.initial_var_count = EnableCount
+
 		for i in range(0,EnableCount):
 			self.name_value[i].Show()
 			self.start_value[i].Show()
 			self.end_value[i].Show()
 			self.step_value[i].Show()
 			self.order_value[i].Show()
-		for i in range(EnableCount,6):
+		for i in range(EnableCount,self.initial_var_count):
 			self.name_value[i].Hide()
 			self.start_value[i].Hide()
 			self.end_value[i].Hide()
 			self.step_value[i].Hide()
 			self.order_value[i].Hide()
+
+		self.SetSizerAndFit(self.panel_box)
 
 	def GetValue(self):
 		try:
@@ -111,7 +140,7 @@ class DependentVariableConfigPanel(wx.Panel):
 		static_panel_box.Add(count_setup, flag=wx.ALL, border=5)
 		# TODO: determine max count
 		label = wx.StaticText(self, label='Number of Virtual Variables')
-		self.dependent_count = wx.SpinCtrl(self, min=1, initial=2, max=6)
+		self.dependent_count = wx.SpinCtrl(self, min=1, initial=2, max=100)
 		button = wx.Button(self, label='Update')
 		self.Bind(wx.EVT_BUTTON, self.OnUpdate, button)
 

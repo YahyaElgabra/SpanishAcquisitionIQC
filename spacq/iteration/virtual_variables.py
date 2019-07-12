@@ -68,12 +68,10 @@ class DependentConfig(object):
 
 
     def DependentFunctionMath(self, virt_headings, virt_values):
-        # self.dependent_count
-        # editExpressions = [self.expression_value[i] for i,enabled in enumerate(self.enable) if enabled]
+
         editExpression = self.expression
 
         for i,heading in enumerate(virt_headings):
-            # print(heading)
             # shouldnt be issue because disabled are always on tail?
             editExpression = editExpression.replace(heading,'virt_values[:,{0}]'.format(i))
 
@@ -82,13 +80,16 @@ class DependentConfig(object):
             result = numpy.zeros((1,len(virt_values)))[0]
         else:
             try:
-                result = eval(editExpression)
-            except NameError as e:
-                # MessageDialog(self,  str(e), 'Could not evaluate').Show()
-                print('Could not evaluate.')
+                # Allows for constant input
+                result = numpy.ones((1,len(virt_values)))[0]*float(editExpression)
+            except ValueError as e:
+                try:
+                    result = eval(editExpression)
+                except NameError as e:
+                    # MessageDialog(self,  str(e), 'Could not evaluate').Show()
+                    print('Could not evaluate.')
 
-        print(type(result))
-        print(result)
+        tempEval = eval(editExpression)
 
         return result
 
@@ -218,7 +219,6 @@ class virtSweepController(object):
             counter = 0
             for pos in self.full_indices[0:]:
                 for i, (var,value) in enumerate(zip(self.variables[pos],self.current_values[pos])):
-                    # print('{0} {1}'.format(var.name,value))
                     self.value_history[self.item][counter] = value
                     counter += 1
 

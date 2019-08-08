@@ -175,7 +175,7 @@ class DependentVariableConfigPanel(scrolled.ScrolledPanel):
         count_setup = wx.BoxSizer(wx.HORIZONTAL)
         static_panel_box.Add(count_setup, flag=wx.ALL, border=5)
 
-        label = wx.StaticText(self, label='Number of Virtual Variables')
+        label = wx.StaticText(self, label='Number of Dependent Variables')
         self.dependent_count = wx.SpinCtrl(self, min=1, initial=2, max=100)
         button = wx.Button(self, label='Update')
         self.Bind(wx.EVT_BUTTON, self.OnUpdate, button)

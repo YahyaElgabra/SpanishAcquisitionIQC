@@ -23,10 +23,10 @@ The variable configuration panel is used to set up :ref:`output variables <gener
    5. The values over which the output variable will be stepped. If there are too many values, some are omitted from the display. The symbols on either side of the values specify whether that side is set smoothly: "(" and ")" if smoothly (as for **gate 1**); "[" and "]" if not (as for the other variables).
 
       If there are any units associated with a variable, they are displayed after the values.
-      
+
       If it is a condition variable, then the conditions will be displayed.
 
-   6. For each step of an output variable, after writing the value to the resource, there is a delay of at least the wait time. In each order, the delay for all output variables is the longest of the wait times in that order. The effective wait time for **gate 4** is 200 ms.  
+   6. For each step of an output variable, after writing the value to the resource, there is a delay of at least the wait time. In each order, the delay for all output variables is the longest of the wait times in that order. The effective wait time for **gate 4** is 200 ms.
 
       For condition variables, this represents a delay that is held after a condition is checked and before measurements are taken again.  The condition variable's overall boolean value could change within this timespan.
    7. The "const" checkbox. Variables which have this checked (such as **gate 2**) are considered *constant* and are subject to special consideration in some scenarios.
@@ -81,7 +81,7 @@ The configuration shown :ref:`above <variable_config_figure>` would result in th
    \               \               0.0 V     \        5.0 V
    ==============  ==============  ========  =======  =======
 
-   Between steps of variables in order 2, if **gate 1** set to smoothly transition, resource **v1** is smoothly stepped from 0.0 V to -5.0 V.  
+   Between steps of variables in order 2, if **gate 1** set to smoothly transition, resource **v1** is smoothly stepped from 0.0 V to -5.0 V.
    Also, before each step in order 2 occurs, **gate 1 condition** is evaluated for its current boolean value.  Everytime, it should evaluate to true since **gate 1** always has a value of 0.0 V at the end of order 1.
 
 #. Resource **v1** is smoothly stepped from 0 V to -2.5 V.
@@ -113,6 +113,11 @@ Arbitrary
 
 Values are provided directly as a sequence of comma-separated numbers (with ignored whitespace). For example, the input "1, 32 , -5,6.543,0,0 , 1" would result in the values: 1, 32, -5, 6.543, 0, 0, 1.
 
+From File
+---------
+
+Values are provided from a column of comma-separated values (CSV) file. Clicking “Load CSV” opens dialog to select a CSV file from the directory. Heading names of columns of the CSV table are displayed which can be then be selected and preview first three values. Values from selected column of the CSV are auto-filled as an arbitrary input. 
+
 .. _variable_config_condition_variable_editor_dialog:
 
 Condition variable editor dialog
@@ -143,5 +148,3 @@ The condition editor is accessed by double-clicking a condition in the :ref:`con
    ..
 
 The operator, the arguments and their types are what define a condition as has been described :ref:`here <general_concepts_condition_variables_conditions>`.
-
-

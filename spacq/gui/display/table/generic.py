@@ -163,6 +163,7 @@ class TabularDisplayPanel(wx.Panel):
 	def __len__(self):
 		return self.table.ItemCount
 
+	# TODO: has headers does not function as intended, never will reach code to give header names
 	def from_csv_data(self, has_header, values):
 		"""
 		Import the given CSV data into the table.

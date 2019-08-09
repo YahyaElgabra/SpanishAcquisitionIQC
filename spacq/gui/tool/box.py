@@ -78,6 +78,10 @@ def save_pickled(parent, values, extension=None, file_type=None):
 def load_csv(parent, extension='csv', file_type='CSV'):
 	"""
 	Load data from a CSV file based on a file dialog.
+
+	ZParrott: has_header functions partially in that it removes a blank first
+	row, but hte has_header boolean then fails in subsequent dependicies where
+	it has meaning of having a column title or not.
 	"""
 
 	wildcard = determine_wildcard(extension, file_type)

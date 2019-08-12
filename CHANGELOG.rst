@@ -1,6 +1,13 @@
 #######
 Changes
 #######
+* 2019-08-09: **2.0.4**
+        Zachary Parrott
+
+* Added ability to use a CSV file to generate values for output variables. 
+* Additional program in \examples for setting up a virtual sweep titled 'Virtual Setup'
+
+
 * 2015-04-13: **2.0.2b**
         Kaveh Gharavi (kayghar@gmail.com)
 

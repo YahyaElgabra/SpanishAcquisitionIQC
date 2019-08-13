@@ -30,6 +30,9 @@ class SR830DSP(AbstractDevice):
 	min_freq = .001 # Hz
 	max_freq = 102000 # Hz
 
+	min_phase = -360 # degrees
+	max_phase = 729 # degrees
+
 	def _setup(self):
 		AbstractDevice._setup(self)
 
@@ -38,7 +41,7 @@ class SR830DSP(AbstractDevice):
 		#for name in read_only:
 		#	self.resources[name] = Resource(self, name)
 
-		read_write = ['reference_freq', 'reference_amplitude']
+		read_write = ['reference_freq', 'reference_amplitude', 'reference_phase']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -51,8 +54,6 @@ class SR830DSP(AbstractDevice):
 		self.resources['amplitude_x'].units = 'V'
 		self.resources['amplitude_y'].units = 'V'
 		self.resources['amplitude_R'].units = 'V'
-		#self.resources['integration_time'].allowed_values = self.allowed_nplc
-		#self.resources['auto_zero'].allowed_values = self.allowed_auto_zero
 
 	@Synchronized()
 	def _connected(self):
@@ -87,6 +88,21 @@ class SR830DSP(AbstractDevice):
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_freq, self.max_freq))
 
 		self.write('FREQ {0}'.format(value))
+
+	@property
+	def reference_phase(self):
+		"""
+		The phase of the internal oscillator
+		"""
+
+		return float(self.ask('PHAS?'))
+
+	@reference_phase.setter
+	def reference_phase(self, value):
+		if float(value) < self.min_phase or float(value) > self.max_phase:
+			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_phase, self.max_phase))
+
+		self.write('PHAS {0}'.format(value))
 
 	@property
 	@Synchronized()

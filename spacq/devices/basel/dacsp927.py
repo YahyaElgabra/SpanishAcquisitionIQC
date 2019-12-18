@@ -81,9 +81,9 @@ class Port(AbstractSubdevice):
 		result = self.hex_to_voltage(result_hex)
 		self.currentVoltage = result
 		
-class sim900(AbstractDevice):
+class Dacsp927(AbstractDevice):
 	"""
-	Interface for the SRS Sim900+Sim928 voltage source
+	Interface for the Physics Basel DAC SP 927 voltage source
 	"""
 	
 	def _setup(self):
@@ -91,9 +91,9 @@ class sim900(AbstractDevice):
 
 		self.ports = []
 		for num in range(8):
-			port = Port(self, num+1, 20, **self.port_settings) # Naming convention on sim900 goes 1 to 8
+			port = Port(self, num+1, **self.port_settings) # Naming convention for DAC SP 927 goes 1 to 8
 			self.ports.append(port)
-			self.subdevices['port{0:02}'.format(num+1)] = port
+			self.subdevices['port{0}'.format(num+1)] = port
 
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""
@@ -112,8 +112,7 @@ class sim900(AbstractDevice):
 	def _connected(self):
 		AbstractDevice._connected(self)
 		# Add any initialization here. Careful: if you reconnect it will run this
-		self.write('*RST')
 
 
-name = 'SIM900+SIM928 Voltage Source'
-implementation = sim900
+name = 'dacsp927 Voltage Source'
+implementation = Dacsp927

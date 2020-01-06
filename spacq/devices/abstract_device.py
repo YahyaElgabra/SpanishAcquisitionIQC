@@ -14,7 +14,7 @@ Hardware device abstraction interface.
 
 
 # PyVISA, Linux GPIB, PyVISA USB.
-drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb'])
+drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb', 'telnet'])
 
 
 # Try to import all available drivers.
@@ -27,6 +27,14 @@ except ImportError:
 	pass
 else:
 	available_drivers.append(drivers.lgpib)
+
+try:
+	import telnetlib
+	import socket
+except ImportError:
+	pass
+else:
+	available_drivers.append(drivers.telnet)
 
 try:
 	import visa
@@ -118,7 +126,7 @@ class SuperDevice(object):
 
 class AbstractDevice(SuperDevice):
 	"""
-	A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.
+	A class for controlling devices which can be connected to either via Ethernet and (PyVISA or Telnet) or GPIB and Linux GPIB.
 	"""
 
 	max_timeout = 15 # s
@@ -133,11 +141,15 @@ class AbstractDevice(SuperDevice):
 
 		self.status = []
 
-	def __init__(self, ip_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
+	def __init__(self, ip_address=None, host_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
 			usb_resource=None, autoconnect=True):
 		"""
 		Ethernet (tcpip::<ip_address>::instr):
 			ip_address: Address on which the device is listening on port 111.
+
+		Telnet (<host_address>):
+			host_address: String that list the IP address of the host.
+				Named this way to avoid issues with ip_address used for ethernet connections
 
 		GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
 			gpib_board: GPIB board index. Defaults to 0.
@@ -163,6 +175,17 @@ class AbstractDevice(SuperDevice):
 				}
 			else:
 				raise NotImplementedError('PyVISA required, but not available.')
+		
+		elif host_address is not None:
+			if drivers.telnet in available_drivers:
+				log.debug('Using telnet with host_address="{0}".'.format(host_address))
+				self.driver = drivers.telnet
+				self.connection_resource = {
+					'resource_name': '{0}'.format(host_address),
+				}
+			else:
+				raise NotImplementedError('Telnetlib required, but not available.')
+
 		elif gpib_pad is not None:
 			if drivers.lgpib in available_drivers:
 				log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
@@ -192,7 +215,7 @@ class AbstractDevice(SuperDevice):
 			else:
 				raise NotImplementedError('PyVISA required, but not available.')
 		else:
-			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
+			raise ValueError('Either an IP, Host Address, GPIB, or USB address must be specified.')
 
 		if autoconnect:
 			self.connect()
@@ -216,6 +239,12 @@ class AbstractDevice(SuperDevice):
 					self.device = visa.Instrument(**self.connection_resource)
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+		elif self.driver == drivers.telnet:
+			try:
+				self.device = telnetlib.Telnet(**self.connection_resource)
+			except Exception as e:
+				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+
 		elif self.driver == drivers.lgpib:
 			try:
 				self.device = Gpib.Gpib(**self.connection_resource)
@@ -317,6 +346,16 @@ class AbstractDevice(SuperDevice):
 					raise DeviceTimeout(e)
 				else:
 					raise
+
+		elif self.driver == drivers.telnet:
+			try:
+				self.device.write(message)
+			except Exception:
+				if e is socket.timeout:
+					raise DeviceTimeout(e)
+				else:
+					raise
+
 		elif self.driver == drivers.lgpib:
 			try:
 				self.device.write(message)
@@ -325,6 +364,7 @@ class AbstractDevice(SuperDevice):
 					raise DeviceTimeout(e)
 				else:
 					raise
+
 		elif self.driver == drivers.pyvisa_usb:
 			# Send the message raw.
 			if not(legacyVisa):
@@ -347,6 +387,16 @@ class AbstractDevice(SuperDevice):
 				buf = self.device.read_raw()
 			except visa.VisaIOError as e:
 				raise
+
+		elif self.driver == drivers.telnet:
+			try:
+				buf = self.device.read_until('\r\n',5).rstrip('\r\n')
+			except Exception:
+				if e is socket.timeout:
+					raise DeviceTimeout(e)
+				else:
+					raise
+
 		elif self.driver == drivers.lgpib:
 			status = 0
 			while status == 0:

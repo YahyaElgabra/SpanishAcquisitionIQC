@@ -212,7 +212,8 @@ class DeviceConfigPanel(wx.Panel):
 			self.ip_address_input.SetValue(dev_cfg.ip_address)
 
 		## Telnet
-		self.host_address_input.SetValue(dev_cfg.host_address)
+		if dev_cfg.host_address:
+			self.host_address_input.SetValue(dev_cfg.host_address)
 
 		## GPIB.
 		self.gpib_board_input.Value = dev_cfg.gpib_board

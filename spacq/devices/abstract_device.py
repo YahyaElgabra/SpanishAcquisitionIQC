@@ -182,6 +182,7 @@ class AbstractDevice(SuperDevice):
 				self.driver = drivers.telnet
 				self.connection_resource = {
 					'host': '{0}'.format(host_address),
+					'timeout':2
 				}
 			else:
 				raise NotImplementedError('Telnetlib required, but not available.')

@@ -99,6 +99,22 @@ class DeviceConfigPanel(wx.Panel):
 		self.usb_resource_input = wx.TextCtrl(self, size=(300, -1))
 		usb_sizer.Add(self.usb_resource_input, proportion=1)
 
+		### Telnet
+		telnet_static_box = wx.StaticBox(self)
+		telnet_box = wx.StaticBoxSizer(telnet_static_box, wx.VERTICAL)
+		address_sizer.Add(telnet_box, proportion=1)
+
+		self.address_mode_eth = wx.RadioButton(self, label='Telnet', style=wx.RB_GROUP)
+		telnet_box.Add(self.address_mode_eth)
+
+		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		telnet_box.Add(telnet_sizer, flag=wx.EXPAND)
+
+		telnet_sizer.Add(wx.StaticText(self, label='IP address:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.ip_address_input = IpAddrCtrl(self)
+		telnet_sizer.Add(self.ip_address_input, flag=wx.CENTER)
+
 		## Implementation.
 		implementation_static_box = wx.StaticBox(self, label='Implementation')
 		implementation_box = wx.StaticBoxSizer(implementation_static_box, wx.HORIZONTAL)

@@ -181,7 +181,7 @@ class AbstractDevice(SuperDevice):
 				log.debug('Using telnet with host_address="{0}".'.format(host_address))
 				self.driver = drivers.telnet
 				self.connection_resource = {
-					'resource_name': '{0}'.format(host_address),
+					'host': '{0}'.format(host_address),
 				}
 			else:
 				raise NotImplementedError('Telnetlib required, but not available.')

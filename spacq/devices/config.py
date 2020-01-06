@@ -190,7 +190,7 @@ class DeviceConfig(object):
 
 				address['ip_address'] = self.ip_address
 
-			elif self.address_mode == self.address_modes.host_address:
+			elif self.address_mode == self.address_modes.telnet:
 				address['telnet'] = self.host_address
 			elif self.address_mode == self.address_modes.gpib:
 				address['gpib_board'] = self.gpib_board

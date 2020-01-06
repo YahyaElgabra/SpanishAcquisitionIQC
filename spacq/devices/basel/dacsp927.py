@@ -81,7 +81,7 @@ class Port(AbstractSubdevice):
 		result = self.hex_to_voltage(result_hex)
 		self.currentVoltage = result
 		
-class Dacsp927(AbstractDevice):
+class dacsp927(AbstractDevice):
 	"""
 	Interface for the Physics Basel DAC SP 927 voltage source
 	"""
@@ -115,4 +115,4 @@ class Dacsp927(AbstractDevice):
 
 
 name = 'dacsp927 Voltage Source'
-implementation = Dacsp927
+implementation = dacsp927

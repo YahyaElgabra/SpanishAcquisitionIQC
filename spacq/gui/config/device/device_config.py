@@ -57,6 +57,22 @@ class DeviceConfigPanel(wx.Panel):
 		self.ip_address_input = IpAddrCtrl(self)
 		ethernet_sizer.Add(self.ip_address_input, flag=wx.CENTER)
 
+		### Telnet
+		telnet_static_box = wx.StaticBox(self)
+		telnet_box = wx.StaticBoxSizer(telnet_static_box, wx.VERTICAL)
+		address_sizer.Add(telnet_box, proportion=1)
+
+		self.address_mode_tel = wx.RadioButton(self, label='Telnet', style=wx.RB_GROUP)
+		telnet_box.Add(self.address_mode_tel)
+
+		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		telnet_box.Add(telnet_sizer, flag=wx.EXPAND)
+
+		telnet_sizer.Add(wx.StaticText(self, label='Host:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.host_address_input = IpAddrCtrl(self)
+		telnet_sizer.Add(self.host_address_input, flag=wx.CENTER)
+
 		### GPIB.
 		self.gpib_static_box = wx.StaticBox(self)
 		gpib_box = wx.StaticBoxSizer(self.gpib_static_box, wx.VERTICAL)
@@ -99,22 +115,6 @@ class DeviceConfigPanel(wx.Panel):
 		self.usb_resource_input = wx.TextCtrl(self, size=(300, -1))
 		usb_sizer.Add(self.usb_resource_input, proportion=1)
 
-		### Telnet
-		telnet_static_box = wx.StaticBox(self)
-		telnet_box = wx.StaticBoxSizer(telnet_static_box, wx.VERTICAL)
-		address_sizer.Add(telnet_box, proportion=1)
-
-		self.address_mode_eth = wx.RadioButton(self, label='Telnet', style=wx.RB_GROUP)
-		telnet_box.Add(self.address_mode_eth)
-
-		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
-		telnet_box.Add(telnet_sizer, flag=wx.EXPAND)
-
-		telnet_sizer.Add(wx.StaticText(self, label='IP address:'),
-				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.ip_address_input = IpAddrCtrl(self)
-		telnet_sizer.Add(self.ip_address_input, flag=wx.CENTER)
-
 		## Implementation.
 		implementation_static_box = wx.StaticBox(self, label='Implementation')
 		implementation_box = wx.StaticBoxSizer(implementation_static_box, wx.HORIZONTAL)
@@ -148,6 +148,8 @@ class DeviceConfigPanel(wx.Panel):
 	def get_address_mode(self):
 		if self.address_mode_eth.Value:
 			return DeviceConfig.address_modes.ethernet
+		elif self.address_mode_tel.Value:
+			return DeviceConfig.address_modes.telnet
 		elif self.address_mode_gpib.Value:
 			return DeviceConfig.address_modes.gpib
 		elif self.address_mode_usb.Value:
@@ -165,6 +167,9 @@ class DeviceConfigPanel(wx.Panel):
 			dev_cfg.ip_address = possible_address
 		else:
 			dev_cfg.ip_address = None
+
+		## Telnet
+		dev_cfg.host_address = self.host_address_input.GetAddress()
 
 		## GPIB.
 		dev_cfg.gpib_board = self.gpib_board_input.Value
@@ -205,6 +210,9 @@ class DeviceConfigPanel(wx.Panel):
 		## Ethernet.
 		if dev_cfg.ip_address:
 			self.ip_address_input.SetValue(dev_cfg.ip_address)
+
+		## Telnet
+		self.host_address_input.SetValue(dev_cfg.host_address)
 
 		## GPIB.
 		self.gpib_board_input.Value = dev_cfg.gpib_board

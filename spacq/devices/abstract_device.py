@@ -6,6 +6,8 @@ from time import time
 
 from spacq.tool.box import Enum, Synchronized
 
+from packaging import version
+
 """
 Hardware device abstraction interface.
 """
@@ -29,7 +31,7 @@ else:
 try:
 	import visa
 	try:
-		legacyVisa = visa.__version__ < '1.5'
+		legacyVisa = version.parse(visa.__version__) < version.parse('1.5')
 	except:
 		legacyVisa = 1 # Some of the mutilated/old visas don't have __version__, but they are all legacy
 	
@@ -207,7 +209,11 @@ class AbstractDevice(SuperDevice):
 
 		if self.driver == drivers.pyvisa:
 			try:
-				self.device = visa.Instrument(**self.connection_resource)
+				if not(legacyVisa):
+					rm = visa.ResourceManager()
+					self.device = rm.open_resource(**self.connection_resource)
+				else:
+					self.device = visa.Instrument(**self.connection_resource)
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.lgpib:

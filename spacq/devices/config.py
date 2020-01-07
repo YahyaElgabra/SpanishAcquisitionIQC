@@ -191,6 +191,8 @@ class DeviceConfig(object):
 				address['ip_address'] = self.ip_address
 
 			elif self.address_mode == self.address_modes.telnet:
+				if self.host_address is None:
+					raise ConnectionError('No Host address specified.')
 				address['host_address'] = self.host_address
 			elif self.address_mode == self.address_modes.gpib:
 				address['gpib_board'] = self.gpib_board

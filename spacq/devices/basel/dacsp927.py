@@ -41,8 +41,11 @@ class Port(AbstractSubdevice):
 
 		# Gets current voltage in hex, convert it to volts and save the result
 		result_hex = self.device.ask('{0} V?\n'.format(self.num))
-		result = self.hex_to_voltage(result_hex)
-		self.currentVoltage = result
+		if result_hex is not None:
+			result = self.hex_to_voltage(result_hex)
+			self.currentVoltage = result
+		else:
+			self.currentVoltage = None
 
 	# Converts from hex to voltage (see user manual for more info)
 	def hex_to_voltage(self, number):

@@ -35,12 +35,12 @@ class Port(AbstractSubdevice):
 		AbstractSubdevice._connected(self)
 
 		# Turn on port
-		output = self.device.ask('{0} ON\n'.format(self.num))
+		output = self.device.ask_raw('{0} ON\r\n'.format(self.num))
 		if output != 0:
 			Warning("Device not connected!") 
 
 		# Gets current voltage in hex, convert it to volts and save the result
-		result_hex = self.device.ask('{0} V?\n'.format(self.num))
+		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num))
 		if result_hex is not "":
 			result = self.hex_to_voltage(result_hex)
 			self.currentVoltage = result
@@ -76,11 +76,11 @@ class Port(AbstractSubdevice):
 		Set the voltage on this port, as a quantity in V.
 		"""
 		value_hex = self.voltage_to_hex(value)
-		output = self.device.ask('{0} {1}\n'.format(self.num, value_hex))
+		output = self.device.ask('{0} {1}\r\n'.format(self.num, value_hex))
 		if output != 0:
 			Warning("Voltage not properly set!") 
 
-		result_hex = self.device.ask('{0} V?\n'.format(self.num))
+		result_hex = self.device.ask('{0} V?\r\n'.format(self.num))
 		print(2)
 		result = self.hex_to_voltage(result_hex)
 		self.currentVoltage = result

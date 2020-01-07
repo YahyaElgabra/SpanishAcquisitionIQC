@@ -62,7 +62,7 @@ class DeviceConfigPanel(wx.Panel):
 		telnet_box = wx.StaticBoxSizer(telnet_static_box, wx.VERTICAL)
 		address_sizer.Add(telnet_box, proportion=1)
 
-		self.address_mode_tel = wx.RadioButton(self, label='Telnet', style=wx.RB_GROUP)
+		self.address_mode_tel = wx.RadioButton(self, label='Telnet')
 		telnet_box.Add(self.address_mode_tel)
 
 		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)

@@ -181,8 +181,7 @@ class AbstractDevice(SuperDevice):
 				log.debug('Using telnet with host_address="{0}".'.format(host_address))
 				self.driver = drivers.telnet
 				self.connection_resource = {
-					'host': '{0}'.format(host_address),
-					'timeout':2
+					'host': '{0}'.format(host_address)
 				}
 			else:
 				raise NotImplementedError('Telnetlib required, but not available.')
@@ -242,7 +241,7 @@ class AbstractDevice(SuperDevice):
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.telnet:
 			try:
-				self.device = telnetlib.Telnet(**self.connection_resource)
+				self.device = telnetlib.Telnet(timeout=5, **self.connection_resource)
 			except Exception as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
@@ -269,6 +268,7 @@ class AbstractDevice(SuperDevice):
 					self.device = USBDevice(**self.connection_resource)
 				
 			except visa.VisaIOError as e:
+				print(1)
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
 		try:

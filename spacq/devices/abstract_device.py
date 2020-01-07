@@ -239,7 +239,7 @@ class AbstractDevice(SuperDevice):
 					self.device = visa.Instrument(**self.connection_resource)
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
-		elif self.driver == drivers.telnet:=======
+		elif self.driver == drivers.telnet:
 			self.device = telnetlib.Telnet(timeout=2, **self.connection_resource)
 
 		elif self.driver == drivers.lgpib:

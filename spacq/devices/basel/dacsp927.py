@@ -35,17 +35,16 @@ class Port(AbstractSubdevice):
 		AbstractSubdevice._connected(self)
 
 		# Turn on port
-		output = self.device.ask_raw('{0} ON\r\n'.format(self.num))
+		output = self.device.ask_raw('{0} ON\r\n'.format(self.num)).strip('\r\n')
 		if output != 0:
-			Warning("Device not connected!") 
-
+			Warning("Device not connected!")
 		# Gets current voltage in hex, convert it to volts and save the result
-		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num))
+		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
 		if result_hex is not "":
 			result = self.hex_to_voltage(result_hex)
 			self.currentVoltage = result
 		else:
-			self.currentVoltage = None
+			self.currentVoltage = 0
 
 	# Converts from hex to voltage (see user manual for more info)
 	def hex_to_voltage(self, number):
@@ -53,7 +52,7 @@ class Port(AbstractSubdevice):
 
 	# Converts from hex to voltage (see user manual for more info)
 	def voltage_to_hex(self, voltage):
-		return hex(int(round(((voltage+10)*838848), 0)))
+		return hex(int(round(((voltage+10)*838848), 0)))[2:] #remove 0x that python adds automatically to hex
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -76,13 +75,16 @@ class Port(AbstractSubdevice):
 		Set the voltage on this port, as a quantity in V.
 		"""
 		value_hex = self.voltage_to_hex(value)
-		output = self.device.ask('{0} {1}\r\n'.format(self.num, value_hex))
+		print(value_hex)
+		output = self.device.ask_raw('{0} {1}\r\n'.format(self.num, value_hex)).strip('\r\n')
+		print(output)
 		if output != 0:
 			Warning("Voltage not properly set!") 
 
-		result_hex = self.device.ask('{0} V?\r\n'.format(self.num))
-		print(2)
+		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
+		print(result_hex)
 		result = self.hex_to_voltage(result_hex)
+		print(result)
 		self.currentVoltage = result
 		
 class dacsp927(AbstractDevice):

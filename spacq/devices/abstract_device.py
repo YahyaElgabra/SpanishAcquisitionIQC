@@ -388,8 +388,8 @@ class AbstractDevice(SuperDevice):
 
 		elif self.driver == drivers.telnet:
 			try:
-				buf = self.device.read_eager()
-			except Exception:
+				buf = self.device.read_until('\r\n')
+			except Exception as e:
 				if e is socket.timeout:
 					raise DeviceTimeout(e)
 				else:

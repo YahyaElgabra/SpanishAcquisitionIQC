@@ -265,7 +265,6 @@ class AbstractDevice(SuperDevice):
 					self.device = USBDevice(**self.connection_resource)
 				
 			except visa.VisaIOError as e:
-				print(1)
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
 		try:

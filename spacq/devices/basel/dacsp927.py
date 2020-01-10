@@ -75,16 +75,12 @@ class Port(AbstractSubdevice):
 		Set the voltage on this port, as a quantity in V.
 		"""
 		value_hex = self.voltage_to_hex(value)
-		print(value_hex)
 		output = self.device.ask_raw('{0} {1}\r\n'.format(self.num, value_hex)).strip('\r\n')
-		print(output)
 		if output != 0:
 			Warning("Voltage not properly set!") 
 
 		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
-		print(result_hex)
 		result = self.hex_to_voltage(result_hex)
-		print(result)
 		self.currentVoltage = result
 		
 class dacsp927(AbstractDevice):

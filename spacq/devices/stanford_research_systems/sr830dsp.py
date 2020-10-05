@@ -32,6 +32,9 @@ class SR830DSP(AbstractDevice):
 
 	min_phase = -360 # degrees
 	max_phase = 729 # degrees
+    
+	min_aux = -10.5 # V
+	max_aux = 10.5 # V
 
 	def _setup(self):
 		AbstractDevice._setup(self)
@@ -41,7 +44,7 @@ class SR830DSP(AbstractDevice):
 		#for name in read_only:
 		#	self.resources[name] = Resource(self, name)
 
-		read_write = ['reference_freq', 'reference_amplitude', 'reference_phase']
+		read_write = ['reference_freq', 'reference_amplitude', 'reference_phase','aux_output_1','aux_output_2']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -54,6 +57,8 @@ class SR830DSP(AbstractDevice):
 		self.resources['amplitude_x'].units = 'V'
 		self.resources['amplitude_y'].units = 'V'
 		self.resources['amplitude_R'].units = 'V'
+		self.resources['aux_output_1'].units = 'V'
+		self.resources['aux_output_2'].units = 'V'
 
 	@Synchronized()
 	def _connected(self):
@@ -161,6 +166,36 @@ class SR830DSP(AbstractDevice):
 		"""
 
 		return float(self.ask('OUTP? 4'))
+    
+	@property
+	@Synchronized()
+	@quantity_wrapped('V')
+	def aux_output_1(self):
+		return float(self.ask('AUXV? 1'))
+    
+	@aux_output_1.setter
+	@Synchronized()
+	@quantity_unwrapped('V')
+	def aux_output_1(self,value):
+		if value < self.min_aux or value > self.max_aux:
+			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_aux, self.max_aux))
+
+		self.write('AUXV 1,{0}'.format(value))
+        
+	@property
+	@Synchronized()
+	@quantity_wrapped('V')
+	def aux_output_2(self):
+		return float(self.ask('AUXV? 2'))
+    
+	@aux_output_2.setter
+	@Synchronized()
+	@quantity_unwrapped('V')
+	def aux_output_2(self,value):
+		if value < self.min_aux or value > self.max_aux:
+			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_aux, self.max_aux))
+
+		self.write('AUXV 2,{0}'.format(value))
 
 
 name = 'SR830 DSP'

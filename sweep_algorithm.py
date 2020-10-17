@@ -242,6 +242,17 @@ def find_plateau(Vrf_params,Vdc_params,scan_range,scan_increment,poly_deg,platea
     print '\n','Final plateaus found:',plateaus
     return plateaus
 
+def sweep_algorithm():
+    """
+        Wrapper function for find plateaus, arguments the same as find_plateaus, also does some post-processing
+
+        Inputs: Vrf_params (array), Vdc_params (array), scan_range (float), scan_increment (float), poly_deg (int), plateau_tol (float)
+
+        Outputs: 
+    """
+
+    return
+
 Vdc_params = [0.64,0.67]
 Vrf_params = [0.63,0.7]
 scan_range = 0.02
@@ -249,7 +260,15 @@ scan_increment = 0.01
 poly_deg = 6
 plateau_tol = 0.02
 
-find_plateau(Vrf_params,Vdc_params,scan_range,scan_increment,poly_deg,plateau_tol)
+
+
+
+plateaus = find_plateau(Vrf_params,Vdc_params,scan_range,scan_increment,poly_deg,plateau_tol)
+
+if plateaus:
+    reduce_Vqpc(0.1)    # arbitrary value -> needs to be fixed
+    print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx NO PLATEAUS FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    break               # Exit the loop (only done for testing right now)
 
 print history
 

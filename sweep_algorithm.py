@@ -1,9 +1,10 @@
-##############################################################
-# sweep_algorithm()
-# This function solves intiates a sweep based on data to tune the pumping procedure
-# Andres Lombo 2020-10-10
-
+############################################################################################################################
+# sweep_algorithm()                                                                                                        #
+# This function solves intiates a sweep based on data to tune the pumping procedure                                        #
+# Andres Lombo 2020-10-10                                                                                                  #
+############################################################################################################################
 """
+
     Control steps:
 
     1. Turn on Rf component of Vrf
@@ -13,99 +14,163 @@
     5. Repeat until plateaus are formed
 
     Libary versions: 
-
     numpy 1.16.6
     matplotlib 2.2.5
     scipy 1.2.3
+    lmfit 0.9.15
+
+    current in [nA], voltage in [V]
 
 """ 
+
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.signal
+from scipy.constants import e
 import csv
+from scipy.optimize import curve_fit
 
-# Separation between successive Vdc and Vrf points in .csv
-inc = 0.002
-history = []                # problems with cycling before? -> not in the ranges we do
+current_dict = {}
+history = []
 
 # Create dictionary for curent value lookup
 # Note all keys are values with 3 decimal places to avoid rounding issues
-current_dict = {}
-with open('SEP_tuning_files/2D_sweep_RF_DC.csv','r') as file:               # taken at 1.2Ghz
+with open('SEP_tuning_files/pumping_data.csv','r') as file:               
     reader = csv.reader(file)
     line_count = 0
     for row in reader:
         if line_count != 0:
-            key1 = str(round(float(row[0]),3))
-            key2 = str(round(float(row[1]),3))
-            current_dict[(key1,key2)] = row[2]
-            #print(row)
+            key1 = round(float(row[7])/10,3)                                    # as Vrf data is x10 amplified
+            key2 = float(row[6])                                                # as Vdc data is ___ amplified
+            current_dict[(key1,key2)] = float(row[8])
         line_count += 1
 
 def get_current(Vrf, Vdc):
 
     """ 
+        FIX THIS FUNCTION 
+
         This function returns the current value for a given (Vrf, Vdc)
         It also records the history of Vrf, Vdc, and I accessed
-        To be replaced with another interface
+        To be replaced with acutal interface
 
         Inputs: Vrf (float), Vdc (float)
 
         Outputs: I (float)
 
     """
-    current = float(current_dict[(str(round(Vrf,3)),str(round(Vdc,3)))])
+    current = current_dict[Vrf,Vdc]
     history.append([Vrf,Vdc,current])
     return current
 
-def set_Vrf(i):
-    """
-        Dummy function for setting Vrf
-    """
-    return i
+def turn_on_rf_component_of_Vrf(RF):
+    """ 
+        FIX THIS FUNCTION 
 
-def set_Vdc(i):
-    """
-        Dummy function for setting Vdc
-    """
-    return i
+        This function turns on the RF component of VRF at a fiven value
 
-def reduce_Vqpc(i):
+        Inputs: RF (float)
     """
-        Dummy function for reducing Vqpc
+    return RF
+
+def set_Vdc(Vdc):
+    """ 
+        FIX THIS FUNCTION
+
+        This function fixes Vdc at a given value
+
+        Inputs: Vdc (float)
+     """
+
+    return Vdc
+
+def set_Vrf(Vrf):
+    """ 
+        FIX THIS FUNCTION
+
+        This function fixes Vrf at a given value
+
+        Inputs: Vrf (float)
+     """
+
+    return Vrf
+
+def f(x, a, d1, d2):
     """
-    return i
+    Function for fitting <n> plateaus
 
-def RF_component():
-    return True
+    y = exp(-exp(-a*(x-c)+d1)) + exp(-exp(-a*(x-c)+d2)) + In
 
-def measure(Vdc,l,r):
+    a controls the steepness
+    d1, d2 control the offsets of the two exponentials
+    d is a bias current
+    n_i = current values for n
+    diff = d1 - d2 controls the extent of the plateau in the middle
+
+    For parameters between 1 and 100, added conversion factors
+    all paramters are positive in function
+    
     """
-        This function returns an array of current values for a
-        sweep of Vrf at a fixed Vdc
+    A = 10*a
+    D1 = 10*d1
+    D2 = 10*d2
+    y = e * (frequency) * (1e9) * ( np.exp(-np.exp(-A*x+D1)) + np.exp(-np.exp(-A*x+D2)) + N)
+    return y
 
-        Inputs: Vdc (float), l (float), r (float)
-        Outputs: current_array (array)
+def plot_plateau(x,y,p,n,Vdc):
     """
-    current = []
-    Vrf_array = np.linspace(l,r,((abs(l-r))/inc)+1)
-    for i in Vrf_array:
-        Vrf = set_Vrf(i)
-        current.append(get_current(Vrf,Vdc))
-    return np.asarray(current)
+        Wrapper to plot the results one at a time
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Vrf [V]')
+    ax.set_ylabel('Current [nA]')
+    fig.suptitle('Vdc = '+str(Vdc)+' n = '+str(n), fontsize=24)
+    
+    plt.plot(x,y,'x',label='Experimental data')     
+    t = np.linspace(min(x),max(x),1000)
+    plt.plot(t,f(t,p[0],p[1],p[2]),label='Fit')
+    plt.axhline(y=n*e*frequency*1e9, color='black', linestyle='-')
 
-def find_plateau(Vrf_params,Vdc_params,scan_range,frequency,poly_deg,plateau_tol):
+    ax.legend()
+    plt.show(block=True)
+    plt.pause(0.3)
+    plt.close()
+    
+    return None
+
+def perform_fit(xdata,ydata,initial,n):
+    """
+        This function performs a fit using the logistic function
+
+        Inputs: xdata (array), ydata (array), inital (array), n (int)
+
+        xdata: array of floats to fit
+        ydata: array of floats to fit
+        initial: [a_0, d1_0, d2_0]
+        n: integer number of current plateau to be evaluated
 
     """
-    This funciton finds the plateau in the current by looking at polynomial derivatives
+    try:
+        p, pcov = curve_fit(f,xdata,ydata,p0=initial)
+        delta = p[2]-p[1]
+        error = sum([ abs(ydata[i] - f(xdata[i],p[0],p[1],p[2])) for i in range(len(xdata)) ])
+    except:
+        print "ERROR: RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev"
+        return 0, 0, [0,0,0,0], [None]
+    return abs(delta), error, p, pcov
 
-    Inputs: Vrf_params (array), Vdc_params (array), scan_range (float), frequency (int), poly_deg (int), plateau_tol (float)
-        Vrf_params = [Vrf_start,Vrf_end] (float) [V]
-        Vdc_params = [Vdc_start,Vdc_end] (float) [V]
-        scan_range: range of scan to find plateau [V]
-        frequency: frequency of sweep [Hz]
-        poly_deg: degree of polynomial fit 
+def find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error):
+
+    """
+    This funciton finds the plateau in the current by fitting a logistic function
+
+    Inputs: Vrf_params (array), Vdc_params (array), scan_range (float), plateau_tol (float), epsilon (float), frequency (float), fit_error: (float)
+        Vrf_array = array of Vrf values to sweep (float) [V]
+        Vdc_array = array of Vdc values to sweep (float) [V]
+        scan_range: number of data points for fit
         plateau_tol: plateau tolerance [nA]
+        epsilon: tolerance for F'(X) [nA/V]
+        frequency: obvious [Hz]
 
     Outputs: [Vrf_final, Vdc_final] (array)
 
@@ -114,117 +179,53 @@ def find_plateau(Vrf_params,Vdc_params,scan_range,frequency,poly_deg,plateau_tol
 
     Errors: 
         -1: Sweeping outside allowed scan range
-        -2: Not enough data points in a sweep to perform polyfit
+        -2: Not enough data points in a sweep to perform fit
 
-    Recomendations:
-        -   Try to keep poly_deg low if the scan_range is low to minimize error ie. polyfit poorly conditioned
-
-    """ 
-    # Still need to do error checking for variables
-
-    print '\n','Running find_plateaus. Sweeeping Vdc ->', Vdc_params, '. Sweeping Vrf ->', Vrf_params
-
-    # Turn on Rf component of Vrf
-    RF_component()
-
-    # Fix Vdc at Vdc_min
-    Vdc = set_Vdc(Vdc_params[0])
-    print 'Fixed Vdc =', Vdc
-
-    iteration = 1
-    length = (scan_range/inc) + 1
-
-    if (scan_range/inc)+1 < poly_deg:
-        # Current settings might not allow for a good polyfit
-        print '________ERROR________'
-        print 'Number of points in a sweep', (length), 'is less than the order of the polyfit',(poly_deg)
-        exit()
-
-    while True:
-
-        # Set an intial Vrf 
-        Vrf = set_Vrf(Vrf_params[0])   
-        print '\n','--------- iteration ', iteration,' Vdc:', Vdc,' ---------\n'
-
-        current_array = []
-        n = 1
-        I_n = n*(1.60217662e-19)*frequency                                          # Target current 
-
-        while True:           
-
-            current_array.append(get_current(Vrf,Vdc))                              # Build current_array
-            if len(current_array) > length:                                         # Trim the array
-                current_array.pop(0)
-                #plot_current(Vrf-scan_range,Vrf,current_array)
-
-                check_plateau(Vrf-scan_range,Vrf,current_array,poly_deg)
-
-            #if np.isclose(I_n,current_array[round(len(current_array)/2)],0.01):     # Check if array is centered around target current
-            #    found_plateau = check_plateau(Vrf-scan_range,Vrf,current_array)
-
-            Vrf += inc
-            if Vrf >= Vrf_params[1]:
-                print 'Reached Vrf_max'
-                break
-        
-        iteration += 1
-        Vdc += inc
-        if Vdc >= Vdc_params[1]:
-            print 'Reached Vdc_max'
-            break
-
-    return
-
-def check_plateau(start,end,current,poly_deg):
-    # Fit polynomial and its derivatives
-    x = np.linspace(start,end,len(current))
-    y = np.array(current)
-    p = np.poly1d(np.polyfit(x,y,poly_deg))                            
-    p1 = np.polyder(p)   
-    p2 = np.polyder(p1)
-    error = sum(abs(p(x) - y))
-    roots_p1 = np.roots(p1)
-    roots_p2 = np.roots(p2)
-    real_roots_p1 = [r.real for r in roots_p1 if np.isclose(r.imag, 0) and (start <= r.real <= end)]
-    real_roots_p2 = [r.real for r in roots_p2 if np.isclose(r.imag, 0) and (start <= r.real <= end)]
     """
-        Conditions to be met for X to classify as plateau:
-        1. f''(X) == 0                                                      (or at least ~= 0 in the future?)
-        2. | f'([X_left,X_right]) | <  epsilon
-        3. | f([X_left,X_right]) | < plateau_tol                            # make sure this lines up roughly with integer value
-        4. current around plateau is above min_current                      # At least one electron about ~0.9
-    """
-    plot_current(start,end,current,p,p1,real_roots_p1,p2,real_roots_p2)
-    
-    return
+    # Turn on RF component of Vrf
+    dummy = turn_on_rf_component_of_Vrf(0)
 
-def plot_current(start,end,current,p=None,p1=None,p1_roots=None,p2=None,p2_roots=None):
-    x = np.linspace(start,end,len(current))
-    y = np.array(current)
-    fig = plt.figure()
-    fig.suptitle('Vrf ='+str([start,end]))
-    plt.plot(x,y)
-    if p:                                                       # Optionally plot the polyfit
-        plt.plot(np.linspace(start,end,1000),p(np.linspace(start,end,1000)))
-    if p1 and p1_roots:                                         # Optionally plot the 1st derivative
-        plt.plot(p1_roots,p(p1_roots),'o', color='black')
-    if p2 and p2_roots:                                         # Optionally plot the 1st derivative
-        plt.plot(p2_roots,p(p2_roots),'x', color='red')
-    for n in [1,2]:
-        I_N = n*(1.60217662e-19)*frequency*1e9
-        xx = np.linspace(start,end,1000)
-        yy =  np.array(1000*[I_N])
-        plt.plot(xx,yy)
-    plt.show(block=False)
-    plt.pause(2)
-    return
+    for Vdc in Vdc_array:
 
-Vrf_params = [0.63,0.7]
-Vdc_params = [0.65,0.67]
-scan_range = 0.02
+        # Fix Vdc
+        dummy = set_Vdc(Vdc)
+
+        x = []
+        y = []
+
+        for Vrf in Vrf_array:
+            dummy = set_Vrf(Vrf)
+            x.append(Vrf)
+            y.append(get_current(Vrf,Vdc))
+            if len(x) == scan_range:
+                for n in range(1,5):
+                    global N
+                    N = n - 1
+                    cond1 = (abs(y[scan_range/2] - n*e*frequency*(1e9)) < 0.002)
+                    cond2 = True not in [(abs(y[i] - n*e*frequency*(1e9)) > plateau_tol) for i in range(scan_range)]
+                    rec3 = np.abs(np.diff(x)) < epsilon
+                    cond3 = False not in rec3
+
+                    if cond1 and cond2 and cond3:
+                        initial = [-2.5,-2.5*x[0],-2.5*x[scan_range-1]]
+                        delta, error, p, pcov = perform_fit(x,y,initial,n)
+                        if error < fit_error:
+                            print "========================================"
+                            print 'delta: ',str(delta),'error: '+str(error)
+                            print('best_vals: {}'.format(p))
+                            print "========================================\n"
+                            plot_plateau(x,y,p,n,Vdc)
+                x.pop(0)
+                y.pop(0)
+    return None
+
 frequency = 100e6
-poly_deg = 5
-plateau_tol = 0.02
+Vrf_array = [float(x)/1000 for x in range(710,801)] 
+Vdc_array = [0.001, 0.01, 0.02, 0.04, 0.05]
+scan_range = 17
+plateau_tol = 0.015
+epsilon = 0.1
+fit_error = 0.03
 
+x, y, delta, error = find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error)
 
-plateaus = find_plateau(Vrf_params,Vdc_params,scan_range,frequency,poly_deg,plateau_tol)

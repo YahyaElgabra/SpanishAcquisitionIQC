@@ -100,3 +100,76 @@ for k in range(1):
             ax2.get_yaxis().set_ticks([])
             ax2.get_xaxis().set_ticks([])
             plt.show()
+
+# Ideal
+
+from spacq.interface.units import Quantity
+# initialize virtual voltage source
+from spacq.devices.virtual.virtinst import virtinst
+
+def pumping_point(threshold_1, threshold_2):
+    """
+    threshold_1 : Determines when V_rf and V_dc should stop being increased in tandem. Current through device will not exceed this value.
+    threshold_2 : Low limit. We wish to attempt pumping near this value of current.
+    """
+
+    # This for loop steps v_rf and v_dc in tandem until turn on is achieved
+    for v_rf_, v_dc_ in zip(v_rf_vals, v_dc_vals):
+
+        virtual_inst.set_v_rf(v_rf_)
+        virtual_inst.set_v_dc(v_dc_)
+        current = virtual_inst.get_current()
+        # Once the current threshold for turn on is achieved, lower each individually until turn off occurs
+        if current.value > threshold_1.value:
+            turn_on_point = (v_rf_, v_dc_)
+            print turn_on_point
+
+            count_rf = 1
+            pumping_point = [v_rf_, v_dc_]
+            # Drop the voltage of v_rf until the current is below the second threshold
+            while True:
+                virtual_inst.set_v_rf(round(v_rf_ - count_rf * step, 3))
+                current = virtual_inst.get_current()
+                if current.value <= threshold_2.value:
+                    pumping_point[0] = v_rf_ - count_rf * step
+                    break
+                count_rf += 1
+
+            count_dc = 1
+            # Drop the voltage of v_dc until the current is below the second threshold
+            while True:
+                virtual_inst.set_v_dc(round(v_dc_ - count_dc * step, 3))
+                current = virtual_inst.get_current()
+                if current.value < threshold_2.value:
+                    pumping_point[1] = v_dc_ - count_rf * step
+                    break
+                count_dc += 1
+            print pumping_point
+            break
+
+    else:
+        print "current not found"
+
+#Implementation of pumping
+
+if __name__ == "__main__":
+    # Define 2 thresholds for corner finding
+    threshold_1 = Quantity(0.5, units = "nA")
+    threshold_2 = Quantity(0.05, units = "nA")
+
+    # Define voltage range we want to step over 
+    # (In practice this can be anything, but for current data, this must not be changed)
+    step = 0.002
+    num_data_points = 51
+    v_rf_vals = [round(0.63 + step*x,3) for x in range(num_data_points)]
+    v_dc_vals = [round(0.63 + step*x,3) for x in range(num_data_points)]
+
+    # Specify where data is stored
+    folder = 'SEP_tuning_files/'
+    filename = '2D_sweep_RF_DC.csv'
+    kwargs = {'data_file':folder+filename}
+
+    #Initialize virtual instrument
+    virtual_inst = virtinst(**kwargs)
+
+    pumping_point(threshold_1, threshold_2)

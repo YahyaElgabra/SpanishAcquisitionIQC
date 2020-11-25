@@ -48,7 +48,7 @@ def conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, Cu
 
         # Once the current threshold for turn on is achieved, lower each DC gate individually until pinch off occurs
         if current.value > turn_on_threshold.value:
-            print 'Turn on occurring at V_rf = ' + v_rf_ + ', V_dc = ' + v_dc_
+            print 'Turn on occurring at V_rf = ' + str(v_rf_) + ', V_dc = ' + str(v_dc_)
 
             # Create empty dict which will store the corner point of the conduction map
             corner_point = dict()
@@ -138,6 +138,7 @@ def dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Ins
     pumping_point or None: Dictionary with 3 elements (V_rf, V_dc and v_qpc) which are the voltages where we should start looking for pumping.
                           If corner was not found, return None.
     '''
+    corner_point = None
     # Loop over possible v_qpc values
     for v_qpc_ in v_qpc_vals:
 
@@ -389,6 +390,7 @@ def _get_current(CurrentReader, gain):
 #TODO Adjust for new code
 if __name__ == "__main__":
     # Testing
+    import time
 
     # Initialalize voltage source
     from spacq.devices.basel.dacsp927 import dacsp927
@@ -404,7 +406,7 @@ if __name__ == "__main__":
 
     # Make a list of just values first, and then make them quantities
     initial_v = 0 # in V
-    final_v = 1 # in V
+    final_v = 1.5 # in V
     v_rf_numbers = np.linspace(initial_v, final_v, 101)
     v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
 
@@ -414,9 +416,9 @@ if __name__ == "__main__":
     V_rf_Instrument = vsource.subdevices['port1']
     V_dc_Instrument = vsource.subdevices['port2']
     CurrentReader = multimeter
-    gain = 1e6
+    gain = 1e8
     turn_on_threshold = Quantity(3 ,units="nA")
-    pinchoff_threshold = Quantity(0.1 ,units="nA")
+    pinchoff_threshold = Quantity(0.01 ,units="nA")
 
     # Run function for single conduction map
     corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
@@ -427,8 +429,17 @@ if __name__ == "__main__":
 
     # V_qpc_Instrument = vsource.subdevices['port3']
 
-    # v_qpc_numbers = [0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
+    # V_qpc_start = 0.5
+    # V_qpc_end = 0.2
+
+    # v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
     # v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
+
+    # dummy_ramp = np.linspace(0, V_qpc_start, 31)
+    # dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
+    # for value in dummy_ramp_quantities:
+    #     V_qpc_Instrument.voltage = value
+    #     time.sleep(0.2)
 
     # offset = Quantity(50, units="mV")
     # pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)

@@ -29,32 +29,6 @@ from scipy.constants import e
 import csv
 from scipy.optimize import curve_fit
 
-current_dict = {}
-history = []
-
-Vrf_array = []
-Vdc_array = []
-
-# Create dictionary for curent value lookup
-# Note all keys are values with 3 decimal places to avoid rounding issues
-with open('SEP_tuning_files/2018-11-23_17-00-39.csv','r') as file:               
-    reader = csv.reader(file)
-    line_count = 0
-    for row in reader:
-        if line_count != 0:
-            key1 = round(float(row[2])/10,3)                                    # as Vrf data is x10 amplified
-            key2 = round(float(row[1])/10,3)                                    # as Vdc data is x10 amplified
-            current_dict[(key1,key2)] = float(row[3])
-
-            if key1 not in Vrf_array:
-                Vrf_array.append(key1)
-            if key2 not in Vdc_array:
-                Vdc_array.append(key2)
-
-            #print (key1,key2),float(row[3])
-        line_count += 1
-
-
 def get_current(Vrf, Vdc):
 
     """ 
@@ -170,7 +144,7 @@ def perform_fit(xdata,ydata,initial,n):
         return 0, 0, [0,0,0,0], [0]
     return abs(delta), error, p, pcov
 
-def find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error):
+def find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error, max_plateaus):
 
     """
     This funciton finds the plateau in the current by fitting a logistic function
@@ -209,7 +183,7 @@ def find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fi
             x.append(Vdc)                       # temporary switch
             y.append(get_current(Vrf,Vdc))      
             if len(x) == scan_range:
-                for n in range(1,5):
+                for n in range(1,max_plateaus):
                     global N
                     N = n - 1
                     cond1 = (abs(y[scan_range/2] - n*e*frequency*(1e9)) < 0.002)
@@ -218,27 +192,61 @@ def find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fi
                     cond3 = False not in rec3
 
                     if cond1 and cond2 and cond3:
-                        initial = [-2.5,-2.5*x[0],-2.5*x[scan_range-1]]
+                        if y[0] > y[scan_range-1]:
+                            initial = [-2.5, -2.5*x[0], -2.5*x[scan_range-1]]
+                        else:
+                            initial = [2.5, 2.5*x[0], 2.5*x[scan_range-1]]
+
                         delta, error, p, pcov = perform_fit(x,y,initial,n)
                         if error < fit_error:
                             print "========================================"
                             print 'delta: ',str(delta),'error: '+str(error)
+                            print('initial_vals: {}'.format(initial))
                             print('best_vals: {}'.format(p))
                             print "========================================\n"
-                            plot_plateau(x,y,p,n,Vdc)
+                            #plot_plateau(x,y,p,n,Vdc)
                 x.pop(0)
                 y.pop(0)
     return None
 
+### Script implementation
+
+current_dict = {}
+history = []
+
+Vrf_array = []
+Vdc_array = []
+
+# Create dictionary for curent value lookup
+# Note all keys are values with 3 decimal places to avoid rounding issues
+with open('SEP_tuning_files/2018-11-23_17-00-39.csv','r') as file:               
+    reader = csv.reader(file)
+    line_count = 0
+    for row in reader:
+        if line_count != 0:
+            key1 = round(float(row[2])/10,3)                                    # as Vrf data is x10 amplified
+            key2 = round(float(row[1])/10,3)                                    # as Vdc data is x10 amplified
+            current_dict[(key1,key2)] = float(row[3])
+
+            if key1 not in Vrf_array:
+                Vrf_array.append(key1)
+            if key2 not in Vdc_array:
+                Vdc_array.append(key2)
+
+            #print (key1,key2),float(row[3])
+        line_count += 1
+
+# Define constants
 frequency = 100e6
 #Vrf_array =  [round(0.76+i*(0.007/3),3) for i in range(211)]                 # for older data: [float(x)/1000 for x in range(710,801)] 
-#Vdc_array =  [round(0.675+i*(0.0245/17),3) for i in range(171)]              # for older data: [0.001, 0.01, 0.02, 0.04, 0.05]
+#SVdc_array =  [round(0.675+i*(0.0245/17),3) for i in range(171)]              # for older data: [0.001, 0.01, 0.02, 0.04, 0.05]
 Vrf_array.sort()
 Vdc_array.sort()
 scan_range = 17
 plateau_tol = 0.015
 epsilon = 0.1
 fit_error = 0.03
+max_plateaus = 5
 
 """
 print '=================================================='
@@ -249,5 +257,5 @@ for j in Vdc_array:
         count = count + 1
 """
 
-x, y, delta, error = find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error)
+find_plateau(Vrf_array,Vdc_array,scan_range,plateau_tol,epsilon,frequency,fit_error, max_plateaus)
 

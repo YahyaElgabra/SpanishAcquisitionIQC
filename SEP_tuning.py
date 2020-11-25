@@ -389,31 +389,53 @@ def _get_current(CurrentReader, gain):
 #TODO Adjust for new code
 if __name__ == "__main__":
     # Testing
-    import time
 
+    # Initialalize voltage source
     from spacq.devices.basel.dacsp927 import dacsp927
     kwargs1 = {'host_address':'192.168.0.5'}
     vsource = dacsp927(**kwargs1)
-    port1 = vsource.subdevices['port1']
 
-    time.sleep(1)
-
-    port1.voltage = Quantity(0.01, units="V")
-
-    time.sleep(1)
-
-    # initialize multimeter
+    # Initialize multimeter
     from spacq.devices.agilent.dm34410a import DM34410A
     kwargs2 = {'ip_address':'192.168.0.7'}
     multimeter = DM34410A(**kwargs2)
 
-    # Define gain
+    ## Define variables used in sweep
+
+    # Make a list of just values first, and then make them quantities
+    initial_v = 0 # in V
+    final_v = 1 # in V
+    v_rf_numbers = np.linspace(initial_v, final_v, 101)
+    v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
+
+    v_dc_numbers = np.linspace(initial_v, final_v, 101)
+    v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
+
+    V_rf_Instrument = vsource.subdevices['port1']
+    V_dc_Instrument = vsource.subdevices['port2']
+    CurrentReader = multimeter
     gain = 1e6
+    turn_on_threshold = Quantity(3 ,units="nA")
+    pinchoff_threshold = Quantity(0.1 ,units="nA")
 
-    current = _get_current(multimeter, gain)
-    print(current)
+    # Run function for single conduction map
+    corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
+    print("Corner: " + str(corner))
 
-    # Script
+    ## If conduction_corner works
+
+
+    # V_qpc_Instrument = vsource.subdevices['port3']
+
+    # v_qpc_numbers = [0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
+    # v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
+
+    # offset = Quantity(50, units="mV")
+    # pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
+
+
+
+    # RF Script
     # # initialize virtual voltage source
     # from spacq.devices.virtual.virtinst import virtinst
 

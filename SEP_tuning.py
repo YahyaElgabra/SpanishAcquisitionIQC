@@ -257,7 +257,6 @@ def pumping_single_sweep(v_pp_val, v_ent_vals, V_pp_Instrument, V_ent_Instrument
                 x.pop(0)
                 y.pop(0)
 
-
 def rf_optimization(v_pp_vals, v_ent_vals, v_ext_vals, V_pp_Instrument, V_ent_Instrument, V_ext_Instrument, CurrentReader, gain, frequency, max_plateau_current):
     '''
     Algorithm which determines a triplet of values for V_ent, V_ext and V_pp which generates pumping.
@@ -386,21 +385,55 @@ def _get_current(CurrentReader, gain):
     current = Quantity(current.value/gain, units="A")
     return current
 
+def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency):
+    # Current from 1 electron per cycle
+    I_1 = e * frequency
+
+    # Sweep over V_dc (V_ent) in outer loop
+    for v_dc_val_ in v_dc_vals:
+
+        # Set voltage on DC gate
+        V_dc_Instrument.voltage = v_dc_val_
+        
+        # Sweep over V_rf in inner loop
+        for v_rf_val_ in v_rf_vals:
+
+            # Set voltage on RF gate
+            V_rf_Instrument.voltage = v_dc_val_
+
+            # Measure the current
+            current = _get_current(CurrentReader, gain)
+
+            # If current is negative, that means the channel is opening, so abort the sweep to avoid damaging the device
+            if current.value < 0:
+                print("Channel opening, aborting sweep")
+                return
+
+            # If the current is positive and exceed 1 electron per cycle, then we have achieved single electron pumping
+            if current.value > I_1:
+                print("Pumped current occuring at V_rf = " + str(v_rf_val_) + ", V_dc = " + str(v_dc_val_))
+                return {"V_rf":v_rf_val_, "V_dc":v_dc_val_}
+
+    else:
+        print ("No pumping observed")
+        return
+
+
 #Implementation of pumping
 #TODO Adjust for new code
 if __name__ == "__main__":
     # Testing
     import time
 
-    # Initialalize voltage source
-    from spacq.devices.basel.dacsp927 import dacsp927
-    kwargs1 = {'host_address':'192.168.0.5'}
-    vsource = dacsp927(**kwargs1)
-
     # Initialize multimeter
     from spacq.devices.agilent.dm34410a import DM34410A
     kwargs2 = {'ip_address':'192.168.0.7'}
     multimeter = DM34410A(**kwargs2)
+
+    # Initialalize voltage source
+    from spacq.devices.basel.dacsp927 import dacsp927
+    kwargs1 = {'host_address':'192.168.0.5'}
+    vsource = dacsp927(**kwargs1)
 
     ## Define variables used in sweep
 
@@ -421,28 +454,27 @@ if __name__ == "__main__":
     pinchoff_threshold = Quantity(0.01 ,units="nA")
 
     # Run function for single conduction map
-    corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
-    print("Corner: " + str(corner))
+    # corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
+    # print("Corner: " + str(corner))
 
     ## If conduction_corner works
 
+    V_qpc_Instrument = vsource.subdevices['port3']
 
-    # V_qpc_Instrument = vsource.subdevices['port3']
+    V_qpc_start = 0.5
+    V_qpc_end = 0.2
 
-    # V_qpc_start = 0.5
-    # V_qpc_end = 0.2
+    v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
+    v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
 
-    # v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
-    # v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
+    dummy_ramp = np.linspace(0, V_qpc_start, 31)
+    dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
+    for value in dummy_ramp_quantities:
+        V_qpc_Instrument.voltage = value
+        time.sleep(0.2)
 
-    # dummy_ramp = np.linspace(0, V_qpc_start, 31)
-    # dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
-    # for value in dummy_ramp_quantities:
-    #     V_qpc_Instrument.voltage = value
-    #     time.sleep(0.2)
-
-    # offset = Quantity(50, units="mV")
-    # pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
+    offset = Quantity(50, units="mV")
+    pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
 
 
 

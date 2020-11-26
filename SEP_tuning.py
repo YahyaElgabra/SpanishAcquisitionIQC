@@ -476,7 +476,19 @@ if __name__ == "__main__":
     offset = Quantity(50, units="mV")
     pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
 
+    ## To observe pumped current
 
+    initial_v = None # in V TODO change
+    final_v = None # in V TODO change
+    v_rf_numbers = np.linspace(initial_v, final_v, 101)
+    v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
+
+    v_dc_numbers = np.linspace(initial_v, final_v, 101)
+    v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
+
+    frequency = 200e6
+
+    values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)
 
     # RF Script
     # # initialize virtual voltage source

@@ -31,6 +31,9 @@ def conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, Cu
                           If corner was not found, return None. 
 
     """
+    # Safely move voltages to beginning of sweep value
+    ramp_to_voltage(v_rf_vals[0], V_rf_Instrument)
+    ramp_to_voltage(v_dc_vals[0], V_dc_Instrument)
 
     # This for loop steps v_rf and v_dc in tandem until turn on is achieved
     for v_rf_, v_dc_ in zip(v_rf_vals, v_dc_vals):
@@ -138,6 +141,8 @@ def dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Ins
     pumping_point or None: Dictionary with 3 elements (V_rf, V_dc and v_qpc) which are the voltages where we should start looking for pumping.
                           If corner was not found, return None.
     '''
+    ramp_to_voltage(v_qpc_vals[0], V_qpc_Instrument)
+
     corner_point = None
     # Loop over possible v_qpc values
     for v_qpc_ in v_qpc_vals:
@@ -383,36 +388,60 @@ def _get_current(CurrentReader, gain):
     '''
     current = CurrentReader.reading
     current = Quantity(current.value/gain, units="A")
+    print(current)
     return current
 
+def ramp_to_voltage(value, Instrument, resolution=51):
+
+    initial = Instrument.voltage
+    dummy_ramp = np.linspace(initial.value, value.value, resolution)
+    dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
+    for value in dummy_ramp_quantities:
+        Instrument.voltage = value
+        # time.sleep(0.2)
+
+
 def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency):
+
+    ramp_to_voltage(v_rf_vals[0], V_rf_Instrument)
+    ramp_to_voltage(v_dc_vals[0], V_dc_Instrument)
+
     # Current from 1 electron per cycle
-    I_1 = e * frequency
+    I_1 = 2 * e * frequency
 
     # Sweep over V_dc (V_ent) in outer loop
     for v_dc_val_ in v_dc_vals:
 
         # Set voltage on DC gate
         V_dc_Instrument.voltage = v_dc_val_
+
+        ramp_to_voltage(v_rf_vals[0], V_rf_Instrument)
         
         # Sweep over V_rf in inner loop
         for v_rf_val_ in v_rf_vals:
 
             # Set voltage on RF gate
-            V_rf_Instrument.voltage = v_dc_val_
+            V_rf_Instrument.voltage = v_rf_val_
 
             # Measure the current
             current = _get_current(CurrentReader, gain)
 
             # If current is negative, that means the channel is opening, so abort the sweep to avoid damaging the device
-            if current.value < 0:
-                print("Channel opening, aborting sweep")
-                return
+            if current.value < -0.2e-9:
+                print("Channel opening, skipping to next V_dc value")
+                break
 
             # If the current is positive and exceed 1 electron per cycle, then we have achieved single electron pumping
             if current.value > I_1:
-                print("Pumped current occuring at V_rf = " + str(v_rf_val_) + ", V_dc = " + str(v_dc_val_))
-                return {"V_rf":v_rf_val_, "V_dc":v_dc_val_}
+                time.sleep(0.1)
+                current_1 = _get_current(CurrentReader, gain)
+                time.sleep(0.1)
+                current_2 = _get_current(CurrentReader, gain)
+                time.sleep(0.1)
+                current_3 = _get_current(CurrentReader, gain)
+                if current_1.value > I_1 and current_2.value > I_1 and current_3.value > I_1:
+                    print("Pumped current occuring at V_rf = " + str(v_rf_val_) + ", V_dc = " + str(v_dc_val_))
+                    return {"V_rf":v_rf_val_, "V_dc":v_dc_val_}
 
     else:
         print ("No pumping observed")
@@ -439,11 +468,11 @@ if __name__ == "__main__":
 
     # Make a list of just values first, and then make them quantities
     initial_v = 0 # in V
-    final_v = 1.5 # in V
-    v_rf_numbers = np.linspace(initial_v, final_v, 101)
+    final_v = 1.7 # in V
+    v_rf_numbers = np.linspace(initial_v, final_v, 301)
     v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
 
-    v_dc_numbers = np.linspace(initial_v, final_v, 101)
+    v_dc_numbers = np.linspace(initial_v, final_v, 301)
     v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
     V_rf_Instrument = vsource.subdevices['port1']
@@ -453,7 +482,7 @@ if __name__ == "__main__":
     turn_on_threshold = Quantity(3 ,units="nA")
     pinchoff_threshold = Quantity(0.01 ,units="nA")
 
-    # Run function for single conduction map
+    # # Run function for single conduction map
     # corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
     # print("Corner: " + str(corner))
 
@@ -461,36 +490,33 @@ if __name__ == "__main__":
 
     V_qpc_Instrument = vsource.subdevices['port3']
 
-    V_qpc_start = 0.5
-    V_qpc_end = 0.2
+    V_qpc_start = 0.55
+    V_qpc_end = 0.4
 
     v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
     v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
-
-    dummy_ramp = np.linspace(0, V_qpc_start, 31)
-    dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
-    for value in dummy_ramp_quantities:
-        V_qpc_Instrument.voltage = value
-        time.sleep(0.2)
 
     offset = Quantity(50, units="mV")
     pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
 
     ## To observe pumped current
 
-    initial_v = None # in V TODO change
-    final_v = None # in V TODO change
-    v_rf_numbers = np.linspace(initial_v, final_v, 101)
-    v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
+    # initial_v_rf = 1.352 # in V
+    # final_v_rf = 1.552 # in V
+    # v_rf_numbers = np.linspace(initial_v_rf, final_v_rf, 101)
+    # v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
 
-    v_dc_numbers = np.linspace(initial_v, final_v, 101)
-    v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
-    frequency = 200e6
+    # initial_v_dc = 1.394 # in V
+    # final_v_dc = 1.594 # in V
+    # v_dc_numbers = np.linspace(initial_v_dc, final_v_dc, 101)
+    # v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
-    values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)
+    # frequency = 200e6
 
-    # RF Script
+    # values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)
+
+    ## RF Script
     # # initialize virtual voltage source
     # from spacq.devices.virtual.virtinst import virtinst
 

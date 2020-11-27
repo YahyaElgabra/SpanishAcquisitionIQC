@@ -1,8 +1,10 @@
+''' File which contains functions to implement automated tuning of single electron pumps
+'''
 
+# Import relevant modules
+import time
 import numpy as np
 from scipy.constants import e
-from scipy.optimize import curve_fit
-import matplotlib.pyplot as plt
 
 from spacq.interface.units import Quantity
 
@@ -141,6 +143,7 @@ def dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Ins
     pumping_point or None: Dictionary with 3 elements (V_rf, V_dc and v_qpc) which are the voltages where we should start looking for pumping.
                           If corner was not found, return None.
     '''
+    # Safely move voltages to beginning of sweep value
     ramp_to_voltage(v_qpc_vals[0], V_qpc_Instrument)
 
     corner_point = None
@@ -179,234 +182,66 @@ def dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Ins
         pumping_point['v_dc'] -= offset
         return pumping_point
 
-def pumping_single_sweep(v_pp_val, v_ent_vals, V_pp_Instrument, V_ent_Instrument, CurrentReader, gain, max_current):
-    
-    # Set V_pp
-    V_pp_Instrument.typeNAmplitude = v_pp_val
-
-    # Initialize list that will store currents
-    currents = []
-
-    # Get 1D sweep over v_ent_vals
-    for v_ent_val_ in v_ent_vals:
-        
-        # Set value of v_ent and then measure the current and save for later
-        V_ent_Instrument.voltage = v_ent_val_
-        current = _get_current(CurrentReader, gain)
-
-        # Check that current is not exceeding maximum current and that 
-        if current.value <= max_current:
-            raise ValueError("Current value exceeding max current allowed. Aborting sweep")
-
-        # Check that current is not negative, which indicates that the channel is fully opened
-        if current.value <= 0:
-            raise ValueError("Current value less than 0, which indicates that the channel is fully opened. Aborting sweep")
-
-        # If both thosse checks are good, add current to list
-        currents.append(current)
-    
-    ## If no issues arise, we can perform analysis on the acquired currents
-    
-    # Initialize empty lists that will be used for analysis
-    x = []
-    y = []
-
-    # Go over all currents 
-    for i in range(len(currents)):
-
-        # Add to the x and y range until the scanning window is the correct size
-        x.append(v_ent_vals[i])
-        y.append(currents[i])
-
-        # Once the scanning window is reached, start doing analysis
-        if len(x) == scan_range:
-
-                # Try all the possible values of plateaus you have
-                for n in range(1,max_plateaus):
-
-                    # Define a gloabl variable that is used for fitting 
-                    # TODO Make this better
-                    global N
-                    N = n - 1
-
-                    # Checks that plateau is near the middle of the scan range
-                    cond1 = (abs(y[scan_range/2] - n*e*frequency*(1e9)) < 0.002)
-
-                    # Checks that the value of the plateau is near the expected value
-                    cond2 = True not in [(abs(y[i] - n*e*frequency*(1e9)) > plateau_tol) for i in range(scan_range)]
-
-                    # Checks that derivative (difference between 2 data points) is not too large where the data is supposed to be flat
-                    rec3 = np.abs(np.diff(x)) < epsilon
-                    cond3 = False not in rec3
-
-                    # Makes sure that all 3 conditions are met before starting the 
-                    if cond1 and cond2 and cond3:
-
-                        # Initial conditions are set differently depending on whether current in increasing or decreasing
-                        if y[0] > y[scan_range-1]:
-                            initial = [-2.5, -2.5*x[0], -2.5*x[scan_range-1]]
-                        else:
-                            initial = [2.5, 2.5*x[0], 2.5*x[scan_range-1]]
-
-                        # Perform fit with initial conditions
-                        delta, error, p, _ = perform_fit(x,y,initial,n)
-                        if error < fit_error:
-                            print "========================================"
-                            print 'delta: ',str(delta),'error: '+str(error)
-                            print('initial_vals: {}'.format(initial))
-                            print('best_vals: {}'.format(p))
-                            print "========================================\n"
-                            plot_plateau(x,y,p,n,Vdc)
-
-                # Remove the first data point from the window so the window gets shifted
-                x.pop(0)
-                y.pop(0)
-
-def rf_optimization(v_pp_vals, v_ent_vals, v_ext_vals, V_pp_Instrument, V_ent_Instrument, V_ext_Instrument, CurrentReader, gain, frequency, max_plateau_current):
-    '''
-    Algorithm which determines a triplet of values for V_ent, V_ext and V_pp which generates pumping.
-
-    Parameters:
-    v_pp_vals : Interable of numbers in Volts that we wish v_pp to sweep over. 
-    v_ent_vals : Interable of numbers in Volts that we wish v_ent to sweep over. 
-    v_ext_vals : Interable of numbers in Volts that we wish v_ext to sweep over. 
-    V_pp_Instrument : Device object that is used to to adjust V_pp. 
-                    Must have a setter/getter attribute called 'TODO' and 'frequency'
-    V_ent_Instrument : Device object that is used to to adjust V_ent. 
-                    Must have a setter/getter attribute called 'voltage'
-    V_ext_Instrument : Device object that is used to to adjust V_ext.
-                    Must have a setter/getter attribute called 'voltage'
-    CurrentReader: Device object that is used to read current. Must have an attribute called 'reading'. 
-                It is assumed that we will be using a current preamp, which converts from current to voltage
-    gain: Gain of current preamp. Used to convert from current through device to voltage.
-    frequency : Frequency in Hertz of the signal generated by V_pp_Instument
-    max_plateau_current: Maximum current allowed in terms of plateaus. So I_max = max_plateau_current * electron_charge * frequency
-
-    Returns:
-    pumping_point or None: Dictionary with 3 elements (v_pp, v_ent and v_ext) where resonable pumping occured.
-                        If no pumping is detected, return None.
-    '''
-
-    # Calculate the maximum current allowed through the device
-    electron_charge = 1.60217662 * 10**-19
-    max_current = Quantity(max_plateau_current * electron_charge * frequency, 'A')
-
-    # Set frequency of signal generator to desrired value
-    V_pp_Instrument.frequancy = frequency
-
-    # Loop over possible v_ext_vals
-    for v_ext_ in v_ext_vals:
-
-        # Set v_ext to value
-        V_ext_Instrument.voltage = v_ext_
-
-        # Now sweep over the various v_pp values
-        for v_pp_val_ in v_pp_vals:
-
-            # Now do a single sweep of v_ent, with a fixed v_pp and a fixed v_ext, storing the ouput to a temporary variable
-            temp = pumping_single_sweep(v_pp_val_, v_ent_vals, V_pp_Instrument, V_ent_Instrument, CurrentReader, gain, max_current)
-
-            # If temp is not None, then we believe that we have found pumping. Save these values in a dictionary and return it
-            if temp is not None:
-                pumping_point = dict()
-                pumping_point['v_ext'] = v_ext_
-                pumping_point['v_pp'] = v_pp_val_
-                return pumping_point
-
-def f(x, a, d1, d2):
-    """
-    Function for fitting <n> plateaus
-
-    y = exp(-exp(-a*(x-c)+d1)) + exp(-exp(-a*(x-c)+d2)) + In
-
-    a controls the steepness
-    d1, d2 control the offsets of the two exponentials
-    d is a bias current
-    n_i = current values for n
-    diff = d1 - d2 controls the extent of the plateau in the middle
-
-    For parameters between 1 and 100, added conversion factors
-    all paramters are positive in function
-    
-    """
-    A = 10*a
-    D1 = 10*d1
-    D2 = 10*d2
-    y = e * (frequency) * (1e9) * ( np.exp(-np.exp(-A*x+D1)) + np.exp(-np.exp(-A*x+D2)) + N)
-    return y
-
-def plot_plateau(x,y,p,n,Vdc):
-    """
-        Wrapper to plot the results one at a time
-    """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlabel('Vrf [V]')
-    ax.set_ylabel('Current [nA]')
-    fig.suptitle('Vdc = '+str(Vdc)+' n = '+str(n), fontsize=24)
-    
-    plt.plot(x,y,'x',label='Experimental data')     
-    t = np.linspace(min(x),max(x),1000)
-    plt.plot(t,f(t,p[0],p[1],p[2]),label='Fit')
-    plt.axhline(y=n*e*frequency*1e9, color='black', linestyle='-')
-
-    ax.legend()
-    plt.show(block=True)
-    plt.pause(0.3)
-    plt.close()
-    
-    return None
-
-def perform_fit(xdata,ydata,initial,n):
-    """
-        This function performs a fit using the logistic function
-
-        Inputs: xdata (array), ydata (array), inital (array), n (int)
-
-        xdata: array of floats to fit
-        ydata: array of floats to fit
-        initial: [a_0, d1_0, d2_0]
-        n: integer number of current plateau to be evaluated
-
-    """
-    try:
-        p, pcov = curve_fit(f,xdata,ydata,p0=initial)
-        delta = p[2]-p[1]
-        error = sum([ abs(ydata[i] - f(xdata[i],p[0],p[1],p[2])) for i in range(len(xdata)) ])
-    except:
-        print "ERROR: RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev"
-        return 0, 0, [0,0,0,0], [0]
-    return abs(delta), error, p, pcov
-
 def _get_current(CurrentReader, gain):
     '''
     Function which gets current, taking into account gain of the preamp
 
     Parameters:
-    CurrentReader
-    gain
+    CurrentReader: Device object that is used to read current. Must have an attribute called 'reading'. 
+                   It is assumed that we will be using a current preamp, which converts from current to voltage
+    gain: Gain of current preamp. Used to convert from current through device to voltage.
+
+    Returns:
+    current: Current measured by the current reader in Amps
     '''
     current = CurrentReader.reading
     current = Quantity(current.value/gain, units="A")
-    print(current)
     return current
 
 def ramp_to_voltage(value, Instrument, resolution=51):
+    '''
+    Function which will gently ramp an Instrument to a target voltage, taking into account it's current voltage.
 
+    Parameters:
+    value: Value in Volts that we wish to ramp the Instrument to
+    Instrument: Instrument whose voltage should be set
+
+    Keyword arguments:
+    resolution: Integer number of intermediate points that the slow ramp should take (default 51)
+    '''
     initial = Instrument.voltage
     dummy_ramp = np.linspace(initial.value, value.value, resolution)
     dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
     for value in dummy_ramp_quantities:
         Instrument.voltage = value
-        # time.sleep(0.2)
-
 
 def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency):
+    '''
+    Algorithm which sweeps over v_rf and v_dc values for a fixed v_pp value which looks for pumped current.
 
+    Parameters: 
+    v_rf_vals : Interable of numbers in Volts that we wish v_rf to sweep over. 
+                Works best if the length of v_rf_vals and v_dc_vals are the same.
+    v_dc_vals : Interable of numbers in Volts that we wish v_dc to sweep over. 
+                Works best if the length of v_rf_vals and v_dc_vals are the same.
+    V_dc_Instrument : Device object that is used to to adjust V_dc. 
+                      Must have a setter/getter attribute called 'voltage'
+    V_rf_Instrument : Device object that is used to to adjust V_rf.
+                      Must have a setter/getter attribute called 'voltage'
+    CurrentReader: Device object that is used to read current. Must have an attribute called 'reading'. 
+                   It is assumed that we will be using a current preamp, which converts from current to voltage
+    gain: Gain of current preamp. Used to convert from current through device to voltage.
+    frequency: Frequency of RF component on V_rf in Hz.
+
+    Returns:
+    pumping_point or None: Dictionary with 2 elements (V_rf, V_dc) if pumping is found.
+                          If pumping did not occur, return None.
+    '''
+    # Safely move voltages to beginning of sweep value
     ramp_to_voltage(v_rf_vals[0], V_rf_Instrument)
     ramp_to_voltage(v_dc_vals[0], V_dc_Instrument)
 
-    # Current from 1 electron per cycle
+    # Current from 2 electron per cycle is set as condition for pumping
     I_1 = 2 * e * frequency
 
     # Sweep over V_dc (V_ent) in outer loop
@@ -414,7 +249,8 @@ def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, Curr
 
         # Set voltage on DC gate
         V_dc_Instrument.voltage = v_dc_val_
-
+        
+        # Ramp to initial voltage (since V_rf could be at maximum value from previous V_dc value)
         ramp_to_voltage(v_rf_vals[0], V_rf_Instrument)
         
         # Sweep over V_rf in inner loop
@@ -426,19 +262,23 @@ def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, Curr
             # Measure the current
             current = _get_current(CurrentReader, gain)
 
-            # If current is negative, that means the channel is opening, so abort the sweep to avoid damaging the device
+            # If current is negative, that means the channel is opening, so abort this V_rf sweep, set the next V_dc and start over
             if current.value < -0.2e-9:
                 print("Channel opening, skipping to next V_dc value")
                 break
 
-            # If the current is positive and exceed 1 electron per cycle, then we have achieved single electron pumping
+            # If the current is positive and exceed the threshold, then we may have achieved single electron pumping
             if current.value > I_1:
+
+                # Make sure that the reading we get isn't noise and that it is consistent over many measurements
                 time.sleep(0.1)
                 current_1 = _get_current(CurrentReader, gain)
                 time.sleep(0.1)
                 current_2 = _get_current(CurrentReader, gain)
                 time.sleep(0.1)
                 current_3 = _get_current(CurrentReader, gain)
+
+                # If current is consistent, we have achieved pumped current
                 if current_1.value > I_1 and current_2.value > I_1 and current_3.value > I_1:
                     print("Pumped current occuring at V_rf = " + str(v_rf_val_) + ", V_dc = " + str(v_dc_val_))
                     return {"V_rf":v_rf_val_, "V_dc":v_dc_val_}
@@ -448,11 +288,8 @@ def fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, Curr
         return
 
 
-#Implementation of pumping
-#TODO Adjust for new code
+#Implementation of auto-tuning
 if __name__ == "__main__":
-    # Testing
-    import time
 
     # Initialize multimeter
     from spacq.devices.agilent.dm34410a import DM34410A
@@ -464,8 +301,18 @@ if __name__ == "__main__":
     kwargs1 = {'host_address':'192.168.0.5'}
     vsource = dacsp927(**kwargs1)
 
-    ## Define variables used in sweep
+    # Set up Instruments
+    V_rf_Instrument = vsource.subdevices['port1']
+    V_dc_Instrument = vsource.subdevices['port2']
+    V_qpc_Instrument = vsource.subdevices['port3']
+    CurrentReader = multimeter
 
+    ## Define variables used in sweep
+    gain = 1e8
+    turn_on_threshold = Quantity(3 ,units="nA")
+    pinchoff_threshold = Quantity(0.01 ,units="nA")
+    offset = Quantity(50, units="mV")
+    
     # Make a list of just values first, and then make them quantities
     initial_v = 0 # in V
     final_v = 1.7 # in V
@@ -475,77 +322,29 @@ if __name__ == "__main__":
     v_dc_numbers = np.linspace(initial_v, final_v, 301)
     v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
-    V_rf_Instrument = vsource.subdevices['port1']
-    V_dc_Instrument = vsource.subdevices['port2']
-    CurrentReader = multimeter
-    gain = 1e8
-    turn_on_threshold = Quantity(3 ,units="nA")
-    pinchoff_threshold = Quantity(0.01 ,units="nA")
-
-    # # Run function for single conduction map
-    # corner = conduction_corner(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold)
-    # print("Corner: " + str(corner))
-
-    ## If conduction_corner works
-
-    V_qpc_Instrument = vsource.subdevices['port3']
-
-    V_qpc_start = 0.55
-    V_qpc_end = 0.4
-
+    V_qpc_start = 0.55 # in V
+    V_qpc_end = 0.4 # in V
     v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
     v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
 
-    offset = Quantity(50, units="mV")
+    # Call function which implements optimization of DC values for gates
     pumping_point = dc_optimization(v_qpc_vals, v_rf_vals, v_dc_vals, V_qpc_Instrument, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, turn_on_threshold, pinchoff_threshold, offset)
 
     ## To observe pumped current
 
-    # initial_v_rf = 1.352 # in V
-    # final_v_rf = 1.552 # in V
-    # v_rf_numbers = np.linspace(initial_v_rf, final_v_rf, 101)
-    # v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
+    # Define values for V_rf in pumping map
+    initial_v_rf = 1.352 # in V
+    final_v_rf = 1.552 # in V
+    v_rf_numbers = np.linspace(initial_v_rf, final_v_rf, 101)
+    v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
 
+    # Define values for V_dc in pumping map
+    initial_v_dc = 1.394 # in V
+    final_v_dc = 1.594 # in V
+    v_dc_numbers = np.linspace(initial_v_dc, final_v_dc, 101)
+    v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
-    # initial_v_dc = 1.394 # in V
-    # final_v_dc = 1.594 # in V
-    # v_dc_numbers = np.linspace(initial_v_dc, final_v_dc, 101)
-    # v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
+    # Define freqency
+    frequency = 200e6
 
-    # frequency = 200e6
-
-    # values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)
-
-    ## RF Script
-    # # initialize virtual voltage source
-    # from spacq.devices.virtual.virtinst import virtinst
-
-    # #Define frequency which will be used in the fitting function
-    # frequency = 100e6
-
-    # # Define tolerances and parameters for fitting
-    # scan_range = 17
-    # plateau_tol = 0.015
-    # epsilon = 0.1
-    # fit_error = 0.03
-      
-    # # Define 2 thresholds for corner finding
-    # threshold_1 = Quantity(0.5, units = "nA")
-    # threshold_2 = Quantity(0.05, units = "nA")
-
-    # # Define voltage range we want to step over 
-    # # (In practice this can be anything, but for current data, this must not be changed)
-    # step = 0.002
-    # num_data_points = 51
-    # v_rf_vals = [round(0.63 + step*x,3) for x in range(num_data_points)]
-    # v_dc_vals = [round(0.63 + step*x,3) for x in range(num_data_points)]
-
-    # # Specify where data is stored
-    # folder = 'SEP_tuning_files/'
-    # filename = '2D_sweep_RF_DC.csv'
-    # kwargs = {'data_file':folder+filename}
-
-    # #Initialize virtual instrument
-    # virtual_inst = virtinst(**kwargs)
-
-    # pumping_point(threshold_1, threshold_2)
+    values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)

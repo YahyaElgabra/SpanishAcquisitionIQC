@@ -13,8 +13,8 @@ Hardware device abstraction interface.
 """
 
 
-# PyVISA, Linux GPIB, PyVISA USB.
-drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb', 'telnet'])
+# PyVISA, Linux GPIB, PyVISA USB, telnet, HTTP requests.
+drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb', 'telnet', 'requests'])
 
 
 # Try to import all available drivers.
@@ -35,6 +35,13 @@ except ImportError:
 	pass
 else:
 	available_drivers.append(drivers.telnet)
+
+try:
+	import requests
+except ImportError:
+	pass
+else:
+	available_drivers.append(drivers.requests)
 
 try:
 	import visa
@@ -126,7 +133,7 @@ class SuperDevice(object):
 
 class AbstractDevice(SuperDevice):
 	"""
-	A class for controlling devices which can be connected to either via Ethernet and (PyVISA or Telnet) or GPIB and Linux GPIB.
+	A class for controlling devices which can be connected to either via Ethernet and (PyVISA or Telnet or HTTP requests) or GPIB and Linux GPIB.
 	"""
 
 	max_timeout = 15 # s
@@ -141,7 +148,7 @@ class AbstractDevice(SuperDevice):
 
 		self.status = []
 
-	def __init__(self, ip_address=None, host_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
+	def __init__(self, ip_address=None, host_address=None, req_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
 			usb_resource=None, autoconnect=True):
 		"""
 		Ethernet (tcpip::<ip_address>::instr):
@@ -150,6 +157,10 @@ class AbstractDevice(SuperDevice):
 		Telnet (<host_address>):
 			host_address: String that list the IP address of the host.
 				Named this way to avoid issues with ip_address used for ethernet connections
+
+		HTTP Requests (<req_address>):
+			req_address: String that lists the IP address of the "server" to access.
+				Named this way to avoid issues with ip_address and host_address used for ethernet connections
 
 		GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
 			gpib_board: GPIB board index. Defaults to 0.
@@ -185,6 +196,17 @@ class AbstractDevice(SuperDevice):
 				}
 			else:
 				raise NotImplementedError('Telnetlib required, but not available.')
+
+		elif req_address is not None:
+			if drivers.requests in available_drivers:
+				log.debug('Using HTTP requests with req_address={0}.'.format(req_address))
+				self.driver = drivers.requests
+				self.connection_resource = {
+					'req_address': '{0}'.format(req_address)
+				}
+				self.req_address = req_address
+			else:
+				raise NotImplementedError('requests lib required, but not available')
 
 		elif gpib_pad is not None:
 			if drivers.lgpib in available_drivers:
@@ -223,7 +245,7 @@ class AbstractDevice(SuperDevice):
 	def __repr__(self):
 		return '<{0}>'.format(self.__class__.__name__)
 
-	def connect(self):
+	def connect(self, query=query):
 		"""
 		Make a connection to the device.
 		"""
@@ -239,8 +261,14 @@ class AbstractDevice(SuperDevice):
 					self.device = visa.Instrument(**self.connection_resource)
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+
 		elif self.driver == drivers.telnet:
 			self.device = telnetlib.Telnet(timeout=2, **self.connection_resource)
+
+		elif self.driver == drivers.requests:
+			r = requests.get('http://' + self.req_address + '/' + query)
+			if r.status_code != 200:
+				raise DeviceNotFoundError('Could not connect to device at "{0}".'.format(self.connection_resource), e)
 
 		elif self.driver == drivers.lgpib:
 			try:
@@ -353,6 +381,11 @@ class AbstractDevice(SuperDevice):
 				else:
 					raise
 
+		elif self.driver == drivers.requests:
+			r = requests.get("http://" + self.req_address + "/" + message)
+			if r.status_code != 200:
+				raise Exception("Write did not work")
+				
 		elif self.driver == drivers.lgpib:
 			try:
 				self.device.write(message)
@@ -370,9 +403,10 @@ class AbstractDevice(SuperDevice):
 				visa.vpp43.write(self.device.vi, message)
 
 	@Synchronized()
-	def read_raw(self, chunk_size=512):
+	def read_raw(self, chunk_size=512, query=None):
 		"""
 		Read everything the device has to say and return it exactly.
+		<query>: string (required for HTTP requests but nothing else)
 		"""
 
 		log.debug('Reading from device "{0}".'.format(self.name))
@@ -393,6 +427,9 @@ class AbstractDevice(SuperDevice):
 					raise DeviceTimeout(e)
 				else:
 					raise
+		elif self.driver == drivers.requests:
+			r = requests.get("http://" + self.req_address + "/" + query)
+			buf = r.text
 
 		elif self.driver == drivers.lgpib:
 			status = 0
@@ -411,24 +448,24 @@ class AbstractDevice(SuperDevice):
 
 		return buf
 
-	def read(self):
+	def read(self, query=None):
 		"""
 		Read from the device, but strip terminating whitespace.
 		"""
 
-		return self.read_raw().rstrip()
+		return self.read_raw(query=query).rstrip()
 
 	@Synchronized()
-	def ask_raw(self, message):
+	def ask_raw(self, message, query=None):
 		"""
 		Write, then read_raw.
 		"""
 
 		self.write(message)
-		return self.read_raw()
+		return self.read_raw(query=query)
 
 	@Synchronized()
-	def ask(self, message):
+	def ask(self, message, query=None):
 		"""
 		Write, then read.
 
@@ -438,7 +475,7 @@ class AbstractDevice(SuperDevice):
 		self.write(message)
 
 		if self.multi_command is None:
-			return self.read()
+			return self.read(query=query)
 		else:
 			self.responses_expected += 1
 

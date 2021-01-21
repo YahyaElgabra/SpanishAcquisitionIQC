@@ -315,15 +315,15 @@ if __name__ == "__main__":
     
     # Make a list of just values first, and then make them quantities
     initial_v = 0 # in V
-    final_v = 1.7 # in V
+    final_v = 1.2 # in V
     v_rf_numbers = np.linspace(initial_v, final_v, 301)
     v_rf_vals = [Quantity(i, units="V") for i in v_rf_numbers]
 
     v_dc_numbers = np.linspace(initial_v, final_v, 301)
     v_dc_vals = [Quantity(i, units="V") for i in v_dc_numbers]
 
-    V_qpc_start = 0.55 # in V
-    V_qpc_end = 0.4 # in V
+    V_qpc_start = 0.5 # in V
+    V_qpc_end = 0.2 # in V
     v_qpc_numbers = np.linspace(V_qpc_start, V_qpc_end, 51) 
     v_qpc_vals = [Quantity(i, units="V") for i in v_qpc_numbers]
 
@@ -347,4 +347,4 @@ if __name__ == "__main__":
     # Define freqency
     frequency = 200e6
 
-    values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)
+    # values = fixed_vpp_sweep(v_rf_vals, v_dc_vals, V_dc_Instrument, V_rf_Instrument, CurrentReader, gain, frequency)

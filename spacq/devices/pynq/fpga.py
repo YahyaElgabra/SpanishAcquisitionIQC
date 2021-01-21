@@ -38,11 +38,11 @@ class DACPort(AbstractSubdevice):
 		AbstractSubdevice._connected(self)
 
 		# Turn on port
-		output = self.device.ask_raw('{0} ON\r\n'.format(self.num)).strip('\r\n')
+		output = self.device.ask_raw('{0} ON\r\n'.format(self.num))
 		if output != 0:
 			Warning("Device not connected!")
 		# Gets current voltage in hex, convert it to volts and save the result
-		result = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
+		result = self.device.ask_raw('{0} V?\r\n'.format(self.num))
 		self.currentVoltage = result
 
 	def __init__(self, device, num, *args, **kwargs):

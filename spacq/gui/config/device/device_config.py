@@ -73,6 +73,22 @@ class DeviceConfigPanel(wx.Panel):
 		self.host_address_input = IpAddrCtrl(self)
 		telnet_sizer.Add(self.host_address_input, flag=wx.CENTER)
 
+		### Requests
+		requests_static_box = wx.StaticBox(self)
+		requests_box = wx.StaticBoxSizer(requests_static_box, wx.VERTICAL)
+		address_sizer.Add(requests_box, proportion=1)
+
+		self.address_mode_req = wx.RadioButton(self, label='HTTP Requests')
+		requests_box.Add(self.address_mode_req)
+
+		requests_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		requests_box.Add(requests_sizer, flag=wx.EXPAND)
+
+		requests_sizer.Add(wx.StaticText(self, label='Request address:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.req_address_input = IpAddrCtrl(self)
+		requests_sizer.Add(self.req_address_input, flag=wx.CENTER)
+
 		### GPIB.
 		self.gpib_static_box = wx.StaticBox(self)
 		gpib_box = wx.StaticBoxSizer(self.gpib_static_box, wx.VERTICAL)

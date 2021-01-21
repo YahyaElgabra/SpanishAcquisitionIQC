@@ -70,6 +70,7 @@ class DeviceConfig(object):
 	address_modes = Enum([
 		'ethernet',
 		'telnet',
+		'requests',
 		'gpib',
 		'usb',
 	])
@@ -80,6 +81,7 @@ class DeviceConfig(object):
 		# Connection configuration.
 		self.address_mode = None
 		self.host_address = None
+		self.req_address = None
 		self.ip_address = None
 		self.gpib_board = 0
 		self.gpib_pad = 0

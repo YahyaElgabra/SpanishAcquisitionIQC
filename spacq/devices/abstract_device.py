@@ -245,7 +245,7 @@ class AbstractDevice(SuperDevice):
 	def __repr__(self):
 		return '<{0}>'.format(self.__class__.__name__)
 
-	def connect(self, query=query):
+	def connect(self, query=None):
 		"""
 		Make a connection to the device.
 		"""

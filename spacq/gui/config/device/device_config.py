@@ -86,8 +86,8 @@ class DeviceConfigPanel(wx.Panel):
 
 		requests_sizer.Add(wx.StaticText(self, label='Request address:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.req_address_input = IpAddrCtrl(self)
-		requests_sizer.Add(self.req_address_input, flag=wx.CENTER)
+		self.request_address_input = IpAddrCtrl(self)
+		requests_sizer.Add(self.request_address_input, flag=wx.CENTER)
 
 		### GPIB.
 		self.gpib_static_box = wx.StaticBox(self)
@@ -166,6 +166,8 @@ class DeviceConfigPanel(wx.Panel):
 			return DeviceConfig.address_modes.ethernet
 		elif self.address_mode_tel.Value:
 			return DeviceConfig.address_modes.telnet
+		elif self.address_mode_req.Value:
+			return DeviceConfig.address_modes.requests
 		elif self.address_mode_gpib.Value:
 			return DeviceConfig.address_modes.gpib
 		elif self.address_mode_usb.Value:
@@ -186,6 +188,9 @@ class DeviceConfigPanel(wx.Panel):
 
 		## Telnet
 		dev_cfg.host_address = self.host_address_input.GetAddress()
+
+		## Requests
+		dev_cfg.request_address = self.request_address_input.GetAddress()
 
 		## GPIB.
 		dev_cfg.gpib_board = self.gpib_board_input.Value
@@ -230,6 +235,10 @@ class DeviceConfigPanel(wx.Panel):
 		## Telnet
 		if dev_cfg.host_address:
 			self.host_address_input.SetValue(dev_cfg.host_address)
+
+		## Requests
+		if dev_cfg.req_address:
+			self.request_address_input.SetValue(dev_cfg.request_address)
 
 		## GPIB.
 		self.gpib_board_input.Value = dev_cfg.gpib_board

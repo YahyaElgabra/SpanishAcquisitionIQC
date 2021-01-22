@@ -38,12 +38,12 @@ class DACPort(AbstractSubdevice):
 		AbstractSubdevice._connected(self)
 
 		# Turn on port
-		output = self.device.ask_raw('{0} ON\r\n'.format(self.num))
-		if output != 0:
+		r = self.device.ask_raw('dac1?channel={0}&on=true'.format(self.num))
+		if r.status_code != 200:
 			Warning("Device not connected!")
 		# Gets current voltage in hex, convert it to volts and save the result
-		result = self.device.ask_raw('{0} V?\r\n'.format(self.num))
-		self.currentVoltage = result
+		# result = self.device.ask_raw('{0} V?\r\n'.format(self.num))
+		# self.currentVoltage = result
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -65,12 +65,11 @@ class DACPort(AbstractSubdevice):
 		"""
 		Set the voltage on this port, as a quantity in V.
 		"""
-		output = self.device.ask_raw('{0} {1}\r\n'.format(self.num, value)).strip('\r\n')
-		if output != 0:
+		r = self.device.ask_raw('dac1?channel={0}&value={1}'.format(self.num, value))
+		if r.status_code != 200:
 			Warning("Voltage not properly set!") 
 
-		result = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
-		self.currentVoltage = result
+		self.currentVoltage = value
 		
 class fpga(AbstractDevice):
 	"""

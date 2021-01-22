@@ -148,7 +148,7 @@ class AbstractDevice(SuperDevice):
 
 		self.status = []
 
-	def __init__(self, ip_address=None, host_address=None, req_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
+	def __init__(self, ip_address=None, host_address=None, request_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
 			usb_resource=None, autoconnect=True):
 		"""
 		Ethernet (tcpip::<ip_address>::instr):
@@ -158,8 +158,8 @@ class AbstractDevice(SuperDevice):
 			host_address: String that list the IP address of the host.
 				Named this way to avoid issues with ip_address used for ethernet connections
 
-		HTTP Requests (<req_address>):
-			req_address: String that lists the IP address of the "server" to access.
+		HTTP Requests (<request_address>):
+			request_address: String that lists the IP address of the "server" to access.
 				Named this way to avoid issues with ip_address and host_address used for ethernet connections
 
 		GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
@@ -197,14 +197,16 @@ class AbstractDevice(SuperDevice):
 			else:
 				raise NotImplementedError('Telnetlib required, but not available.')
 
-		elif req_address is not None:
+		elif request_address is not None:
+			print(1)
+			print(available_drivers)
 			if drivers.requests in available_drivers:
-				log.debug('Using HTTP requests with req_address={0}.'.format(req_address))
+				log.debug('Using HTTP requests with request_address={0}.'.format(request_address))
 				self.driver = drivers.requests
 				self.connection_resource = {
-					'req_address': '{0}'.format(req_address)
+					'request_address': '{0}'.format(request_address)
 				}
-				self.req_address = req_address
+				self.request_address = request_address
 			else:
 				raise NotImplementedError('requests lib required, but not available')
 
@@ -237,7 +239,7 @@ class AbstractDevice(SuperDevice):
 			else:
 				raise NotImplementedError('PyVISA required, but not available.')
 		else:
-			raise ValueError('Either an IP, Host Address, GPIB, or USB address must be specified.')
+			raise ValueError('Either an IP, Host Address, Request Address, GPIB, or USB address must be specified.')
 
 		if autoconnect:
 			self.connect()
@@ -266,7 +268,7 @@ class AbstractDevice(SuperDevice):
 			self.device = telnetlib.Telnet(timeout=2, **self.connection_resource)
 
 		elif self.driver == drivers.requests:
-			r = requests.get('http://' + self.req_address + '/' + query)
+			r = requests.get('http://' + self.request_address + query)
 			if r.status_code != 200:
 				raise DeviceNotFoundError('Could not connect to device at "{0}".'.format(self.connection_resource), e)
 
@@ -382,7 +384,7 @@ class AbstractDevice(SuperDevice):
 					raise
 
 		elif self.driver == drivers.requests:
-			r = requests.get("http://" + self.req_address + "/" + message)
+			r = requests.get("http://" + self.request_address + message)
 			if r.status_code != 200:
 				raise Exception("Write did not work")
 				
@@ -428,7 +430,7 @@ class AbstractDevice(SuperDevice):
 				else:
 					raise
 		elif self.driver == drivers.requests:
-			r = requests.get("http://" + self.req_address + "/" + query)
+			r = requests.get("http://" + self.request_address + query)
 			buf = r.text
 
 		elif self.driver == drivers.lgpib:

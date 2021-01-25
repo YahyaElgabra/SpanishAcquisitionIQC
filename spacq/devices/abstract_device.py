@@ -206,7 +206,7 @@ class AbstractDevice(SuperDevice):
 				self.connection_resource = {
 					'request_address': '{0}'.format(request_address)
 				}
-				self.request_address = request_address
+				self.request_address = str(request_address)
 			else:
 				raise NotImplementedError('requests lib required, but not available')
 
@@ -247,7 +247,7 @@ class AbstractDevice(SuperDevice):
 	def __repr__(self):
 		return '<{0}>'.format(self.__class__.__name__)
 
-	def connect(self, query=None):
+	def connect(self):
 		"""
 		Make a connection to the device.
 		"""
@@ -268,7 +268,7 @@ class AbstractDevice(SuperDevice):
 			self.device = telnetlib.Telnet(timeout=2, **self.connection_resource)
 
 		elif self.driver == drivers.requests:
-			r = requests.get('http://' + self.request_address + query)
+			r = requests.get('http://' + self.request_address)
 			if r.status_code != 200:
 				raise DeviceNotFoundError('Could not connect to device at "{0}".'.format(self.connection_resource), e)
 

@@ -81,7 +81,7 @@ class DeviceConfig(object):
 		# Connection configuration.
 		self.address_mode = None
 		self.host_address = None
-		self.req_address = None
+		self.request_address = None
 		self.ip_address = None
 		self.gpib_board = 0
 		self.gpib_pad = 0
@@ -198,9 +198,9 @@ class DeviceConfig(object):
 				address['host_address'] = self.host_address
 
 			elif self.address_mode == self.address_modes.requests:
-				if self.req_address is None:
+				if self.request_address is None:
 					raise ConnectionError('No Request address specified.')
-				address['req_address'] = self.req_address
+				address['request_address'] = self.request_address
 
 			elif self.address_mode == self.address_modes.gpib:
 				address['gpib_board'] = self.gpib_board

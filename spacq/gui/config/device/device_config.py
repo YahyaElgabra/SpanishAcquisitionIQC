@@ -237,7 +237,7 @@ class DeviceConfigPanel(wx.Panel):
 			self.host_address_input.SetValue(dev_cfg.host_address)
 
 		## Requests
-		if dev_cfg.req_address:
+		if dev_cfg.request_address:
 			self.request_address_input.SetValue(dev_cfg.request_address)
 
 		## GPIB.

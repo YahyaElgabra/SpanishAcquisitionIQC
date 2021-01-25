@@ -36,9 +36,8 @@ class DACPort(AbstractSubdevice):
 	@Synchronized()
 	def _connected(self):
 		AbstractSubdevice._connected(self)
-
 		# Turn on port
-		r = self.device.ask_raw('dac1?channel={0}&on=true'.format(self.num))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&on=true'.format(self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
 		# Gets current voltage in hex, convert it to volts and save the result
@@ -65,7 +64,7 @@ class DACPort(AbstractSubdevice):
 		"""
 		Set the voltage on this port, as a quantity in V.
 		"""
-		r = self.device.ask_raw('dac1?channel={0}&value={1}'.format(self.num, value))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&value={1}'.format(self.num, value))
 		if r.status_code != 200:
 			Warning("Voltage not properly set!") 
 

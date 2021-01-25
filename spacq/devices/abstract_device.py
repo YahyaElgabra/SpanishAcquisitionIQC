@@ -111,7 +111,6 @@ class SuperDevice(object):
 		"""
 		Post-connection setup.
 		"""
-
 		if hasattr(self, 'driver') and self.driver == drivers.lgpib:
 			# Some devices don't assert the EOI line, so look for their EOS character instead.
 			if hasattr(self, 'eos_char'):
@@ -198,15 +197,13 @@ class AbstractDevice(SuperDevice):
 				raise NotImplementedError('Telnetlib required, but not available.')
 
 		elif request_address is not None:
-			print(1)
-			print(available_drivers)
 			if drivers.requests in available_drivers:
 				log.debug('Using HTTP requests with request_address={0}.'.format(request_address))
 				self.driver = drivers.requests
 				self.connection_resource = {
 					'request_address': '{0}'.format(request_address)
 				}
-				self.request_address = str(request_address)
+				self.request_address = 'http://' + str(request_address)
 			else:
 				raise NotImplementedError('requests lib required, but not available')
 
@@ -268,7 +265,7 @@ class AbstractDevice(SuperDevice):
 			self.device = telnetlib.Telnet(timeout=2, **self.connection_resource)
 
 		elif self.driver == drivers.requests:
-			r = requests.get('http://' + self.request_address)
+			r = requests.get(self.request_address)
 			if r.status_code != 200:
 				raise DeviceNotFoundError('Could not connect to device at "{0}".'.format(self.connection_resource), e)
 
@@ -384,7 +381,7 @@ class AbstractDevice(SuperDevice):
 					raise
 
 		elif self.driver == drivers.requests:
-			r = requests.get("http://" + self.request_address + message)
+			r = requests.get(self.request_address + message)
 			if r.status_code != 200:
 				raise Exception("Write did not work")
 				
@@ -405,10 +402,9 @@ class AbstractDevice(SuperDevice):
 				visa.vpp43.write(self.device.vi, message)
 
 	@Synchronized()
-	def read_raw(self, chunk_size=512, query=None):
+	def read_raw(self, chunk_size=512):
 		"""
 		Read everything the device has to say and return it exactly.
-		<query>: string (required for HTTP requests but nothing else)
 		"""
 
 		log.debug('Reading from device "{0}".'.format(self.name))
@@ -430,8 +426,7 @@ class AbstractDevice(SuperDevice):
 				else:
 					raise
 		elif self.driver == drivers.requests:
-			r = requests.get("http://" + self.request_address + query)
-			buf = r.text
+			buf = requests.get(self.request_address)
 
 		elif self.driver == drivers.lgpib:
 			status = 0
@@ -450,24 +445,24 @@ class AbstractDevice(SuperDevice):
 
 		return buf
 
-	def read(self, query=None):
+	def read(self):
 		"""
 		Read from the device, but strip terminating whitespace.
 		"""
 
-		return self.read_raw(query=query).rstrip()
+		return self.read_raw().rstrip()
 
 	@Synchronized()
-	def ask_raw(self, message, query=None):
+	def ask_raw(self, message):
 		"""
 		Write, then read_raw.
 		"""
 
 		self.write(message)
-		return self.read_raw(query=query)
+		return self.read_raw()
 
 	@Synchronized()
-	def ask(self, message, query=None):
+	def ask(self, message):
 		"""
 		Write, then read.
 
@@ -477,7 +472,7 @@ class AbstractDevice(SuperDevice):
 		self.write(message)
 
 		if self.multi_command is None:
-			return self.read(query=query)
+			return self.read()
 		else:
 			self.responses_expected += 1
 

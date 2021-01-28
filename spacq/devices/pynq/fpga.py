@@ -14,8 +14,7 @@ from ..abstract_device import AbstractDevice, AbstractSubdevice
 from ..tools import quantity_unwrapped, quantity_wrapped, BinaryEncoder
 
 """
-Pynq FPGA board for the IDEaS project
-First test to determine if we can connect using Spanish Acquisition
+Pynq FPGA board for the IDEaS project with periphery components
 """
 
 class DACPort(AbstractSubdevice):
@@ -190,14 +189,14 @@ class OSCPort(AbstractSubdevice):
 
 	@property
 	@quantity_wrapped('V')
-	def BNCAmplitude(self):
+	def amplitude(self):
 		# The amplitude of the output on the BNC output line (if enabled)
 		# Currently using Vpp value, as Spanish Acquisition doesn't handle dBm currently (TODO: add dBm units)
 		return self.currentAmplitude
 		
-	@BNCAmplitude.setter
+	@amplitude.setter
 	@quantity_unwrapped('V')
-	def BNCAmplitude(self,value):
+	def amplitude(self,value):
 		minAMP = 0.1 # TODO confirm min/max amplitudes
 		maxAmp = 1 # Vpp
 

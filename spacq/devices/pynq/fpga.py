@@ -40,9 +40,6 @@ class DACPort(AbstractSubdevice):
 		r = self.device.ask_raw(':5000/dac1?channel={0}&on=true'.format(self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
-		# Gets current voltage in hex, convert it to volts and save the result
-		# result = self.device.ask_raw('{0} V?\r\n'.format(self.num))
-		# self.currentVoltage = result
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -70,6 +67,53 @@ class DACPort(AbstractSubdevice):
 
 		self.currentVoltage = value
 		
+class ADCPort(AbstractSubdevice):
+	'''
+	An input port on the ADC for reading voltages connected to the FPGA.
+	'''
+
+	def _setup(self):
+		AbstractDevice._setup(self)
+
+		# Resources.
+		read_only = ['reading']
+		for name in read_only:
+			self.resources[name] = Resource(self, name)
+
+		self.resources['reading'].units = 'V'
+
+	@Synchronized()
+	def _connected(self):
+		AbstractSubdevice._connected(self)
+		# Turn on port
+		r = self.device.ask_raw(':5000/adc1?channel={0}&on=true'.format(self.num)) #TODO confirm that :5000 will always be the correct syntax
+		if r.status_code != 200:
+			Warning("Device not connected!")
+
+	def __init__(self, device, num, *args, **kwargs):
+		"""
+		Initialize the output port.
+		device: The voltage source to which this Port belongs.
+		num: The index of this port.
+		"""
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
+		self.num = num
+
+	@property
+	@quantity_wrapped('V')
+	@Synchronized()
+	def reading(self):
+		"""
+		The value measured by the device, as a quantity in V.
+		"""
+
+		r = self.device.ask_raw(':5000/adc1?channel={0}&reading?'.format(self.num)) #TODO confirm message
+		if r.status_code != 200:
+			Warning("Voltage not properly read!") 
+
+		result = r.text['reading'] #TODO confirm how to extract voltage correctly
+		return result
+
 class fpga(AbstractDevice):
 	"""
 	Interface for the Pynq FPGA board
@@ -78,11 +122,17 @@ class fpga(AbstractDevice):
 	def _setup(self):
 		AbstractDevice._setup(self)
 
-		self.ports = []
+		self.DACports = []
 		for num in range(16):
 			port = DACPort(self, num, **self.port_settings) # Naming convention for DAC goes 0 to 15
-			self.ports.append(port)
-			self.subdevices['port{0}'.format(num)] = port
+			self.DACports.append(port)
+			self.subdevices['DACport{0}'.format(num)] = port
+
+		self.ADCports = []
+		for num in range(16): #TODO confirm that there are 16 ADC ports
+			port = ADCPort(self, num, **self.port_settings)
+			self.ADCports.append(port)
+			self.subdevices['ADCport{0}'.format(num)] = port
 
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""

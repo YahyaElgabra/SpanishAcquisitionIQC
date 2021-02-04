@@ -457,9 +457,12 @@ class AbstractDevice(SuperDevice):
 		"""
 		Write, then read_raw.
 		"""
-
-		self.write(message)
-		return self.read_raw()
+		if self.driver=='requests':
+			r = requests.get(self.request_address + message)
+			return r
+		else:
+			self.write(message)
+			return self.read_raw()
 
 	@Synchronized()
 	def ask(self, message):

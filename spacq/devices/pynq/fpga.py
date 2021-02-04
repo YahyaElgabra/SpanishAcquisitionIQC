@@ -36,9 +36,12 @@ class DACPort(AbstractSubdevice):
 	def _connected(self):
 		AbstractSubdevice._connected(self)
 		# Turn on port
-		r = self.device.ask_raw(':5000/dac1?channel={0}&on=true'.format(self.num))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&value=0'.format(self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
+
+		self.currentVoltage = 0
+		self.currentSpan = 5
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -65,6 +68,23 @@ class DACPort(AbstractSubdevice):
 			Warning("Voltage not properly set!") 
 
 		self.currentVoltage = value
+
+	@property
+	@quantity_wrapped('V')
+	def span(self):
+		return self.currentSpan
+		
+	@span.setter
+	@quantity_unwrapped('V')
+	def span(self, value):
+		"""
+		Set the span on this port, as a quantity in V.
+		"""
+		r = self.device.ask_raw(':5000/dac1?channel={0}&span={1}V'.format(self.num, value))
+		if r.status_code != 200:
+			Warning("Voltage not properly set!") 
+
+		self.currentSpan= value
 		
 class ADCPort(AbstractSubdevice):
 	'''
@@ -120,7 +140,7 @@ class ADCPort(AbstractSubdevice):
 			if r.status_code != 200:
 				Warning("Voltage not properly read!") 
 
-			temp = r.text['reading']
+			temp = eval(r.text)
 			if temp['channel'] == 'CH{0}'.format(self.num):
 				result = temp['voltage']
 				break
@@ -136,13 +156,12 @@ class OSCPort(AbstractSubdevice):
 
 		# Resources.
 
-		read_write = ['frequency', 'phase', 'amplitude']
+		read_write = ['frequency', 'power']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['frequency'].units = 'Hz'
-		self.resources['phase'].units = 'deg'
-		self.resources['amplitude'].units = 'V'
+		self.resources['power'].units = 'V'
 	
 	@Synchronized()
 	def _connected(self):
@@ -151,6 +170,8 @@ class OSCPort(AbstractSubdevice):
 		r = self.device.ask_raw(':5000/osc1?channel={0}&on=true'.format(self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
+		self.frequency = Quantity(500000000, 'Hz')
+		self.power = Quantity(0, 'V')
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -177,26 +198,28 @@ class OSCPort(AbstractSubdevice):
 		if value < minFreq or value > maxFreq:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, minFreq, maxFreq))
 
-		r = self.device.ask_raw(':5000/osc1?&freq={1}'.format(value))
+		r = self.device.ask_raw(':5000/osc1?&freq={0}'.format(value))
 		if r.status_code != 200:
 			Warning("Frequency not properly set!") 
 
 		self.currentFrequency = value
 
 	@property
+	@quantity_wrapped('V')
 	def power(self):
 		# The power output by the oscillator
 		# Currently arbitrary power levels, as Spanish Acquisition doesn't handle dBm currently (TODO: add dBm units)
-		return self.currentpower
+		return self.currentPower
 		
 	@power.setter
+	@quantity_wrapped('V')
 	def power(self,value):
 		possible_powers = [0,1,2,3]
 
 		if value not in possible_powers:
 			raise ValueError('Value {0} not part of the allowed powers: {1}'.format(value, possible_powers))
 		
-		r = self.device.ask_raw(':5000/osc1?power={1}'.format(value))
+		r = self.device.ask_raw(':5000/osc1?power={0}'.format(value))
 		if r.status_code != 200:
 			Warning("Voltage not properly set!") 
 
@@ -216,15 +239,13 @@ class fpga(AbstractDevice):
 			self.DACports.append(port)
 			self.subdevices['DACport{0}'.format(num)] = port
 
-		AbstractDevice._setup(self)
-
 		self.ADCports = []
 		for num in range(8):
 			port = ADCPort(self, num, **self.port_settings) # Naming convention for DAC goes 0 to 7
 			self.ADCports.append(port)
 			self.subdevices['ADCport{0}'.format(num)] = port
 
-		# port = OSCPort(self, num, **self.port_settings)
+		# port = OSCPort(self, 0, **self.port_settings)
 		# self.OSCports = [port]
 		# self.subdevices['OSCport{0}'.format(num)] = port
 

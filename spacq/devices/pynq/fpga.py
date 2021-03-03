@@ -25,7 +25,7 @@ class DACPort(AbstractSubdevice):
 		AbstractSubdevice._setup(self)
 
 		# Resources.
-		read_write = ['voltage', 'span']
+		read_write = ['voltage']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -35,13 +35,12 @@ class DACPort(AbstractSubdevice):
 	def _connected(self):
 		AbstractSubdevice._connected(self)
 		# Turn on port
-		r = self.device.ask_raw(':5000/dac1?channel={0}&value=0'.format(self.num))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&value=0&span=pm10V'.format(self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
 
 		self.currentVoltage = 0
-		self.currentSpan = '5V'
-		self.span_limits = [0, 5]
+		self.span_limits = [-10, 10]
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -65,48 +64,12 @@ class DACPort(AbstractSubdevice):
 		"""
 		resulting_voltage = value
 		if value < self.span_limits[0] or value > self.span_limits[1]:
-			raise ValueError("Voltage {} is out of the allowed span {1}".format(value, self.span_limits))
+			raise ValueError("Voltage {0} is out of the allowed span {1}".format(value, self.span_limits))
 		r = self.device.ask_raw(':5000/dac1?channel={0}&value={1}'.format(self.num, resulting_voltage))
 		if r.status_code != 200:
 			raise Exception("Voltage not properly set!")
 
 		self.currentVoltage = value
-
-	@property
-	def span(self):
-		return self.currentSpan
-		
-	@span.setter
-	def span(self, value):
-		"""
-		Set the span on this port, as a quantity in V.
-		"""
-		possible_spans = ['5','10','pm2.5','pm5','pm10']
-
-		if value not in possible_spans:
-			raise ValueError('Span {0} not part of the allowed spans: {1}'.format(value, possible_spans))
-
-		# Deal with plus/minus limits differently than positive limits only
-		if value[0:2] == 'pm':
-			_value = value
-			self.span_limits = [-float(value[2:]), float(value[2:])]
-		else:
-			_value = value
-			self.span_limits = [0, float(value)]
-		r = self.device.ask_raw(':5000/dac1?channel={0}&span={1}V'.format(self.num, _value))
-		if r.status_code != 200:
-			raise Exception("Voltage span not properly set! Status code: {0}".format(r.status_code))
-
-		# Reset the voltage of the device to 0 after changing the range
-		try:
-			r = self.voltage = self.currentVoltage
-		except ValueError:
-			r = self.voltage = Quantity(0, 'V') 
-
-		if r.status_code != 200:
-			raise Exception("Voltage span not properly set! Status code: {0}".format(r.status_code))
-
-		self.currentSpan = value
 		
 class ADCPort(AbstractSubdevice):
 	'''
@@ -213,7 +176,7 @@ class OSCPort(AbstractSubdevice):
 		self.currentFrequency = 500e6
 		self.freq_resolution = 100e3
 		self.currentPower = 0
-		self.power_on = 'false'
+		self.currentPower_on = 'false'
 
 	def __init__(self, device, num, *args, **kwargs):
 		"""
@@ -246,20 +209,6 @@ class OSCPort(AbstractSubdevice):
 
 		self.currentFrequency = value
 
-	# @property
-	# @quantity_wrapped('Hz')
-	# def freq_resolution(self):
-	# 	return self.freq_resolution
-
-	# @freq_resolution.setter
-	# @quantity_unwrapped('Hz')
-	# def freq_resolution(self, value):
-	# 	r = self.device.ask_raw(':5000/osc1?freq_resolution={0}'.format(value))
-	# 	if r.status_code != 200:
-	# 		Warning("freq_resolution not properly set!")
-
-	# 	self.freq_resolution = value
-
 	@property
 	def power(self):
 		# The power output by the oscillator
@@ -280,7 +229,7 @@ class OSCPort(AbstractSubdevice):
 
 	@property
 	def power_on(self):
-		return self.power_down
+		return self.currentPower_on
 
 	@power_on.setter
 	def power_on(self, value):
@@ -293,9 +242,9 @@ class OSCPort(AbstractSubdevice):
 
 		r = self.device.ask_raw(':5000/osc1?power_down={0}'.format(possible_values[value]))
 		if r.status_code != 200:
-			Warning("Voltage not properly set!")
+			Exception("Voltage not properly set!")
 
-		self.power_down = value 
+		self.currentPower_on = value 
 
 class fpga(AbstractDevice):
 	"""

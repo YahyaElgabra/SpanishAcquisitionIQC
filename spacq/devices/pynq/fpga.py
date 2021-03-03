@@ -63,11 +63,12 @@ class DACPort(AbstractSubdevice):
 		"""
 		Set the voltage on this port, as a quantity in V.
 		"""
-		if value < self.span_limits[0] or value > self.span_limits:
+		resulting_voltage = value
+		if value < self.span_limits[0] or value > self.span_limits[1]:
 			raise ValueError("Voltage {} is out of the allowed span {1}".format(value, self.span_limits))
-		r = self.device.ask_raw(':5000/dac1?channel={0}&value={1}'.format(self.num, value))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&value={1}'.format(self.num, resulting_voltage))
 		if r.status_code != 200:
-			Warning("Voltage not properly set!") 
+			raise Exception("Voltage not properly set!")
 
 		self.currentVoltage = value
 
@@ -86,16 +87,24 @@ class DACPort(AbstractSubdevice):
 			raise ValueError('Span {0} not part of the allowed spans: {1}'.format(value, possible_spans))
 
 		# Deal with plus/minus limits differently than positive limits only
-		if value[0:1] == 'pm':
-			_value = '±' + value[2:]
-			self.span_limits = [-float(value), float(value)]
+		if value[0:2] == 'pm':
+			_value = value
+			self.span_limits = [-float(value[2:]), float(value[2:])]
 		else:
 			_value = value
 			self.span_limits = [0, float(value)]
-
-		r = self.device.ask_raw(':5000/dac1?channel={0}&span={1}'.format(self.num, _value))
+		r = self.device.ask_raw(':5000/dac1?channel={0}&span={1}V'.format(self.num, _value))
 		if r.status_code != 200:
-			Warning("Voltage not properly set!") 
+			raise Exception("Voltage span not properly set! Status code: {0}".format(r.status_code))
+
+		# Reset the voltage of the device to 0 after changing the range
+		try:
+			r = self.voltage = self.currentVoltage
+		except ValueError:
+			r = self.voltage = Quantity(0, 'V') 
+
+		if r.status_code != 200:
+			raise Exception("Voltage span not properly set! Status code: {0}".format(r.status_code))
 
 		self.currentSpan = value
 		
@@ -118,7 +127,7 @@ class ADCPort(AbstractSubdevice):
 	def _connected(self):
 		AbstractSubdevice._connected(self)
 		# Turn on port
-		r = self.device.ask_raw(':5000/adc2?channel={0}&on=true&inputpair=vin{1}vincom&filter=default'.format(self.num, self.num)) # Hardcoding configuration
+		r = self.device.ask_raw(':5000/adc2?channel={0}&on=true&inputpair=vin{1}vincom&filter=default'.format(self.num, self.num))
 		if r.status_code != 200:
 			Warning("Device not connected!")
 		self.currentFilter = 'default'
@@ -187,12 +196,12 @@ class OSCPort(AbstractSubdevice):
 
 		# Resources.
 
-		read_write = ['frequency', 'freq_resolution', 'power', 'power_on']
+		read_write = ['frequency', 'power', 'power_on'] #'freq_resolution'
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['frequency'].units = 'Hz'
-		self.resources['freq_resolution'].units = 'Hz'
+		#self.resources['freq_resolution'].units = 'Hz'
 	
 	@Synchronized()
 	def _connected(self):
@@ -237,19 +246,19 @@ class OSCPort(AbstractSubdevice):
 
 		self.currentFrequency = value
 
-	@property
-	@quantity_wrapped('Hz')
-	def freq_resolution(self):
-		return self.freq_resolution
+	# @property
+	# @quantity_wrapped('Hz')
+	# def freq_resolution(self):
+	# 	return self.freq_resolution
 
-	@freq_resolution.setter
-	@quantity_unwrapped('Hz')
-	def freq_resolution(self, value):
-		r = self.device.ask_raw(':5000/osc1?freq_resolution={0}'.format(value))
-		if r.status_code != 200:
-			Warning("freq_resolution not properly set!")
+	# @freq_resolution.setter
+	# @quantity_unwrapped('Hz')
+	# def freq_resolution(self, value):
+	# 	r = self.device.ask_raw(':5000/osc1?freq_resolution={0}'.format(value))
+	# 	if r.status_code != 200:
+	# 		Warning("freq_resolution not properly set!")
 
-		self.freq_resolution = value
+	# 	self.freq_resolution = value
 
 	@property
 	def power(self):
@@ -271,12 +280,12 @@ class OSCPort(AbstractSubdevice):
 
 	@property
 	def power_on(self):
-		return self.power_on
+		return self.power_down
 
 	@power_on.setter
 	def power_on(self, value):
 		# Swap to match hardware code
-		possible_values = {'true':'false', 'false':'true'}
+		possible_values = {'true':'false','false':'true'}
 		# Make robust to capitalization
 		value = value.lower()
 		if value not in possible_values:
@@ -286,7 +295,7 @@ class OSCPort(AbstractSubdevice):
 		if r.status_code != 200:
 			Warning("Voltage not properly set!")
 
-		self.power_on = value 
+		self.power_down = value 
 
 class fpga(AbstractDevice):
 	"""
@@ -297,20 +306,20 @@ class fpga(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.DACports = []
-		for num in range(16):
-			port = DACPort(self, num, **self.port_settings) # Naming convention for DAC goes 0 to 15
+		for num1 in range(16):
+			port = DACPort(self, num1, **self.port_settings) # Naming convention for DAC goes 0 to 15
 			self.DACports.append(port)
-			self.subdevices['DACport{0}'.format(num)] = port
+			self.subdevices['DACport{0}'.format(num1)] = port
 
 		self.ADCports = []
-		for num in range(8):
-			port = ADCPort(self, num, **self.port_settings) # Naming convention for DAC goes 0 to 7
+		for num2 in range(2):
+			port = ADCPort(self, num2, **self.port_settings) # Naming convention for DAC goes 0 to 7, but we are only using ports 0, 1 and 2
 			self.ADCports.append(port)
-			self.subdevices['ADCport{0}'.format(num)] = port
+			self.subdevices['ADCport{0}'.format(num2)] = port
 
 		port = OSCPort(self, 0, **self.port_settings)
 		self.OSCports = [port]
-		self.subdevices['OSCport{0}'.format(num)] = port
+		self.subdevices['OSCport0'] = port
 
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""

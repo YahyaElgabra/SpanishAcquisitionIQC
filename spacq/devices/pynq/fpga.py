@@ -126,10 +126,14 @@ class ADCPort(AbstractSubdevice):
 			if r.status_code != 200:
 				Warning("Voltage not properly read!") 
 
-			temp = eval(r.text)
-			if temp['channel'] == 'CH{0}'.format(self.num):
-				result = temp['voltage']
-				break
+			else:
+				try:
+					temp = eval(r.text)
+					if temp['channel'] == 'CH{0}'.format(self.num):
+						result = temp['voltage']
+						break
+				except SyntaxError: # Caused by an errant GET request and can be ignored safely
+					pass
 
 		return result
 

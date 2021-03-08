@@ -118,7 +118,7 @@ class SuperDevice(object):
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
 		# Recursively.
-		for name, subdev in self.subdevices.items():
+		for name, subdev in list(self.subdevices.items()):
 			log.debug('Post-connection for subdevice "{0}".'.format(name))
 
 			subdev._connected()

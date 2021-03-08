@@ -42,7 +42,7 @@ class Generator(object):
 		"""
 
 		try:
-			last_marker_point = max(pos for data in self._markers.values() for pos in data.keys())
+			last_marker_point = max(pos for data in list(self._markers.values()) for pos in list(data.keys()))
 		except ValueError:
 			last_marker_point = -1
 

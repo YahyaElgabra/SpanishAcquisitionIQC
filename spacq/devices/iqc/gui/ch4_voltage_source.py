@@ -179,7 +179,7 @@ class ch4VoltageSourceSettingsPanel(wx.Panel):
 		ports_box = wx.FlexGridSizer(rows=3, cols=2)
 		panel_box.Add(ports_box)
 
-		for port in xrange(4):
+		for port in range(4):
 			port_static_box = wx.StaticBox(self, label='Port {0} '.format(port))
 			port_box = wx.StaticBoxSizer(port_static_box, wx.HORIZONTAL)
 			ports_box.Add(port_box, flag=wx.ALL, border=5)

@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from functools import partial, wraps
-from itertools import izip, repeat
+from itertools import repeat
 from threading import Condition, Thread
 from time import sleep, time
 
@@ -146,14 +146,14 @@ class SweepController(object):
 					periods.insert(new_index, 1)
 			
 		# create a dict.
-		self.order_periods = dict(zip(orders, periods))
+		self.order_periods = dict(list(zip(orders, periods)))
 			
 	def create_iterator(self, pos):
 		"""
 		Create an iterator for an order of variables.
 		"""
 
-		return izip(*(iter(var) for var in self.variables[pos]))
+		return zip(*(iter(var) for var in self.variables[pos]))
 
 	def ramp(self, resources, values_from, values_to, steps):
 		"""
@@ -275,7 +275,7 @@ class SweepController(object):
 
 			self.devices_configured = True
 
-		return self.next
+		return self.__next__
 
 	@update_current_f
 	def next(self):
@@ -290,27 +290,27 @@ class SweepController(object):
 		if self.iterators is None:
 			# First time around.
 			self.iterators = []
-			for pos in xrange(len(self.variables)):
+			for pos in range(len(self.variables)):
 				self.iterators.append(self.create_iterator(pos))
 
-			self.current_values = [it.next() for it in self.iterators]
-			self.changed_indices = range(len(self.variables))
+			self.current_values = [next(it) for it in self.iterators]
+			self.changed_indices = list(range(len(self.variables)))
 			
 			# Calculate where the end of each order is.
 		else:
 			pos = len(self.variables) - 1
 			while pos >= 0: 
 				try:
-					self.current_values[pos] = self.iterators[pos].next()
+					self.current_values[pos] = next(self.iterators[pos])
 					break
 				except StopIteration:
 					self.iterators[pos] = self.create_iterator(pos)
-					self.current_values[pos] = self.iterators[pos].next()
+					self.current_values[pos] = next(self.iterators[pos])
 					
 
 					pos -= 1
 					
-			self.changed_indices = range(pos, len(self.variables))
+			self.changed_indices = list(range(pos, len(self.variables)))
 
 		return self.transition
 	
@@ -324,7 +324,7 @@ class SweepController(object):
 			# Smooth set from const.
 			steps, resources, from_values, to_values = [], [], [], []
 
-			for pos in xrange(len(self.variables)):
+			for pos in range(len(self.variables)):
 				# Extract values for this group.
 				group_vars, group_resources, current_values = (self.variables[pos],
 						self.resources[pos], self.current_values[pos])
@@ -419,7 +419,7 @@ class SweepController(object):
 			awg.clear_channels()
 
 			channels = []
-			for output, number in self.pulse_config.channels.items():
+			for output, number in list(self.pulse_config.channels.items()):
 				channel = awg.channels[number]
 
 				waveform, markers = waveforms[output]
@@ -527,7 +527,7 @@ class SweepController(object):
 				
 			# Find the orders that have changed
 			orders_changed = []
-			for order in self.order_periods.keys():
+			for order in list(self.order_periods.keys()):
 				if (self.item + 1) % self.order_periods[order] == 0:
 					orders_changed.append(order)
 			orders_changed.sort()
@@ -554,7 +554,7 @@ class SweepController(object):
 				self.item += 1
 				return self.ramp_down
 			else:
-				return self.next
+				return self.__next__
 		if boolean == False:
 			return self.conditional_dwell
 					
@@ -578,7 +578,7 @@ class SweepController(object):
 		# Smooth set to const.
 		steps, resources, from_values, to_values = [], [], [], []
 
-		for pos in xrange(len(self.variables)):
+		for pos in range(len(self.variables)):
 			# Extract values for this group.
 			group_vars, group_resources, current_values = (self.variables[pos],
 					self.resources[pos], self.current_values[pos])

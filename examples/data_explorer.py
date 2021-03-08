@@ -237,7 +237,7 @@ class DataExplorerApp(wx.App):
 		self.csv_frame.display_panel.SetValue(new_headings,new_rows)
 
 	def OnMenuHelpAbout(self, evt=None):
-		info = wx.AboutDialogInfo()
+		info = wx.adv.AboutDialogInfo()
 		info.SetName('Data Explorer')
 		info.SetDescription('An application for displaying data in tabular and graphical form.\n'
 			'\n'

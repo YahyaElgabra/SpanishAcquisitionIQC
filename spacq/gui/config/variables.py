@@ -286,7 +286,7 @@ class ConditionEditor(Dialog):
 		#This loop setup is a bit messy coding.
 		self.arg_type_setters = []
 		self.units_input = []
-		for i in xrange(0,2):
+		for i in range(0,2):
 			type_static_box = wx.StaticBox(self, label='Argument {0}'.format(i+1))
 			type_box = wx.StaticBoxSizer(type_static_box, wx.VERTICAL)
 			arg_boxes[i].Add(type_box, flag=wx.CENTER|wx.ALL, border=5)

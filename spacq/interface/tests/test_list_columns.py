@@ -19,7 +19,7 @@ class ListParserTest(TestCase):
 		Try a larger (Python-generated) list.
 		"""
 
-		lst = [(float(x) / 3, float(y) / 5) for x in xrange(55) for y in xrange(25)]
+		lst = [(float(x) / 3, float(y) / 5) for x in range(55) for y in range(25)]
 
 		lp = list_columns.ListParser()
 

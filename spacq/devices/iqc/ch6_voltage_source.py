@@ -280,7 +280,7 @@ class ch6VoltageSource(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.ports = []
-		for num in xrange(6):
+		for num in range(6):
 			if num < 4:
 				port = Port(self, num, 5, **self.port_settings) # for v0 to v3, max Voltage is 5
 			else:

@@ -48,7 +48,7 @@ class MockData(object):
 		self.index = 0
 		# We map a range [0,1,2,...,N] to the range [min,max].
 		if N > 1:
-			self.data_list = map( (lambda n:(data_max-data_min)*(float(n)/(N-1))+data_min), range(N))
+			self.data_list = list(map( (lambda n:(data_max-data_min)*(float(n)/(N-1))+data_min), list(range(N))))
 		elif N == 1:
 			# if we have only 1 data point, then we just set it to min.
 			self.data_list = [data_min]
@@ -112,7 +112,7 @@ class MockModel4G(MockAbstractDevice, Model4G):
 		# Many other state properties are in the mock subdevice class MockChannel.
 		
 		self.mock_state['channels'] = [None] # There is no channel 0.
-		for x in xrange(1, 3):
+		for x in range(1, 3):
 			self.mock_state['channels'].append(MockChannel(self,x))
 		
 		self.mock_state['active_channel'] = 1

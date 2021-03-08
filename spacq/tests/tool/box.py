@@ -57,7 +57,7 @@ class DeviceServerTestCase(TestCase):
 		if self.mock:
 			return impl()
 
-		all_devices = tc['devices'].values()
+		all_devices = list(tc['devices'].values())
 
 		if manufacturer is None or model is None:
 			if impl is not None:

@@ -70,7 +70,7 @@ class TwoDimensionalPlot(ChacoPlot):
 		Enable autoscaling for the x axis.
 		"""
 
-		x_range = self.plots.values()[0][0].index_mapper.range
+		x_range = list(self.plots.values())[0][0].index_mapper.range
 		x_range.low = x_range.high = 'auto'
 
 	def y_autoscale(self):
@@ -78,5 +78,5 @@ class TwoDimensionalPlot(ChacoPlot):
 		Enable autoscaling for the y axis.
 		"""
 
-		y_range = self.plots.values()[0][0].value_mapper.range
+		y_range = list(self.plots.values())[0][0].value_mapper.range
 		y_range.low = y_range.high = 'auto'

@@ -45,7 +45,7 @@ class SiftTest(TestCase):
 		Either keep all or remove all.
 		"""
 
-		items = [object() for _ in xrange(5)]
+		items = [object() for _ in range(5)]
 
 		eq_(box.sift(items, object), items)
 		eq_(box.sift(items, Exception), [])
@@ -106,8 +106,8 @@ class TriplesToMeshTest(TestCase):
 		One hundred thousand evenly-spaced data points.
 		"""
 
-		x = range(1000) * 100
-		y = repeat(range(100), 1000)
+		x = list(range(1000)) * 100
+		y = repeat(list(range(100)), 1000)
 		z = arange(0, 100000)
 
 		result, x_bounds, y_bounds, z_bounds = box.triples_to_mesh(x, y, z)
@@ -253,7 +253,7 @@ class SynchronizedTest(TestCase):
 
 		@box.Synchronized()
 		def do(self, values):
-			for i in xrange(values):
+			for i in range(values):
 				self.buf.append(i)
 				time.sleep(0.001)
 
@@ -267,7 +267,7 @@ class SynchronizedTest(TestCase):
 			self.values = values
 
 		def run(self):
-			for i in xrange(self.times):
+			for i in range(self.times):
 				self.obj.do(self.values)
 
 
@@ -284,7 +284,7 @@ class SynchronizedTest(TestCase):
 		obj = SynchronizedTest.SynchronizedObject()
 
 		thrs = []
-		for _ in xrange(num_threads):
+		for _ in range(num_threads):
 			thrs.append(SynchronizedTest.SynchronizedThread(obj, times, values))
 
 		for thr in thrs:
@@ -293,7 +293,7 @@ class SynchronizedTest(TestCase):
 		for thr in thrs:
 			thr.join()
 
-		eq_(obj.buf, range(values) * times * num_threads)
+		eq_(obj.buf, list(range(values)) * times * num_threads)
 
 
 class WithoutTest(TestCase):

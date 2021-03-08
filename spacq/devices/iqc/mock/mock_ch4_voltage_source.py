@@ -45,7 +45,7 @@ class Mockch4VoltageSource(MockAbstractDevice, ch4VoltageSource):
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 	def _reset(self):
-		self.mock_state['ports'] = [MockPort() for _ in xrange(6)]
+		self.mock_state['ports'] = [MockPort() for _ in range(6)]
 
 	def write(self, message, result=None, done=False):
 		if done:

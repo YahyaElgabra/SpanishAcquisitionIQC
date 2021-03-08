@@ -82,7 +82,7 @@ class ParserTest(TestCase):
 			try:
 				result = pp(line)
 			except Exception:
-				print line
+				print(line)
 				raise
 
 			eq_(result, Block([ast]))

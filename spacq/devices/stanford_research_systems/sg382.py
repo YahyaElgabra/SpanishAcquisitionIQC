@@ -54,7 +54,7 @@ class SG382(AbstractDevice):
 		self.resources['typeNAmplitude'].units = 'V'
 		self.resources['FMDeviation'].units='Hz'
 		self.resources['BNCEnable'].allowed_values = self.allowedEnable
- 		self.resources['typeNEnable'].allowed_values = self.allowedEnable
+		self.resources['typeNEnable'].allowed_values = self.allowedEnable
 		self.resources['modulationEnabled'].allowed_values = self.allowedEnable
 		self.resources['modulationType'].allowed_values = self.allowedModType
 		self.resources['modulationFunction'].allowed_values = self.allowedModFunc

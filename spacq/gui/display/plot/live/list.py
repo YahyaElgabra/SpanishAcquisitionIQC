@@ -289,7 +289,7 @@ class ListLiveViewPanel(wx.Panel):
 			return
 
 		# Extract the times and the data values.
-		times, values = zip(*values)
+		times, values = list(zip(*values))
 
 		# Update values.
 		self._values = numpy.append(numpy.array([]), values)

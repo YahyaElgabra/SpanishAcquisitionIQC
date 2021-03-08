@@ -255,7 +255,7 @@ class DeviceConfigPanel(wx.Panel):
 
 		self.models = ['']
 		if self.manufacturer:
-			self.models.extend(self.device_tree[self.manufacturer].keys())
+			self.models.extend(list(self.device_tree[self.manufacturer].keys()))
 		else:
 			self.manufacturer = None
 

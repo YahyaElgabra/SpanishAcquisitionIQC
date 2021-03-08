@@ -32,7 +32,7 @@ class ColormappedPlot(ChacoPlot):
 		The actual plot object.
 		"""
 
-		return self.plots.values()[0][0]
+		return list(self.plots.values())[0][0]
 
 	@property
 	def control(self):

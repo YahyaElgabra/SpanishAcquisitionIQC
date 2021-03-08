@@ -96,7 +96,7 @@ class Channel(AbstractSubdevice):
 		AbstractSubdevice._setup(self)
 
 		self.markers = [None] # There is no marker 0.
-		for mark in xrange(1, 3):
+		for mark in range(1, 3):
 			marker = Marker(self.device, self.channel, mark)
 			self.markers.append(marker)
 			self.subdevices['marker{0}'.format(mark)] = marker
@@ -204,7 +204,7 @@ class AWG5014B(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.channels = [None] # There is no channel 0.
-		for chan in xrange(1, 5):
+		for chan in range(1, 5):
 			channel = Channel(self, chan)
 			self.channels.append(channel)
 			self.subdevices['channel{0}'.format(chan)] = channel
@@ -298,7 +298,7 @@ class AWG5014B(AbstractDevice):
 
 		self.multi_command_start()
 		# Waveforms on the AWG are numbered from 0.
-		for i in xrange(num_waveforms):
+		for i in range(num_waveforms):
 			self.ask('wlist:name? {0}'.format(i))
 		names = self.multi_command_stop()
 

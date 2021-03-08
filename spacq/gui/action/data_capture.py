@@ -2,11 +2,11 @@ import csv
 from datetime import timedelta
 from functools import partial
 import os
-from pubsub import pub
 from threading import Lock, Thread
 from time import localtime, sleep, time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
+from pubsub import pub
 
 from spacq.interface.pulse.parser import PulseError
 from spacq.interface.units import IncompatibleDimensions
@@ -118,11 +118,11 @@ class DataCaptureDialog(Dialog, SweepController):
 			self.value_outputs.append(group_outputs)
 
 			# Spacer.
-			for _ in xrange(2):
+			for _ in range(2):
 				self.values_box.Add((-1, 15))
 
 		# Separator.
-		for _ in xrange(2):
+		for _ in range(2):
 			self.values_box.Add(wx.StaticLine(self), flag=wx.EXPAND|wx.ALL, border=5)
 
 		self.value_inputs = []
@@ -325,8 +325,7 @@ class DataCapturePanel(wx.Panel):
 		last_file_box = wx.BoxSizer(wx.HORIZONTAL)
 		export_path_box.Add(last_file_box, flag=wx.EXPAND)
 
-		last_file_box.Add(wx.StaticText(self, label='Last output: '),
-				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		last_file_box.Add(wx.StaticText(self, label='Last output: '),flag=wx.ALIGN_CENTER_VERTICAL)#|) wx.ALIGN_RIGHT)
 		self.last_file_name = wx.TextCtrl(self, style=wx.TE_READONLY)
 		self.last_file_name.BackgroundColour = wx.LIGHT_GREY
 		last_file_box.Add(self.last_file_name, proportion=1)
@@ -343,7 +342,7 @@ class DataCapturePanel(wx.Panel):
 		thr.daemon = True
 		thr.start()
 
-		all_variables = [var for var in self.global_store.variables.values() if var.enabled]
+		all_variables = [var for var in list(self.global_store.variables.values()) if var.enabled]
 		output_variables = sift(all_variables, OutputVariable)
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
 		condition_variables =  sift(all_variables, ConditionVariable)
@@ -391,10 +390,10 @@ class DataCapturePanel(wx.Panel):
 				missing_devices.add(pulse_program.awg)
 			else:
 				# Gather used channel numbers.
-				pulse_channels = dict((k, v) for k, v in pulse_program.output_channels.items() if v is not None)
+				pulse_channels = dict((k, v) for k, v in list(pulse_program.output_channels.items()) if v is not None)
 
-				actual_channels = range(1, len(pulse_awg.channels))
-				invalid_channels = [k for k, v in pulse_channels.items() if v not in actual_channels]
+				actual_channels = list(range(1, len(pulse_awg.channels)))
+				invalid_channels = [k for k, v in list(pulse_channels.items()) if v not in actual_channels]
 
 				if invalid_channels:
 					MessageDialog(self, 'Invalid channels for: {0}'.format(', '.join(invalid_channels)), 'Invalid channels').Show()

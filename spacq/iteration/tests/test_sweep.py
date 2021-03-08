@@ -188,9 +188,9 @@ class SweepControllerTest(TestCase):
 		eq_(actual_values, [(1.23, -10.0, x, y, y - 2.0)
 				for x in [Quantity(x, 'cm-1') for x in [-1.0, -2.0]]
 				for y in [1.0, 2.0, 3.0, 4.0]])
-		eq_(actual_measurement_values, [(x, -x) for x in xrange(1, 9)])
+		eq_(actual_measurement_values, [(x, -x) for x in range(1, 9)])
 		eq_(actual_writes, expected_writes)
-		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in xrange(1, 9))))
+		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in range(1, 9))))
 		eq_(closed, [1])
 
 	def testContinuous(self):
@@ -394,7 +394,7 @@ class SweepControllerTest(TestCase):
 		
 		iters = [cycle([0,1]), cycle([0,1,2]), cycle([0,-1,-2])]
 		def cres_getter(i):
-			return iters[i].next()
+			return next(iters[i])
 				
 		cres0 = Resource('cres0', getter=partial(cres_getter,0))
 		cres1 = Resource('cres1', getter=partial(cres_getter,1))
@@ -502,9 +502,9 @@ class SweepControllerTest(TestCase):
 
 		eq_(actual_values, expected_actual_values)
 
-		eq_(actual_measurement_values, [(x, -x) for x in xrange(1, 25)])
+		eq_(actual_measurement_values, [(x, -x) for x in range(1, 25)])
 		eq_(actual_writes, expected_writes)
-		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in xrange(1, 25))))
+		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in range(1, 25))))
 		eq_(closed, [1])
 
 

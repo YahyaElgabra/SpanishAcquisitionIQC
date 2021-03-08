@@ -93,7 +93,7 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 
 		filename = basename(path)
 
-		with open(path, 'rb') as f:
+		with open(path, 'r') as f:
 			try:
 				result = list(csv.reader(f))
 				try:

@@ -100,7 +100,7 @@ class sim900(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.ports = []
-		for num in xrange(8):
+		for num in range(8):
 			port = Port(self, num+1, 20, **self.port_settings) # Naming convention on sim900 goes 1 to 8
 			self.ports.append(port)
 			self.subdevices['port{0:02}'.format(num+1)] = port

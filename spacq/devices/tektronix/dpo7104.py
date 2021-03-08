@@ -114,7 +114,7 @@ class Channel(AbstractSubdevice):
 			num_transmissions = int(ceil(num_data_points / self.device.max_receive_samples))
 
 			curve = []
-			for i in xrange(num_transmissions):
+			for i in range(num_transmissions):
 				self.device.data_start = int(i * self.device.max_receive_samples) + 1
 				self.device.data_stop = int((i + 1) * self.device.max_receive_samples)
 
@@ -179,7 +179,7 @@ class DPO7104(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.channels = [None] # There is no channel 0.
-		for chan in xrange(1, 5):
+		for chan in range(1, 5):
 			channel = Channel(self, chan)
 			self.channels.append(channel)
 			self.subdevices['channel{0}'.format(chan)] = channel

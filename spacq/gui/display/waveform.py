@@ -64,7 +64,7 @@ class WaveformPanel(wx.Panel):
 
 		self.waveform_plot.x_label = '{0}s'.format(SIValues.prefixes_[magnitude])
 
-		for num, data in marker_data.items():
+		for num, data in list(marker_data.items()):
 			self.waveform_plot.add_marker(num, data)
 
 		self.waveform_plot.x_autoscale()

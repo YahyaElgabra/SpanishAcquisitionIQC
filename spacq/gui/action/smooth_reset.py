@@ -56,7 +56,7 @@ class SmoothResetPanel(wx.Panel):
 		Return all the selected variables, ensuring that their resources are valid.
 		"""
 
-		all_vars = sift(self.global_store.variables.values(), OutputVariable)
+		all_vars = sift(list(self.global_store.variables.values()), OutputVariable)
 		vars = [var for var in all_vars if var.enabled and var.use_const and var.resource_name]
 
 		missing_resources = []

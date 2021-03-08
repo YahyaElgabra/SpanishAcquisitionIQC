@@ -1,4 +1,5 @@
 import logging
+from functools import reduce
 log = logging.getLogger(__name__)
 
 from functools import wraps
@@ -221,7 +222,7 @@ class BinaryEncoder(object):
 		# Discard non-hexadecimal characters.
 		msg_filtered = [x for x in msg if x in string.hexdigits]
 		# Grab pairs.
-		idxs = xrange(0, len(msg_filtered), 2)
+		idxs = range(0, len(msg_filtered), 2)
 		msg_paired = [''.join(msg_filtered[i:i+2]) for i in idxs]
 		# Convert to bytes.
 		msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
@@ -242,7 +243,7 @@ class BinaryEncoder(object):
 		msg_decoded = ['{0:02x}'.format(ord(x)) for x in msg]
 
 		if pair_up:
-			idxs = xrange(0, len(msg_decoded), pair_size)
+			idxs = range(0, len(msg_decoded), pair_size)
 			msg_formatted = [''.join(msg_decoded[i:i+pair_size]) for i in idxs]
 
 			result = ' '.join(msg_formatted)

@@ -74,7 +74,7 @@ class DevicesPanel(wx.Panel):
 		self.SetSizer(panel_box)
 
 		with self.global_store.devices.lock:
-			for name, dev in self.global_store.devices.iteritems():
+			for name, dev in self.global_store.devices.items():
 				self.olv.AddObject(dev)
 
 	def update_resources(self, old, new):

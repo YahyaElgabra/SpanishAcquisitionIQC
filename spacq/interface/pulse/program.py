@@ -59,7 +59,7 @@ class Program(object):
 				raise PulseSyntaxError(self._env.format_errors())
 
 		# Output channel numbers.
-		self.output_channels = dict((name, None) for name, type in self._env.variables.items() if type == 'output')
+		self.output_channels = dict((name, None) for name, type in list(self._env.variables.items()) if type == 'output')
 
 		# Output device labels.
 		self.awg = ''
@@ -133,7 +133,7 @@ class Program(object):
 		# We plan to modify the values in the Environment.
 		result._env = deepcopy(self._env)
 
-		for parameter, label in self.resource_labels.items():
+		for parameter, label in list(self.resource_labels.items()):
 			def setter(x, parameter=parameter):
 				result._env.values[parameter] = x
 

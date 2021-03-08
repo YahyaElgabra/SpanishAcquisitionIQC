@@ -286,7 +286,7 @@ class VoltageSource(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.ports = []
-		for num in xrange(16):
+		for num in range(16):
 			if num < 6:
 				port = Port(self, num, 1, **self.port_settings)
 			elif num < 12:

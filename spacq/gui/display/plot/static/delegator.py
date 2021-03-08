@@ -38,4 +38,4 @@ else:
 	available_formats[formats.two_dimensional] = TwoDimensionalPlotSetupDialog
 
 
-log.debug('Available plot formats: {0}'.format(', '.join(available_formats.keys())))
+log.debug('Available plot formats: {0}'.format(', '.join(list(available_formats.keys()))))

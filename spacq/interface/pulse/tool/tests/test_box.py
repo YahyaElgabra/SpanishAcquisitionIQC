@@ -1,5 +1,5 @@
 from nose.tools import assert_raises, eq_
-from StringIO import StringIO
+from io import StringIO
 from unittest import main, TestCase
 
 from .. import box

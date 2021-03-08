@@ -1,4 +1,4 @@
-from __future__ import division
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class Port(AbstractSubdevice):
 			Warning("Device not connected!")
 		# Gets current voltage in hex, convert it to volts and save the result
 		result_hex = self.device.ask_raw('{0} V?\r\n'.format(self.num)).strip('\r\n')
-		if result_hex is not "":
+		if result_hex != "":
 			result = self.hex_to_voltage(result_hex)
 			self.currentVoltage = result
 		else:

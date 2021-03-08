@@ -55,7 +55,7 @@ class MockChannel(object):
 		self.voltage = 1.0
 
 		self.markers = [None] # There is no marker 0.
-		for _ in xrange(1, 3):
+		for _ in range(1, 3):
 			self.markers.append(MockMarker())
 
 
@@ -80,10 +80,10 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 
 		self.mock_state['wlist'] = []
 		self.mock_state['wlist'].append(Waveform('"predefined waveform"', 5))
-		self.mock_state['wlist'][0].data = list(xrange(5))
+		self.mock_state['wlist'][0].data = list(range(5))
 
 		self.mock_state['channels'] = [None] # There is no channel 0.
-		for _ in xrange(1, 5):
+		for _ in range(1, 5):
 			self.mock_state['channels'].append(MockChannel())
 
 	def find_wave(self, name):

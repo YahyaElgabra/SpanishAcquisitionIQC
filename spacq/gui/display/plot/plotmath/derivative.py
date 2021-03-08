@@ -15,12 +15,12 @@ class DerivativeMathSetupDialog(MathSetupDialog_Derivative):
 		self.data = data
 
 
-    	def calculate(self):
-        	try:
-            		y_data, x_data = [self.data[:,axis].astype(float) for axis in self.axes]
-       		except ValueError as e:
-            		MessageDialog(self, str(e), 'Invalid value').Show()
-            		return
+		def calculate(self):
+			try:
+					y_data, x_data = [self.data[:,axis].astype(float) for axis in self.axes]
+			except ValueError as e:
+					MessageDialog(self, str(e), 'Invalid value').Show()
+					return
 	
 		y_label, x_label = [self.headings[x] for x in self.axes]
 		title = 'd{0}/d{1}'.format(y_label, x_label)
@@ -42,11 +42,11 @@ class DerivativeMathSetupDialog(MathSetupDialog_Derivative):
 					self.step_size = 1
 				for i,y in enumerate(y_small):
 					if i - self.step_size < 0:
-                				d_data[i*derivative_loop+k] = [ (y_small[i+self.step_size]-y_small[0])/((i+self.step_size)*h) ]
-            				elif len(y_small) - i - self.step_size < 1:
-                				d_data[i*derivative_loop+k] = [ (y_small[len(y_small)-1]-y_small[i-self.step_size])/((len(y_small)-1-i+self.step_size)*h) ]
-            				else:
-                				d_data[i*derivative_loop+k] = [ (y_small[i+self.step_size]-y_small[i-self.step_size])/(2*self.step_size*h) ]
+						d_data[i*derivative_loop+k] = [ (y_small[i+self.step_size]-y_small[0])/((i+self.step_size)*h) ]
+					elif len(y_small) - i - self.step_size < 1:
+						d_data[i*derivative_loop+k] = [ (y_small[len(y_small)-1]-y_small[i-self.step_size])/((len(y_small)-1-i+self.step_size)*h) ]
+					else:
+						d_data[i*derivative_loop+k] = [ (y_small[i+self.step_size]-y_small[i-self.step_size])/(2*self.step_size*h) ]
 
 
 		else:		
@@ -57,17 +57,17 @@ class DerivativeMathSetupDialog(MathSetupDialog_Derivative):
 			
 			h = x_data[1]-x_data[0]
 			d_data = [ [-9999] ]*len(y_data)
-        		for j in range(0,len(y_data)/derivative_loop):
+			for j in range(0,len(y_data)/derivative_loop):
 				y_small = y_data[derivative_loop*j:(j+1)*derivative_loop]
 				if self.step_size >= len(y_small)/2:
 					self.step_size = 1
 				for i,y in enumerate(y_small):
-            				if i - self.step_size < 0:
-                				d_data[i+j*derivative_loop] = [ (y_small[i+self.step_size]-y_small[0])/((i+self.step_size)*h) ]
-            				elif len(y_small) - i - self.step_size < 1:
-                				d_data[i+j*derivative_loop] = [ (y_small[len(y_small)-1]-y_small[i-self.step_size])/((len(y_small)-1-i+self.step_size)*h) ]
-            				else:
-                				d_data[i+j*derivative_loop] = [ (y_small[i+self.step_size]-y_small[i-self.step_size])/(2*self.step_size*h) ]
+							if i - self.step_size < 0:
+								d_data[i+j*derivative_loop] = [ (y_small[i+self.step_size]-y_small[0])/((i+self.step_size)*h) ]
+							elif len(y_small) - i - self.step_size < 1:
+								d_data[i+j*derivative_loop] = [ (y_small[len(y_small)-1]-y_small[i-self.step_size])/((len(y_small)-1-i+self.step_size)*h) ]
+							else:
+								d_data[i+j*derivative_loop] = [ (y_small[i+self.step_size]-y_small[i-self.step_size])/(2*self.step_size*h) ]
 
 		return(title,d_data)
 

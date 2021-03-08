@@ -281,7 +281,7 @@ class ch4VoltageSource(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		self.ports = []
-		for num in xrange(4):
+		for num in range(4):
 			port = Port(self, num, **self.port_settings)
 			self.ports.append(port)
 			self.subdevices['port{0:02}'.format(num)] = port

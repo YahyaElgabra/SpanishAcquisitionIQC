@@ -243,7 +243,7 @@ class Model4GTest(DeviceServerTestCase):
 		chanctrler._wait_for_sweep()
 		
 		# Check if sweep is actually done several times.
-		for _ in xrange(1,10):
+		for _ in range(1,10):
 			eq_(chanctrler.power_supply_current, Quantity('20 G'))		
 		
 if __name__ == '__main__':

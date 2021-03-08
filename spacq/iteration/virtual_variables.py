@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import numpy
-from itertools import izip, groupby
+from itertools import groupby
 import operator
 from spacq.gui.tool.box import MessageDialog
 from functools import partial, wraps
@@ -151,13 +151,13 @@ class virtSweepController(object):
 
         #  no conditions
         # create a dict.
-        self.order_periods = dict(zip(orders, periods))
+        self.order_periods = dict(list(zip(orders, periods)))
 
     def create_iterator(self, pos):
         """
         Create an iterator for an order of variables.
         """
-        return izip(*(iter(var) for var in self.variables[pos]))
+        return zip(*(iter(var) for var in self.variables[pos]))
 
     # maybe some renaming
     def sweepTable(self):
@@ -186,13 +186,13 @@ class virtSweepController(object):
             if self.iterators is None:
                 # First time around.
                 self.iterators = []
-                for pos in xrange(len(self.variables)):
+                for pos in range(len(self.variables)):
                     self.iterators.append(self.create_iterator(pos))
 
-                self.current_values = [it.next() for it in self.iterators]
-                self.changed_indices = range(len(self.variables))
+                self.current_values = [next(it) for it in self.iterators]
+                self.changed_indices = list(range(len(self.variables)))
                 # create an other copy that we will not change
-                self.full_indices = range(len(self.variables))
+                self.full_indices = list(range(len(self.variables)))
 
                 # Calculate where the end of each order is.
             else:
@@ -200,15 +200,15 @@ class virtSweepController(object):
                 while pos >= 0:
                     try:
                         # Gets new values here
-                        self.current_values[pos] = self.iterators[pos].next()
+                        self.current_values[pos] = next(self.iterators[pos])
                         break
                     except StopIteration:
                         self.iterators[pos] = self.create_iterator(pos)
-                        self.current_values[pos] = self.iterators[pos].next()
+                        self.current_values[pos] = next(self.iterators[pos])
 
                         pos -= 1
 
-                self.changed_indices = range(pos, len(self.variables))
+                self.changed_indices = list(range(pos, len(self.variables)))
 
 
             """

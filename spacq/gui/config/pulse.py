@@ -60,7 +60,7 @@ class ParameterPanel(ScrolledPanel):
 		By default, extract the variables which pertain to the current type.
 		"""
 
-		return [k for k, v in prog.variables.items() if v == self.type]
+		return [k for k, v in list(prog.variables.items()) if v == self.type]
 
 	def extract_parameters(self, prog):
 		"""
@@ -757,7 +757,7 @@ class PulseProgramFrame(wx.Frame):
 
 		self.Title = self.default_title
 
-		for label in self.global_store.pulse_program.resource_labels.values():
+		for label in list(self.global_store.pulse_program.resource_labels.values()):
 			del self.global_store.resources[label]
 
 		self.global_store.pulse_program = None

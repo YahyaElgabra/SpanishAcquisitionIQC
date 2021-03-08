@@ -91,7 +91,7 @@ class ValidTreeTest(TestCase):
 			('jkl2', 'length'): Quantity(50, 'ns'),
 		}
 
-		for name, value in updates.items():
+		for name, value in list(updates.items()):
 			env.set_value(name, value)
 
 		expected.update(updates)
@@ -131,7 +131,7 @@ class ValidTreeTest(TestCase):
 			('jkl2', 'length'): Quantity(50, 'ns'),
 		}
 
-		for name, value in updates.items():
+		for name, value in list(updates.items()):
 			env.set_value(name, value)
 
 		env.frequency = Quantity(1, 'GHz')

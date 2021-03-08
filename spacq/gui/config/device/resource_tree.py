@@ -172,13 +172,13 @@ class ResourceTree(TreeListCtrl):
 
 			path = ()
 
-		for name, subdev in device.subdevices.items():
+		for name, subdev in list(device.subdevices.items()):
 			item = self.AppendItem(root, name)
 			full_path = path + (name,)
 
 			self.build_tree(subdev, resource_labels, item, full_path)
 
-		for name, resource in device.resources.items():
+		for name, resource in list(device.resources.items()):
 			item = self.AppendItem(root, name)
 			full_path = path + (name,)
 
@@ -353,11 +353,11 @@ class DeviceResourcesPanel(wx.Panel):
 		return (labels, resources)
 
 	def SetValue(self, resource_labels, resources):
-		for path, name in resource_labels.items():
+		for path, name in list(resource_labels.items()):
 			for leaf in self.tree.GetLeaves():
 				pydata = self.tree.GetItemPyData(leaf)
 
 				if pydata.path == path:
 					self.tree.SetItemText(leaf, name, self.tree.col_label)
 
-		self.tree.resource_labels = resource_labels.values()
+		self.tree.resource_labels = list(resource_labels.values())

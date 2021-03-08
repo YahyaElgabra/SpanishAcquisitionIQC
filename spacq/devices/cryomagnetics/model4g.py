@@ -88,7 +88,7 @@ class Channel(AbstractSubdevice):
         This allows some of the virtual features to wait until a sweep is complete before performing other commands.
         '''
         
-        for i in xrange(0,2):
+        for i in range(0,2):
             current_sweep = self.sweep
             if current_sweep == 'Sweeping up':
                 while current_sweep != 'Pause' and self.power_supply_current != self.high_limit:
@@ -236,7 +236,7 @@ class Channel(AbstractSubdevice):
         '''
         Used to grab the range for a given range id.
         '''
-        if range_id is not 0:
+        if range_id != 0:
             lower = self.device.ask('range? {0}'.format(range_id-1))
         else:
             lower = 0
@@ -644,7 +644,7 @@ class Model4G(AbstractDevice):
         
         # Channel subdevices.
         self.channels = [None] # There is no channel 0.
-        for chan_num in xrange(1, 3):
+        for chan_num in range(1, 3):
             channel = Channel(self,chan_num)
             self.subdevices['channel{0}'.format(chan_num)] = channel
             # this list is useful as it is actually ordered, as opposed to the dict above.
@@ -719,7 +719,7 @@ class Model4G(AbstractDevice):
                                     subdev.virt_iout_sweep_to:Quantity('0 kG')
                                     }
             
-            for resource, value in resource_check_dict.items():
+            for resource, value in list(resource_check_dict.items()):
                 if resource != value:
                     raise ValueError('A resource with value {0} did not set to its default value of {1}'.format(resource, value))
 

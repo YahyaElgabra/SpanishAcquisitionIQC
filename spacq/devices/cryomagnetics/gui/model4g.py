@@ -72,7 +72,7 @@ class Model4GChannelPanel(wx.Panel):
 			self.control_state_displays[control_state_name] = control_state_display
 		
 		# reverse our dictionary for key retrieval by item.
-		self.inv_control_state_displays = dict((v,k) for k, v in self.control_state_displays.iteritems())
+		self.inv_control_state_displays = dict((v,k) for k, v in self.control_state_displays.items())
 
 		# Readouts.
 		
@@ -110,7 +110,7 @@ class Model4GChannelPanel(wx.Panel):
 			readout_grid.Add(self.displays[resource_name][-1], flag=wx.ALIGN_RIGHT)
 			
 		# reverse our dictionary for key retrieval by item.
-		self.inv_readout_displays = dict((v,k) for k, v in self.readout_displays.iteritems())
+		self.inv_readout_displays = dict((v,k) for k, v in self.readout_displays.items())
 		
 		# Controls.
 		
@@ -271,7 +271,7 @@ class Model4GChannelPanel(wx.Panel):
 		Update appropriate readouts with a new resource value.
 		Also update button permissions.
 		"""
-		if resource_name in self.readout_displays.keys():
+		if resource_name in list(self.readout_displays.keys()):
 			if self.checkboxes[resource_name].Value == False: #TODO: for debugging model4g GUI...remove when no longer needed.
 				return
 			
@@ -280,7 +280,7 @@ class Model4GChannelPanel(wx.Panel):
 			#perform alterations to output based on where the resource is being readout in GUI.
 			
 			inv_cont_dict = self.inv_control_state_displays
-			if display in inv_cont_dict.keys():
+			if display in list(inv_cont_dict.keys()):
 				if inv_cont_dict[display] == 'persistent_switch_heater':
 					if value == 'on':
 						display.BackgroundColour = OK_BACKGROUND_COLOR
@@ -296,7 +296,7 @@ class Model4GChannelPanel(wx.Panel):
 						display.BackgroundColour = wx.LIGHT_GREY
 					#display as-is
 					value_readout = value
-			elif display in self.inv_readout_displays.keys():
+			elif display in list(self.inv_readout_displays.keys()):
 				#display as-is
 				value_readout = value
 			
@@ -305,7 +305,7 @@ class Model4GChannelPanel(wx.Panel):
 			# User Permissions
 			
 			# if currents don't match, heater toggle should be disabled.
-			if display in inv_cont_dict.keys():
+			if display in list(inv_cont_dict.keys()):
 				if inv_cont_dict[display] == 'virt_sync_currents':
 					if value == 'synced':
 						self.heater_toggle.Enable()
@@ -348,7 +348,7 @@ class Model4GChannelPanel(wx.Panel):
 		Note: code taken from sweep controller.
 		"""
 		
-		if name in self.readout_displays.keys():
+		if name in list(self.readout_displays.keys()):
 			if self.checkboxes[name].Value == False: #TODO: for debugging model4g GUI...remove when no longer needed.
 				return
 

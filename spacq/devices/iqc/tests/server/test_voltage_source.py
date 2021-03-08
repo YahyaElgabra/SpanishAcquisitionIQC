@@ -33,9 +33,9 @@ class VoltageSourceTest(DeviceServerTestCase):
 
 		vsrc = self.obtain_device()
 
-		test_voltages = list(xrange(-10, 10 + 1, 2)) + list(xrange(5, 0, -1))
+		test_voltages = list(range(-10, 10 + 1, 2)) + list(range(5, 0, -1))
 
-		for port, voltage in zip(xrange(16), test_voltages):
+		for port, voltage in zip(range(16), test_voltages):
 			vsrc.ports[port].voltage = Quantity(voltage, 'V')
 
 

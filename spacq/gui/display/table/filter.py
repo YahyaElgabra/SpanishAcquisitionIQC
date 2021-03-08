@@ -85,7 +85,7 @@ class FilterListDialog(Dialog):
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Filter list.
-		self.filter_list = wx.ListBox(self, choices=self.filters.keys())
+		self.filter_list = wx.ListBox(self, choices=list(self.filters.keys()))
 		self.filter_list.SetMinSize((100, 200))
 		self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnEditFilter, self.filter_list)
 		dialog_box.Add(self.filter_list, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
@@ -122,7 +122,7 @@ class FilterListDialog(Dialog):
 		"""
 
 		filters = [self.create_filter(f, col) for f, col in
-				zip(self.filters.values(), self.filter_columns.values())]
+				zip(list(self.filters.values()), list(self.filter_columns.values()))]
 
 		return lambda i, x: all([f(i, x) for f in filters])
 

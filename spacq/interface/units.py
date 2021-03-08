@@ -47,7 +47,7 @@ class SIValues(object):
 		'Z': 21,
 		'Y': 24,
 	}
-	prefixes_ = dict([(v, k) for (k, v) in prefixes.items()])
+	prefixes_ = dict([(v, k) for (k, v) in list(prefixes.items())])
 
 	# SI base units. Note the g instead of kg.
 	units = set(['A', 'cd', 'g', 'K', 'm', 'mol', 's'])
@@ -77,14 +77,14 @@ class Quantity(object):
 
 		for symbol in symbols:
 			symbol_unit, symbol_multiplier = None, None
-			for prefix, multiplier in SIValues.prefixes.items():
+			for prefix, multiplier in list(SIValues.prefixes.items()):
 				if not symbol.startswith(prefix):
 					continue
 
 				unit = symbol[len(prefix):]
 
 				exponent = None
-				for i in xrange(len(unit)):
+				for i in range(len(unit)):
 					try:
 						exponent = float(unit[i:])
 						break
@@ -120,7 +120,7 @@ class Quantity(object):
 		Separate the value from the units.
 		"""
 
-		for i in xrange(len(string), 0, -1):
+		for i in range(len(string), 0, -1):
 			try:
 				value = float(string[:i])
 			except ValueError:
@@ -135,7 +135,7 @@ class Quantity(object):
 		Both ('100 ms') and (100, 'ms') are acceptable.
 		"""
 
-		if isinstance(value, basestring):
+		if isinstance(value, str):
 			value, units = self.from_string(value)
 
 		# Always work with single floats.
@@ -201,7 +201,7 @@ class Quantity(object):
 		If exception is True and we would have returned False, raise an exception.
 		"""
 
-		if isinstance(other, basestring):
+		if isinstance(other, str):
 			# Given a units string.
 			other = Quantity(1, other).dimensions
 		elif isinstance(other, Quantity):

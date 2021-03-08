@@ -28,7 +28,7 @@ class BlockDataTest(TestCase):
 		Routine conversions.
 		"""
 
-		binary_data = ''.join([chr(x) for x in xrange(256)])
+		binary_data = ''.join([chr(x) for x in range(256)])
 
 		data = [
 			('', '#10'),
@@ -46,7 +46,7 @@ class BlockDataTest(TestCase):
 		Indefinite inputs.
 		"""
 
-		binary_data = ''.join([chr(x) for x in xrange(256)])
+		binary_data = ''.join([chr(x) for x in range(256)])
 
 		data = [
 			('', '#0\n'),

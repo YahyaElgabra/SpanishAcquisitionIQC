@@ -50,8 +50,8 @@ class DeviceConfigTest(TestCase):
 		cfg.ip_address = '127.0.0.1'
 
 		tree = config.device_tree()
-		cfg.manufacturer = tree.keys()[-1]
-		cfg.model = tree[cfg.manufacturer].keys()[-1]
+		cfg.manufacturer = list(tree.keys())[-1]
+		cfg.model = list(tree[cfg.manufacturer].keys())[-1]
 		cfg.mock = True
 
 		cfg.connect()

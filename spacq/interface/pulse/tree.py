@@ -121,13 +121,13 @@ class Environment(object):
 
 		if self.stage == self.stages.declarations:
 			# Prepare for output waveform generators.
-			for output in [var for var, type in self.variables.items() if type == 'output']:
+			for output in [var for var, type in list(self.variables.items()) if type == 'output']:
 				self.generators[output] = None
 				self.waveforms[output] = None
 
 			# Generate labels for all necessary values.
 			self.all_values = set()
-			for name, type in self.variables.items():
+			for name, type in list(self.variables.items()):
 				if type == 'pulse':
 					for attr in ['amplitude', 'length', 'shape']:
 						self.all_values.add((name, attr))
@@ -156,7 +156,7 @@ class Environment(object):
 					if not isinstance(value, int):
 						raise TypeError('Must assign int to acq_marker num')
 				elif target[1] == 'output':
-					if not isinstance(value, basestring):
+					if not isinstance(value, str):
 						raise TypeError('Must assign string to acq_marker num')
 		elif var_type == 'delay':
 			try:
@@ -181,7 +181,7 @@ class Environment(object):
 					except (AttributeError, IncompatibleDimensions):
 						raise TypeError('Must assign time quantity to pulse length')
 				elif target[1] == 'shape':
-					if not isinstance(value, basestring):
+					if not isinstance(value, str):
 						raise TypeError('Must assign string to pulse shape')
 		else:
 			raise TypeError('Cannot assign to variable of type "{0}"'.format(var_type))
@@ -314,7 +314,7 @@ class Assignment(ASTNode):
 				env.add_error('Undeclared variable "{0}"'.format(target[0]), self.location)
 			else:
 				if isinstance(self.value, Dictionary):
-					for k, v in self.value.visit(env).items():
+					for k, v in list(self.value.visit(env).items()):
 						self.assign_value(env, target + (k,), v)
 				else:
 					self.assign_value(env, target, self.value)
@@ -406,7 +406,7 @@ class Delay(ASTNode):
 
 	def visit(self, env):
 		if env.stage == env.stages.commands:
-			if isinstance(self.length, basestring):
+			if isinstance(self.length, str):
 				try:
 					if env.variables[self.length] != 'delay':
 						env.add_error('Not a delay', self.location)
@@ -416,12 +416,12 @@ class Delay(ASTNode):
 				if not self.length.assert_dimensions('s', exception=False):
 					env.add_error('Delay must be a time value', self.location)
 		if env.stage == env.stages.waveforms:
-			if isinstance(self.length, basestring):
+			if isinstance(self.length, str):
 				length = env.values[(self.length,)]
 			else:
 				length = self.length
 
-			for waveform in env.generators.values():
+			for waveform in list(env.generators.values()):
 				waveform.set_next(0.0)
 				waveform.delay(length)
 
@@ -460,7 +460,7 @@ class Loop(ASTNode):
 
 	def visit(self, env):
 		if env.stage == env.stages.commands:
-			if isinstance(self.times, basestring):
+			if isinstance(self.times, str):
 				try:
 					if env.variables[self.times] != 'int':
 						env.add_error('Repetition count must be int', self.location)
@@ -468,12 +468,12 @@ class Loop(ASTNode):
 					env.add_error('Undeclared variable "{0}"'.format(self.times), self.location)
 
 		if env.stage == env.stages.waveforms:
-			if isinstance(self.times, basestring):
+			if isinstance(self.times, str):
 				times = env.values[(self.times,)]
 			else:
 				times = self.times
 
-			for _ in xrange(times):
+			for _ in range(times):
 				env.stack.append(self)
 				self.block.visit(env)
 				env.stack.pop()
@@ -496,9 +496,9 @@ class ParallelPulses(ASTNode):
 		env.stack.pop()
 
 		if env.stage == env.stages.waveforms:
-			max_length = max(len(waveform._wave) for waveform in env.generators.values())
+			max_length = max(len(waveform._wave) for waveform in list(env.generators.values()))
 
-			for waveform in env.generators.values():
+			for waveform in list(env.generators.values()):
 				if len(waveform._wave) < max_length:
 					waveform.append([0.0] * (max_length - len(waveform._wave)))
 
@@ -548,7 +548,7 @@ class PulseSequence(ASTNode):
 			target = env.generators[env.stack[-1].target]
 
 			for item in self.items:
-				if isinstance(item, basestring):
+				if isinstance(item, str):
 					type = env.variables[item]
 
 					if type == 'delay':

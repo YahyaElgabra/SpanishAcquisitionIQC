@@ -65,15 +65,15 @@ class MathSetupDialog_Derivative(Dialog):
 		slider_box = wx.BoxSizer(wx.HORIZONTAL)
 		dialog_box.Add(slider_box, flag=wx.CENTER)
 
-        	self.slider_title = wx.StaticText(self, label='Step Size:')
-        	slider_box.Add(self.slider_title)
-        
-        	self.reading = wx.StaticText(self, label='01')
-        	slider_box.Add(self.reading)
-        
-        	self.step_slider = wx.Slider(self, value=1, minValue=1, maxValue= 20, size=(200,-1), style=wx.SL_HORIZONTAL)
-        	self.Bind(wx.EVT_SCROLL, self.OnSliderScroll, self.step_slider)
-        	slider_box.Add(self.step_slider)
+		self.slider_title = wx.StaticText(self, label='Step Size:')
+		slider_box.Add(self.slider_title)
+
+		self.reading = wx.StaticText(self, label='01')
+		slider_box.Add(self.reading)
+
+		self.step_slider = wx.Slider(self, value=1, minValue=1, maxValue= 20, size=(200,-1), style=wx.SL_HORIZONTAL)
+		self.Bind(wx.EVT_SCROLL, self.OnSliderScroll, self.step_slider)
+		slider_box.Add(self.step_slider)
 
 		## End buttons.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -94,10 +94,10 @@ class MathSetupDialog_Derivative(Dialog):
 
 		self.ok_button.Enable(all(axis is not None for axis in self.axes))
 
-    	def OnSliderScroll(self, evt=None):
-        	self.step_size = self.step_slider.GetValue()
+	def OnSliderScroll(self, evt=None):
+		self.step_size = self.step_slider.GetValue()
 
-        	self.reading.SetLabel(str(self.step_size))        
+		self.reading.SetLabel(str(self.step_size))
 
 	def OnOk(self, evt=None):
 		title, d_data = self.calculate()
@@ -150,7 +150,7 @@ class MathSetupDialog_Function(Dialog):
 	def OnAxisSelection(self, values):
 		self.axes = values
 
-		self.ok_button.Enable(all(axis is not None for axis in self.axes))      
+		self.ok_button.Enable(all(axis is not None for axis in self.axes))
 
 	def OnOk(self, evt=None):
 		title, d_data = self.calculate()

@@ -54,7 +54,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 		self.mock_state['data_framestop'] = 1
 
 		self.mock_state['channels'] = [None] # There is no channel 0.
-		for _ in xrange(1, 5):
+		for _ in range(1, 5):
 			self.mock_state['channels'].append(MockChannel())
 		self.mock_state['channels'][1].enabled = True
 
@@ -152,7 +152,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 			elif cmd[0] == 'curve' and query:
 				num_points = self._record_length * self.mock_state['waveform_bytes']
 				ch = self.mock_state['data_source']
-				curve = [int(120 * sin(2 * ch * pi * x / num_points) + randint(-7, 7)) for x in xrange(num_points)]
+				curve = [int(120 * sin(2 * ch * pi * x / num_points) + randint(-7, 7)) for x in range(num_points)]
 				result = BlockData.to_block_data(pack('!%db' % (num_points), *curve))
 				done = True
 			elif cmd[0] == 'wfmoutpre':

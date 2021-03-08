@@ -205,7 +205,7 @@ class ListLiveViewPanel(wx.Panel):
 			return
 
 		# Extract the times and the data values.
-		times, values = zip(*values)
+		times, values = list(zip(*values))
 		time_range = min(times), max(times)
 
 		# Sanity check, since the new values must match existing ones.

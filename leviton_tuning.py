@@ -1,4 +1,6 @@
-
+'''
+File which performs auto-tuning of a PN-junction to a single electron per cycle RF cycle
+'''
 ## Import relevant modules
 # From built-ins
 import time

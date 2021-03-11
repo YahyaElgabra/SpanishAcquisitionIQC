@@ -1,29 +1,37 @@
 '''
-File which implement automated tuning of an etched wire
+File which implement automated tuning of an etched wire to the single quantum level 
 '''
 
-# Import relevant modules
+## Import relevant modules
+# From built-ins
 import time
+
+# From external packages
 import numpy as np
 from scipy.constants import e
 
+# From home-built package 
 from spacq.interface.units import Quantity
 
 def _ramp_to_voltage(value, Instrument, resolution=101, wait_time=None):
     '''
-    Function which will gently ramp an Instrument to a target voltage, taking into account it's current voltage.
+    Function which will gently ramp an Instrument to a target voltage, taking into account it's current voltage
 
     Parameters:
     value: Value in Volts that we wish to ramp the Instrument to
     Instrument: Instrument whose voltage should be set
 
     Keyword arguments:
-    resolution: Integer number of intermediate points that the slow ramp should take (default 51)
+    resolution: Integer number of intermediate points that the slow ramp should take (default 101)
+    wait_time: Time in seconds to wait at each ramping point. If None, does not wait (default None)
     '''
+    # Find initial voltage and make smooth ramp between initial and final voltages
     initial = Instrument.voltage
-    print("Beginning ramping from " + str(initial) + " to " + str(value))
     dummy_ramp = np.linspace(initial.value, value.value, resolution)
     dummy_ramp_quantities = [Quantity(i, units="V") for i in dummy_ramp]
+
+    # Ramp from initial to final, waiting if necessary
+    print("Beginning ramping from " + str(initial) + " to " + str(value))
     for value in dummy_ramp_quantities:
         print("Ramping device through " + str(value))
         Instrument.voltage = value
@@ -32,44 +40,55 @@ def _ramp_to_voltage(value, Instrument, resolution=101, wait_time=None):
 
 def _get_current(CurrentReader, gain):
     '''
-    Function which gets current, taking into account gain of the preamp
+    Function which gets current, taking into account gain of the current preamp
 
     Parameters:
-    CurrentReader: Device object that is used to read current. Must have an attribute called 'reading'. 
-                   It is assumed that we will be using a current preamp, which converts from current to voltage
-    gain: Gain of current preamp. Used to convert from current through device to voltage.
+    CurrentReader: Device object that is used to read current. Must have an attribute called 'reading'. It 
+                   is assumed that we will be using a current preamp, which converts from current to voltage
+    gain: Gain of current preamp. Used to convert from current through device to voltage
 
     Returns:
     current: Current measured by the current reader in Amps
     '''
+    # Take reading from instrument, then convert to current while taking into accoun the gain of the current preamp
     current = CurrentReader.reading
     current = Quantity(current.value/gain, units="A")
     return current
 
-def _set_all_down():
-    try:
-        Oscillator.power_on = 'false'
-    except NameError:
-        pass
-
-    try:
-        _ramp_to_voltage(Quantity(0, units='V'), V_bias_T, wait_time=0.1)
-    except NameError:
-        pass
-
-    try:
-        _ramp_to_voltage(Quantity(0, units='V'), V_vga, wait_time=0.1)
-    except NameError:
-        pass
-
-    try:
-        _ramp_to_voltage(Quantity(-1, units='V'), V_tpg, resolution=30, wait_time=1)
-    except NameError:
-        pass
-
 #Implementation of auto-tuning
 if __name__ == "__main__":
 
+    def _set_all_down():
+        '''
+        Function which will set all initialized sources to their default values, skipping any insturments that are missing
+        Not defined outside the script since it is dependent on the particular names of the instrument objects.
+        '''
+        try:
+            Oscillator.power_on = 'false'
+        # If NameError occured, Oscillator was never defined, so skip to the next instrument
+        except NameError: 
+            pass
+
+        try:
+            _ramp_to_voltage(Quantity(0, units='V'), V_bias_T, wait_time=0.1)
+        # If NameError occured, V_bias_T was never defined, so skip to the next instrument
+        except NameError:
+            pass
+
+        try:
+            _ramp_to_voltage(Quantity(0, units='V'), V_vga, wait_time=0.1)
+        # If NameError occured, V_vga was never defined, so skip to the next instrument
+        except NameError:
+            pass
+
+        try:
+            _ramp_to_voltage(Quantity(-1, units='V'), V_tpg, resolution=30, wait_time=1)
+        # If NameError occured, V_tpg was never defined, so skip to the next instrument
+        except NameError:
+            pass
+
+    # Put auto-tuning script try-except block to catch any errors and 
+    # set all voltages to default values if they occur
     try:
     ## Define variables used in sweep
         gain = 1e8
@@ -185,19 +204,22 @@ if __name__ == "__main__":
 
             if diff.value < turn_on_threshold.value:
                 print("Success! Setting all voltages to zero")
-                _set_all_down()
                 break
+        else:
+            _set_all_down()
 
         ## Now tune to the 1 charge per cycle regime
 
         ## Set all voltages down to their set values
         _set_all_down()
 
+    # Catch KeyboardInterrupt, which occurs when a user kills the script prematurely
     except KeyboardInterrupt:
         print()
-        print("Tuning interupted! Setting all voltages to 0")
+        print("Tuning interupted by user! Setting all voltages to default values")
         _set_all_down()
 
+    # Catch all other Exceptions, set all voltages to default values and then raise error for traceback
     except Exception as e:
         print()
         print("Tuning interupted! Setting all voltages to 0")

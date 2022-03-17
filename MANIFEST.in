@@ -1,3 +1,0 @@
-include *.rst
-include test-config.py
-recursive-include examples *.py

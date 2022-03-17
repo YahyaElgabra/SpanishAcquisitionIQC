@@ -1,4 +1,0 @@
-SpanishAcquisition.egg-info/PKG-INFO
-SpanishAcquisition.egg-info/SOURCES.txt
-SpanishAcquisition.egg-info/dependency_links.txt
-SpanishAcquisition.egg-info/top_level.txt

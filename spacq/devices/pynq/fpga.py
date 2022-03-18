@@ -4,8 +4,8 @@ File which digital controls of the Pynq FPGA board
 
 ## Import relevant modules
 # From built-ins
-import time
 from __future__ import division
+import time
 import logging
 log = logging.getLogger(__name__)
 

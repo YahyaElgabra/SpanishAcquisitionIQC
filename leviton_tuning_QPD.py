@@ -62,94 +62,47 @@ if __name__ == "__main__":
         Not defined outside the script since it is dependent on the particular names of the instrument objects.
         '''
         try:
-            Oscillator.power_on = 'false'
+            Oscillator.typeNEnable = "off"
         # If NameError occured, Oscillator was never defined, so skip to the next instrument
         except NameError: 
             pass
 
         try:
-            _ramp_to_voltage(Quantity(0, units='V'), V_bias_T, resolution=51, wait_time=0.1)
-        # If NameError occured, V_bias_T was never defined, so skip to the next instrument
-        except NameError:
-            pass
-
-        try:
-            _ramp_to_voltage(Quantity(0, units='V'), V_vga, resolution=51, wait_time=0.1)
-        # If NameError occured, V_vga was never defined, so skip to the next instrument
-        except NameError:
-            pass
-
-        try:
-            _ramp_to_voltage(Quantity(0, units='V'), V_floating_tpg, resolution=51, wait_time=0.1)
-        # If NameError occured, V_tpg was never defined, so skip to the next instrument
-        except NameError:
-            pass
-
-        try:
-            _ramp_to_voltage(Quantity(0, units='V'), V_fixed_tpg, resolution=51, wait_time=0.1)
-        # If NameError occured, V_tpg was never defined, so skip to the next instrument
+            _ramp_to_voltage(Quantity(0, units='V'), V_pn_bias, resolution=51, wait_time=0.1)
+        # If NameError occured, V_pn_bias was never defined, so skip to the next instrument
         except NameError:
             pass
 
     # Put auto-tuning script try-except block to catch any errors and 
     # set all voltages to default values if they occur
     try:
-    ## Define variables used in sweep
+        ## Define variables used in sweep
         gain = 1e9
-        frequency = Quantity(1000e6, 'Hz')
+        frequency = Quantity(50e6, 'Hz')
         turn_on_threshold = Quantity(-0.0004 ,units="nA") # 1 pA
         RF_target = Quantity(-(e * frequency.value * 1e9), units='nA')
         RF_turn_on = Quantity(-(e * frequency.value * 1e9) - 0.0005, units='nA')
 
-        ## Initialize FPGA board
-        from spacq.devices.pynq.fpga import fpga
-        kwargs = {'request_address':'192.168.2.99'}
-        FpgaBoard = fpga(**kwargs)
+        ## Initialize Equipement
+        # Initialize and Configure Multimeter
+        from spacq.devices.agilent import dm34401a
+        CurrentReader = dm34401a.DM34401A(gpib_pad=21)
 
-        ## Configure instruments controlled by FPGA board
-        # Configure ADC
-        CurrentReader = FpgaBoard.subdevices['ADCport0']
-
-        # Configure Oscillator and VGA
-        Oscillator = FpgaBoard.subdevices['OSCport0']
+        # Initialize and Configure Signal Generator
+        from spacq.devices.stanford_research_systems import sg382
+        Oscillator = sg382.SG382(gpib_pad=27)
         Oscillator.frequency = frequency
-        Oscillator.power = '3'
-        Oscillator.power_on = "false"
-        V_vga = FpgaBoard.subdevices['DACport0']
+        Oscillator.BNCEnable = "off"
+        Oscillator.typeNEnable = "off"
 
         # Configure DAC outputs used for DC output
-        V_floating_tpg = FpgaBoard.subdevices['DACport10']
-        V_fixed_tpg = FpgaBoard.subdevices['DACport7']
-        V_bias_T = FpgaBoard.subdevices['DACport4']
+        from spacq.devices.stanford_research_systems import sim900
+        VoltSources = sim900.sim900(gpib_pad=3)
+        V_pn_bias = VoltSources.subdevices['port08']
 
         # For transients that arise during equipement initialization
         print("Let equipement rest for 1 seconds")
         time.sleep(1)
-
-        ## Set top gate voltages to their appropriate values
-        # Configure values for the fixed top gate
-        initial_v_fixed = 0 # in V
-        final_v_fixed = -5 # in V
-        v_fixed_numbers = np.linspace(initial_v_fixed, final_v_fixed, 51)
-        v_fixed_vals = [Quantity(i, units='V') for i in v_fixed_numbers]
-
-        # Configure value for the floating top gate
-        initial_v_floating = 0 # in V
-        final_v_floating = 6 # in V
-        v_floating_numbers = np.linspace(initial_v_floating, final_v_floating, 51)
-        v_floating_vals = [Quantity(i, units='V') for i in v_floating_numbers]
-
-        # Step both top gates through configured values
-        for i in range(len(v_fixed_vals)):
-            print("Setting fixed top gate voltage to " + str(v_fixed_vals[i]))
-            V_fixed_tpg.voltage = v_fixed_vals[i]
-            print("Setting floating top gate voltage to " + str(v_floating_vals[i]))
-            V_floating_tpg.voltage = v_floating_vals[i]
-            time.sleep(0.1)
-
-        # For transients that arise during the ramping of the topgate
-        print("Let equipement rest for 5 seconds")
-        time.sleep(5)
 
         ## Find bias induced turn on
         # Configure value for the bias
@@ -158,24 +111,13 @@ if __name__ == "__main__":
         v_bias_numbers = np.linspace(initial_v_bias, final_v_bias, 201)
         v_bias_vals = [Quantity(i, units='V') for i in v_bias_numbers]
 
-        # Configure value for the floating top gate
-        # This must be swept along with the bias in order for the top gate to be floating
-        initial_v_floating = 6 # in V
-        final_v_floating = 6 - 1.6 # in V
-        v_floating_numbers = np.linspace(initial_v_floating, final_v_floating, 201)
-        v_floating_vals = [Quantity(i, units='V') for i in v_floating_numbers]
-
         # Step both top gates through configured values
-        prev_value = v_floating_vals[0]
-        prev_float_tgp = v_floating_vals[0]
         for i in range(len(v_bias_vals)):
             print("Setting bias voltage to " + str(v_bias_vals[i]))
-            V_bias_T.voltage = v_bias_vals[i]
-            print("Setting floating top gate voltage to " + str(v_floating_vals[i]))
-            V_floating_tpg.voltage = v_floating_vals[i]
+            V_pn_bias.voltage = v_bias_vals[i]
 
             # When we are getting near the turn on point, sleep for 10 seconds to allow transients to dissipate
-            if i > 110:
+            if i > 150:
                 time.sleep(5)
             # Otherwise, sweep through the point quickly
             else:
@@ -184,15 +126,13 @@ if __name__ == "__main__":
             # Measure current to see if turn on has occured, breaking out of the for loop if it has
             current = _get_current(CurrentReader, gain)
             if current.value < turn_on_threshold.value: # negative since current is negative
-                print('Channel opening at a bias value of {0} V'.format(V_bias_T.voltage.value))
-                V_bias_T.voltage = prev_value
-                V_floating_tpg.voltage = prev_float_tgp
+                print('Channel opening at a bias value of {0} V'.format(V_pn_bias.voltage.value))
+                V_pn_bias.voltage = prev_value
                 break
             
             # Set the bias voltage to 2 values previous
             # Going 2 steps back instead of one ensures that we are in the pinch off region when we move on to the next step
             prev_value = v_bias_vals[i-1]
-            prev_float_tgp = v_floating_vals[i-1]
     
         # If not DC turn on was found, sweep all voltages to 0
         else:

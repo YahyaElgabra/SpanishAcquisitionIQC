@@ -56,28 +56,12 @@ class IPS120_10(AbstractDevice):
         # Ensure some initial sanity.
         # assert self.device_status.activity == 0, 'Not on hold.'
 
-    def write(self, message):
-        """
-        Append the "\r" that the device requires.
-        """
-        print(message)
-        AbstractDevice.write(self, message + u'\r')
-
-    # def ask(self, message):
-    #     """
-    #     Append the "\r" that the device requires.
-    #     """
-    #     self.write(message)
-    #     return AbstractDevice.read(self)
-
     @property
     def device_status(self):
         """
         All the status information for the device.
         """
         result = self.ask('X')
-
-        print(result)
         system_status = int(result[1])
         limits = int(result[2])
         activity = int(result[4])
@@ -143,8 +127,7 @@ class IPS120_10(AbstractDevice):
         """
         The rate of the field sweep, as a quantity in T/s.
         """
-        print(self.ask('R9')[1:])
-        return float(self.ask('R9')[1:])
+        return float(self.query('R9')[1:])
 
     @sweep_rate.setter
     @quantity_unwrapped('T.s-1', 60)
@@ -161,8 +144,7 @@ class IPS120_10(AbstractDevice):
         """
         The output field when the heater was last disabled, as a quantity in T.
         """
-
-        return float(self.ask('R18')[1:])
+        return float(self.query('R18')[1:])
 
     @property
     @quantity_wrapped('T')
@@ -171,7 +153,7 @@ class IPS120_10(AbstractDevice):
         The actual field due to the output current in T.
         """
 
-        return float(self.ask('R7')[1:])
+        return float(self.query('R7')[1:])
 
     @property
     @quantity_wrapped('T')
@@ -180,7 +162,7 @@ class IPS120_10(AbstractDevice):
         The set point, as a quantity in T.
         """
 
-        return float(self.ask('R8')[1:])
+        return float(self.query('R8')[1:])
 
     @set_point.setter
     @quantity_unwrapped('T')

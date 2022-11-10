@@ -98,7 +98,7 @@ class DataCaptureDialog(Dialog, SweepController):
 		dialog_box.Add(self.status_message_output, flag=wx.EXPAND)
 
 		## Values.
-		self.values_box = wx.FlexGridSizer(rows=len(self.variables), cols=2, hgap=20)
+		self.values_box = wx.FlexGridSizer(rows=0, cols=2, hgap=20)
 		self.values_box.AddGrowableCol(1, 1)
 		dialog_box.Add(self.values_box, flag=wx.EXPAND|wx.ALL, border=5)
 

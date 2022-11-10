@@ -252,7 +252,10 @@ class Resource(object):
 		elif isinstance(value_from, Quantity) and isinstance(value_to, Quantity):
 			value_from.assert_dimensions(value_to)
 
-		for value in linspace(value_from, value_to, steps):
+		# Make list of Quantites to loop over
+		quantites_values = linspace(value_from.original_value, value_to.original_value, steps)
+		quantites_list = [Quantity(value, units=value_from.original_units) for value in quantites_values]
+		for value in quantites_list:
 			try:
 				self.value = value
 			except Exception as e:

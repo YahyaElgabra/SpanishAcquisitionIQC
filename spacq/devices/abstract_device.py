@@ -35,6 +35,13 @@ else:
     available_drivers.append(drivers.telnet)
 
 try:
+    import requests
+except ImportError:
+    pass
+else:
+    available_drivers.append(drivers.requests)
+
+try:
     import visa
     try:
         legacyVisa = version.parse(visa.__version__) < version.parse('1.5')
@@ -195,18 +202,18 @@ class AbstractDevice(SuperDevice):
                 raise NotImplementedError(
                     'Telnetlib required, but not available.')
 
-                elif request_address is not None:
-                    if drivers.requests in available_drivers:
-                        log.debug('Using HTTP requests with request_address={0}.'.format(
-                            request_address))
-                        self.driver = drivers.requests
-                        self.connection_resource = {
-                            'request_address': '{0}'.format(request_address)
-                        }
-                        self.request_address = 'http://' + str(request_address)
-                    else:
-                        raise NotImplementedError(
-                            'requests lib required, but not available')
+        elif request_address is not None:
+            if drivers.requests in available_drivers:
+                log.debug('Using HTTP requests with request_address={0}.'.format(
+                    request_address))
+                self.driver = drivers.requests
+                self.connection_resource = {
+                    'request_address': '{0}'.format(request_address)
+                }
+                self.request_address = 'http://' + str(request_address)
+            else:
+                raise NotImplementedError(
+                    'requests lib required, but not available')
 
         elif gpib_pad is not None:
             if drivers.lgpib in available_drivers:
@@ -270,11 +277,11 @@ class AbstractDevice(SuperDevice):
         elif self.driver == drivers.telnet:
             self.device = telnetlib.Telnet(
                 timeout=2, **self.connection_resource)
-             elif self.driver == drivers.requests:
-                  r = requests.get(self.request_address)
-                   if r.status_code != 200:
-                        raise DeviceNotFoundError(
-                            'Could not connect to device at "{0}".'.format(self.connection_resource), e)
+        elif self.driver == drivers.requests:
+            r = requests.get(self.request_address)
+            if r.status_code != 200:
+                raise DeviceNotFoundError(
+                    'Could not connect to device at "{0}".'.format(self.connection_resource), e)
 
         elif self.driver == drivers.lgpib:
             try:
@@ -395,10 +402,10 @@ class AbstractDevice(SuperDevice):
                 else:
                     raise
 
-                elif self.driver == drivers.requests:
-                    r = requests.get(self.request_address + message)
-                    if r.status_code != 200:
-                        raise Exception("Write did not work")
+        elif self.driver == drivers.requests:
+            r = requests.get(self.request_address + message)
+            if r.status_code != 200:
+                raise Exception("Write did not work")
 
         elif self.driver == drivers.lgpib:
             try:
@@ -443,8 +450,8 @@ class AbstractDevice(SuperDevice):
                     raise DeviceTimeout(e)
                 else:
                     raise
-                elif self.driver == drivers.requests:
-                    buf = requests.get(self.request_address)
+        elif self.driver == drivers.requests:
+            buf = requests.get(self.request_address)
 
         elif self.driver == drivers.lgpib:
             status = 0
@@ -475,10 +482,10 @@ class AbstractDevice(SuperDevice):
         """
         Write, then read_raw.
         """
-           if self.driver == 'requests':
-                r = requests.get(self.request_address + message)
-                return r
-            else:
+        if self.driver == 'requests':
+            r = requests.get(self.request_address + message)
+            return r
+        else:
             self.write(message)
             return self.read_raw()
 

@@ -57,7 +57,7 @@ class MeasurementConfigPanel(wx.Panel):
 		self.Bind(wx.EVT_CHECKBOX, self.OnCaptureChecked, self.enabled_checkbox)
 
 		### Names.
-		names_box = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		names_box = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		names_box.AddGrowableCol(1, 1)
 		configuration_box.Add(names_box, flag=wx.EXPAND, proportion=1)
 

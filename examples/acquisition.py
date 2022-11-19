@@ -4,6 +4,7 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 
 import wx
+from wx.adv import AboutDialogInfo, AboutBox
 
 from spacq import VERSION
 from spacq.gui.action.data_capture import DataCapturePanel
@@ -18,7 +19,7 @@ from spacq.gui.tool.box import MessageDialog
 
 
 class SweepingAcquisitionFrame(wx.Frame):
-	def __init__(self, parent, global_store, *args, **kwargs):
+	def __init__(self, parent, global_store, *args, **kwargs): 
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
 		# Frame.
@@ -77,7 +78,7 @@ class AcquisitionApp(wx.App):
 
 		### Measurements.
 		submenu = wx.Menu()
-		menu.AppendMenu(wx.ID_ANY, '&Measurements', submenu)
+		menu.Append(wx.ID_ANY, '&Measurements', submenu)
 
 		item = submenu.Append(wx.ID_ANY, 'Add &scalar...')
 		self.Bind(wx.EVT_MENU, self.OnMenuConfigurationMeasurementsAddScalar, item)
@@ -138,7 +139,7 @@ class AcquisitionApp(wx.App):
 		self.pulse_program_frame.Raise()
 
 	def OnMenuHelpAbout(self, evt=None):
-		info = wx.AboutDialogInfo()
+		info = AboutDialogInfo()
 		info.SetName('Acquisition')
 		info.SetDescription(
 			'An application for sweeping device values and acquiring data.\n'
@@ -146,7 +147,7 @@ class AcquisitionApp(wx.App):
 			'Using Spanish Acquisition version {0}.'.format(VERSION)
 		)
 
-		wx.AboutBox(info)
+		AboutBox(info)
 
 
 if __name__ == "__main__":

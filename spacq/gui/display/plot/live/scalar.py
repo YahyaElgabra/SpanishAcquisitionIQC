@@ -68,14 +68,14 @@ class PlotSettingsDialog(Dialog):
 		# Capture.
 		capture_static_box = wx.StaticBox(self, label='Capture')
 		capture_box = wx.StaticBoxSizer(capture_static_box, wx.VERTICAL)
-		capture_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		capture_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		capture_box.Add(capture_sizer, flag=wx.CENTER)
 		dialog_box.Add(capture_box, flag=wx.EXPAND|wx.ALL, border=5)
 
 		## Number of points.
 		capture_sizer.Add(wx.StaticText(self, label='Points:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.points_input = wx.SpinCtrl(self, min=2, max=1e4, initial=100)
+		self.points_input = wx.SpinCtrl(self, min=2, max=int(1e4), initial=100)
 		capture_sizer.Add(self.points_input, flag=wx.CENTER)
 
 		## Delay.
@@ -117,7 +117,7 @@ class PlotSettingsDialog(Dialog):
 		### Conversion.
 		conversion_static_box = wx.StaticBox(self, label='Conversion')
 		conversion_box = wx.StaticBoxSizer(conversion_static_box, wx.VERTICAL)
-		conversion_sizer = wx.FlexGridSizer(rows=1, cols=2, hgap=5)
+		conversion_sizer = wx.FlexGridSizer(rows=1, cols=2, vgap=5, hgap=5)
 		conversion_box.Add(conversion_sizer)
 		y_box.Add(conversion_box)
 
@@ -129,7 +129,7 @@ class PlotSettingsDialog(Dialog):
 		#### Units.
 		units_static_box = wx.StaticBox(self, label='Units')
 		units_box = wx.StaticBoxSizer(units_static_box, wx.VERTICAL)
-		units_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		units_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		units_box.Add(units_sizer)
 		conversion_box.Add(units_box, flag=wx.EXPAND)
 

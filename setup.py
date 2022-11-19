@@ -9,7 +9,7 @@ def included_package(p):
 
 setup(
 	name='SpanishAcquisition',
-	version='2.1',
+	version='3.0',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
 	maintainer='Kyle Willick',
@@ -24,6 +24,6 @@ setup(
 		'Intended Audience :: Science/Research',
 		'License :: OSI Approved :: BSD License',
 		'Operating System :: OS Independent',
-		'Programming Language :: Python :: 2',
+		'Programming Language :: Python :: 3',
 	],
 )

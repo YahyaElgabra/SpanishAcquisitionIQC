@@ -49,7 +49,7 @@ class DeviceConfigPanel(wx.Panel):
 		self.address_mode_eth = wx.RadioButton(self, label='Ethernet', style=wx.RB_GROUP)
 		ethernet_box.Add(self.address_mode_eth)
 
-		ethernet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		ethernet_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		ethernet_box.Add(ethernet_sizer, flag=wx.EXPAND)
 
 		ethernet_sizer.Add(wx.StaticText(self, label='IP address:'),
@@ -65,7 +65,7 @@ class DeviceConfigPanel(wx.Panel):
 		self.address_mode_tel = wx.RadioButton(self, label='Telnet')
 		telnet_box.Add(self.address_mode_tel)
 
-		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		telnet_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		telnet_box.Add(telnet_sizer, flag=wx.EXPAND)
 
 		telnet_sizer.Add(wx.StaticText(self, label='Host:'),
@@ -81,7 +81,7 @@ class DeviceConfigPanel(wx.Panel):
 		self.address_mode_gpib = wx.RadioButton(self, label='GPIB')
 		gpib_box.Add(self.address_mode_gpib)
 
-		gpib_sizer = wx.FlexGridSizer(rows=3, cols=2, hgap=5)
+		gpib_sizer = wx.FlexGridSizer(rows=3, cols=2, vgap=5, hgap=5)
 		gpib_box.Add(gpib_sizer, flag=wx.EXPAND)
 
 		gpib_sizer.Add(wx.StaticText(self, label='Board:'),
@@ -111,7 +111,7 @@ class DeviceConfigPanel(wx.Panel):
 		usb_box.Add(usb_sizer, flag=wx.EXPAND)
 
 		usb_sizer.Add(wx.StaticText(self, label='USB resource: '),
-				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+				flag=wx.ALIGN_CENTER_VERTICAL)
 		self.usb_resource_input = wx.TextCtrl(self, size=(300, -1))
 		usb_sizer.Add(self.usb_resource_input, proportion=1)
 

@@ -72,9 +72,9 @@ class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
             mini_setup.Add(self.start_value[i], flag=wx.EXPAND|wx.ALL, border=5)
             self.end_value[i] = wx.TextCtrl(self, value="2")
             mini_setup.Add(self.end_value[i], flag=wx.EXPAND|wx.ALL, border=5)
-            self.step_value[i] = wx.SpinCtrl(self, min=1, initial=3, max=1e9)
+            self.step_value[i] = wx.SpinCtrl(self, min=1, initial=3, max=int(1e9))
             mini_setup.Add(self.step_value[i], flag=wx.EXPAND|wx.ALL, border=5)
-            self.order_value[i] = wx.SpinCtrl(self, min=1, initial=1, max=1e9)
+            self.order_value[i] = wx.SpinCtrl(self, min=1, initial=1, max=int(1e9))
             mini_setup.Add(self.order_value[i], flag=wx.EXPAND|wx.ALL, border=5)
 
             self.value_setup.Add(mini_setup, flag=wx.EXPAND|wx.ALL, border=5)
@@ -91,8 +91,8 @@ class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
                 self.name_value.append(wx.TextCtrl(self, value="VirtVar{0}".format(i)))
                 self.start_value.append(wx.TextCtrl(self, value="1"))
                 self.end_value.append(wx.TextCtrl(self, value="2"))
-                self.step_value.append(wx.SpinCtrl(self, min=1, initial=3, max=1e9))
-                self.order_value.append(wx.SpinCtrl(self, min=1, initial=1, max=1e9))
+                self.step_value.append(wx.SpinCtrl(self, min=1, initial=3, max=int(1e9)))
+                self.order_value.append(wx.SpinCtrl(self, min=1, initial=1, max=int(1e9)))
 
                 mini_setup = wx.BoxSizer(wx.VERTICAL)
                 mini_setup.Add(self.name_value[i], flag=wx.EXPAND|wx.ALL, border=5)

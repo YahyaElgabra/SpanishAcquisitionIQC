@@ -61,7 +61,7 @@ class PlotSettingsDialog(Dialog):
 		# Capture.
 		capture_static_box = wx.StaticBox(self, label='Capture')
 		capture_box = wx.StaticBoxSizer(capture_static_box, wx.VERTICAL)
-		capture_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
+		capture_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		capture_box.Add(capture_sizer, flag=wx.CENTER)
 		dialog_box.Add(capture_box, flag=wx.EXPAND|wx.ALL, border=5)
 

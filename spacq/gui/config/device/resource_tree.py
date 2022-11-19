@@ -311,8 +311,7 @@ class ResourceTree(TreeListCtrl):
 		"""
 		Double click to edit.
 		"""
-
-		self.EditLabel(evt.Item, evt.Int)
+		self.EditLabel(evt.GetItem(), evt.Int)
 
 
 class DeviceResourcesPanel(wx.Panel):

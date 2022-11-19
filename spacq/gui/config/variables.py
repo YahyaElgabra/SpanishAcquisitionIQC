@@ -36,7 +36,7 @@ class LinSpaceConfigPanel(wx.Panel):
 		panel_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Config.
-		config_sizer = wx.FlexGridSizer(rows=3, cols=2)
+		config_sizer = wx.FlexGridSizer(rows=3, cols=2,  vgap=5, hgap=5)
 		config_sizer.AddGrowableCol(1, 1)
 		panel_box.Add(config_sizer, proportion=1, flag=wx.EXPAND)
 
@@ -55,7 +55,7 @@ class LinSpaceConfigPanel(wx.Panel):
 		### Steps.
 		config_sizer.Add(wx.StaticText(self, label='Steps:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
-		self.steps_input = wx.SpinCtrl(self, min=1, initial=1, max=1e9)
+		self.steps_input = wx.SpinCtrl(self, min=1, initial=1, max=int(1e9))
 		config_sizer.Add(self.steps_input, flag=wx.EXPAND|wx.ALL, border=5)
 
 		self.SetSizerAndFit(panel_box)
@@ -535,7 +535,7 @@ class OutputVariableEditor(Dialog):
 
 		smooth_box.Add(wx.StaticText(self, label='Steps:'), flag=wx.CENTER)
 
-		self.smooth_steps_input = wx.SpinCtrl(self, min=1, initial=10)
+		self.smooth_steps_input = wx.SpinCtrl(self, min=1, initial=100)
 		smooth_box.Add(self.smooth_steps_input, flag=wx.CENTER|wx.ALL, border=5)
 
 		self.smooth_from_checkbox = wx.CheckBox(self, label='From const')

@@ -109,11 +109,9 @@ class AcquisitionApp(wx.App):
 		return True
 
 	def OnMenuConfigurationDevices(self, evt=None):
-		def close_callback():
-			self.device_config_frame = None
 
 		if self.device_config_frame is None:
-			self.device_config_frame = DeviceConfigFrame(self.acq_frame, self.global_store, close_callback)
+			self.device_config_frame = DeviceConfigFrame(self.acq_frame, self.global_store)
 			self.device_config_frame.Fit()
 			self.device_config_frame.Show()
 

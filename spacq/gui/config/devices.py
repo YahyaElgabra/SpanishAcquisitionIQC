@@ -219,10 +219,8 @@ class DevicesPanel(wx.Panel):
 
 
 class DeviceConfigFrame(wx.Frame):
-	def __init__(self, parent, global_store, close_callback, *args, **kwargs):
+	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Frame.__init__(self, parent, title='Device Configuration', *args, **kwargs)
-
-		self.close_callback = close_callback
 
 		# Frame.
 		frame_box = wx.BoxSizer(wx.VERTICAL)
@@ -250,10 +248,7 @@ class DeviceConfigFrame(wx.Frame):
 			except wx.PyDeadObjectError:
 				# The panel has left the building.
 				return
-
 			sleep(0.2)
 
 	def OnClose(self, evt):
-		self.close_callback()
-
 		evt.Skip()

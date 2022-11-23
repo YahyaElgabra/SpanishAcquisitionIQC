@@ -239,7 +239,7 @@ class ResourceTree(TreeListCtrl):
 		Get any resources which may now be visible.
 		"""
 
-		self.spawn_fetch_thread(self.GetChildren(evt.Item))
+		self.spawn_fetch_thread(self.GetChildren(evt.GetItem()))
 
 	def OnBeginLabelEdit(self, evt):
 		# EVT_TREE_END_LABEL_EDIT does not carry this value.
@@ -247,17 +247,17 @@ class ResourceTree(TreeListCtrl):
 
 		if evt.Int == self.col_label:
 			# Only resources can have labels.
-			if not (self.GetItemText(evt.Item, self.col_r) or
-					self.GetItemText(evt.Item, self.col_w)):
+			if not (self.GetItemText(evt.GetItem(), self.col_r) or
+					self.GetItemText(evt.GetItem(), self.col_w)):
 				evt.Veto()
 			else:
-				self.old_label = self.GetItemText(evt.Item, self.col_label)
+				self.old_label = self.GetItemText(evt.GetItem(), self.col_label)
 		elif evt.Int == self.col_value:
 			# Can only write to writable resources.
-			if not self.GetItemText(evt.Item, self.col_w):
+			if not self.GetItemText(evt.GetItem(), self.col_w):
 				evt.Veto()
 
-			pydata = self.GetItemPyData(evt.Item)
+			pydata = self.GetItemPyData(evt.GetItem())
 			resource = pydata.resource
 
 			if resource.allowed_values is not None:
@@ -266,13 +266,13 @@ class ResourceTree(TreeListCtrl):
 				dlg = wx.SingleChoiceDialog(self, '', 'Choose value', options)
 				# Select the current value if possible.
 				try:
-					dlg.SetSelection(options.index(self.GetItemText(evt.Item, self.col_value)))
+					dlg.SetSelection(options.index(self.GetItemText(evt.GetItem(), self.col_value)))
 				except ValueError:
 					pass
 
 				if dlg.ShowModal() == wx.ID_OK:
 					try:
-						self.set_value(evt.Item, dlg.GetStringSelection())
+						self.set_value(evt.GetItem(), dlg.GetStringSelection())
 					except ValueError as e:
 						MessageDialog(self, str(e), 'Invalid value').Show()
 						return
@@ -285,7 +285,7 @@ class ResourceTree(TreeListCtrl):
 	def OnEndLabelEdit(self, evt):
 		if self.editing_col == self.col_label:
 			# Prevent duplicates.
-			value = evt.Label
+			value = evt.GetLabel()
 
 			# Don't do anything if unchanged.
 			if value != self.old_label:
@@ -300,12 +300,12 @@ class ResourceTree(TreeListCtrl):
 					return
 		elif self.editing_col == self.col_value:
 			# Update the real value.
-			value = evt.Label
+			value = evt.GetLabel()
 
 			def error_callback(e):
 				MessageDialog(self, str(e), 'Invalid value').Show()
 
-			self.set_value(evt.Item, value, error_callback=partial(wx.CallAfter, error_callback))
+			self.set_value(evt.GetItem(), value, error_callback=partial(wx.CallAfter, error_callback))
 
 	def OnActivated(self, evt):
 		"""

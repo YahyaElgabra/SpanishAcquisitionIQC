@@ -1,4 +1,3 @@
-import ObjectListView
 from threading import Thread
 from time import sleep
 import wx
@@ -6,6 +5,7 @@ import wx
 from spacq.devices.config import DeviceConfig
 from ..tool.box import MessageDialog
 from .device.device_config import DeviceConfigDialog
+import spacq.gui.objectlistview as ObjectListView
 
 """
 An interface for creating and editing DeviceConfig objects.

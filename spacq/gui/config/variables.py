@@ -1,4 +1,3 @@
-import ObjectListView
 import wx
 
 from numpy import array
@@ -8,6 +7,7 @@ from spacq.iteration.variables import ConditionVariable, Condition
 
 from ..tool.box import Dialog, MessageDialog, load_pickled, save_pickled, load_csv
 from spacq.gui.display.table.generic import VirtualListCtrl
+import spacq.gui.objectlistview as ObjectListView
 
 """
 An interface for creating and editing Variable objects.

@@ -12,15 +12,15 @@ setup(
 	version='3.0',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
-	maintainer='Kyle Willick',
-	maintainer_email='kyle.willick@uwaterloo.ca',
+	maintainer='Stephen Harrigan',
+	maintainer_email='srharrig@uwaterloo.ca',
 	description='Package for interfacing with devices and building user '
 			'interfaces.',
 	license='BSD',
 	url='https://github.com/mainCSG/SpanishAcquisitionIQC',
 	packages=[p for p in find_packages() if included_package(p)],
 	classifiers=[
-		'Development Status :: 5 - Production/Stable',
+		'Development Status :: 3 - Alpha',
 		'Intended Audience :: Science/Research',
 		'License :: OSI Approved :: BSD License',
 		'Operating System :: OS Independent',

@@ -14,3 +14,6 @@ fileslist.list
 /SpanishAcquisition.egg-info/
 /build/
 /dist/
+
+# Virtual Environment
+/venv

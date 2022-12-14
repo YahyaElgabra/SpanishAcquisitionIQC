@@ -36,11 +36,6 @@ else:
 
 try:
     import pyvisa
-    try:
-        legacyVisa = version.parse(pyvisa.__version__) < version.parse('1.5')
-    except:
-        legacyVisa = 1  # Some of the mutilated/old visas don't have __version__, but they are all legacy
-
 except ImportError:
     pass
 else:
@@ -240,11 +235,8 @@ class AbstractDevice(SuperDevice):
 
         if self.driver == drivers.pyvisa:
             try:
-                if not (legacyVisa):
-                    rm = pyvisa.ResourceManager()
-                    self.device = rm.open_resource(**self.connection_resource)
-                else:
-                    self.device = pyvisa.Instrument(**self.connection_resource)
+                rm = pyvisa.ResourceManager()
+                self.device = rm.open_resource(**self.connection_resource)
             except pyvisa.VisaIOError as e:
                 raise DeviceNotFoundError(
                     'Could not open device at "{0}".'.format(self.connection_resource), e)
@@ -260,21 +252,8 @@ class AbstractDevice(SuperDevice):
                     'Could not open device at "{0}".'.format(self.connection_resource), e)
         elif self.driver == drivers.pyvisa_usb:
             try:
-                if not (legacyVisa):
-                    rm = pyvisa.ResourceManager()
-                    self.device = rm.open_resource(**self.connection_resource)
-                else:
-                    class USBDevice(pyvisa.Instrument):
-                        """
-                        Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
-                        """
-
-                        def __init__(self, *args, **kwargs):
-                            # Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
-                            pyvisa.ResourceTemplate.__init__(
-                                self, *args, **kwargs)
-
-                    self.device = USBDevice(**self.connection_resource)
+                rm = pyvisa.ResourceManager()
+                self.device = rm.open_resource(**self.connection_resource)
 
             except pyvisa.VisaIOError as e:
                 raise DeviceNotFoundError(
@@ -382,10 +361,7 @@ class AbstractDevice(SuperDevice):
 
         elif self.driver == drivers.pyvisa_usb:
             # Send the message raw.
-            if not (legacyVisa):
-                self.device.write_raw(message)
-            else:
-                pyvisa.vpp43.write(self.device.vi, message)
+            self.device.write_raw(message)
 
     @Synchronized()
     def read_raw(self, chunk_size=512):

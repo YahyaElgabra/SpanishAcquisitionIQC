@@ -10,10 +10,5 @@ fileslist.list
 # Code coverage results from nose.
 .coverage
 
-# Build objects.
-/SpanishAcquisition.egg-info/
-/build/
-/dist/
-
 # Virtual Environment
 /venv

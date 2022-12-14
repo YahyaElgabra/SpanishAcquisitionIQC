@@ -1,6 +1,11 @@
 #######
 Changes
 #######
+* 2022-12-14: **3.0.0**
+        Stephen Harrigan
+
+* Updated to work in Python 3.
+
 * 2019-08-09: **2.0.4**
         Zachary Parrott
 

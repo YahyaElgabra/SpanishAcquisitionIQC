@@ -612,7 +612,7 @@ class DataCapturePanel(wx.Panel):
 
             # Everything looks alright, so open the file.
             export_file = open(file_path, 'w')
-            export_csv = csv.writer(export_file)
+            export_csv = csv.writer(export_file, lineterminator='\n')
             exporting = True
 
             # Show the path in the GUI.
@@ -621,9 +621,9 @@ class DataCapturePanel(wx.Panel):
             # Write the header.
             export_csv.writerow(['Time (s)'] +
                                 ['{0.name} ({0.units})'.format(var) if var.units is not None else var.name
-                                 for var in flatten(output_variables)] +
+                                for var in flatten(output_variables)] +
                                 ['{0.name} ({1})'.format(var, units) if units is not None else var.name
-                                 for var, units in zip(input_variables, measurement_units)])
+                                for var, units in zip(input_variables, measurement_units)])
 
         self.capture_dialogs += 1
 

@@ -151,7 +151,6 @@ class Port(AbstractSubdevice):
         expected_reply = self.format_for_dac('00' * message_length)
 
         # Lots of assertions so we can bail ASAP to avoid crashing anything.
-        print(f'Begin {self.num}')
         self.device.ask_encoded('0000 000c 0008 0100 0000 0000',
                                 '0000 001c 0018 0100 0000 0002 0200 1000 0100 c001 0100 c000 0002 0000')
         self.device.ask_encoded('0000 0010 000c 0113 0280 0000 0000 ff01',
@@ -167,7 +166,6 @@ class Port(AbstractSubdevice):
         self.device.ask_encoded('0000 0014 0010 0111 0260 0000 0003 {0:02x}00 {1}'.format(message_length,
                                                                                           message_formatted),
                                 '0000 0014 0010 0100 0000 0002 {0:02x}00 0000 {1}'.format(message_length, expected_reply))
-        print(f'End {self.num}')
 
     def apply_settings(self, calibrate=False):
         """

@@ -123,7 +123,7 @@ class MathSetupDialog_Function(Dialog):
 		dialog_box.Add(axis_panel)
 
 		## Inputs.
-		input_sizer = wx.FlexGridSizer(rows=1, cols=2, hgap=5)
+		input_sizer = wx.FlexGridSizer(rows=1, cols=2, vgap=5, hgap=5)
 		input_sizer.AddGrowableCol(1, 1)
 		dialog_box.Add(input_sizer, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
 

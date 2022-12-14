@@ -60,7 +60,7 @@ class Model4GChannelPanel(wx.Panel):
 		
 		## Control states.
 		
-		control_state_grid = wx.FlexGridSizer(rows=2, cols=2, hgap=1)
+		control_state_grid = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		channel_header_box.Add((0, 0), 1, wx.EXPAND)
 		channel_header_box.Add(control_state_grid, flag=wx.ALIGN_RIGHT, border = 20)
 		
@@ -80,8 +80,8 @@ class Model4GChannelPanel(wx.Panel):
 		readout_box = wx.StaticBoxSizer(readout_static_box, wx.VERTICAL)
 		main_box.Add(readout_box, flag=wx.EXPAND, proportion=1)
 		
-#		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=2, hgap=1)
-		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=3, hgap=1) #TODO: for debugging model4g GUI...replace when no longer needed.
+#		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=2, vgap=5, hgap=5)
+		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=3, vgap=5, hgap=5) #TODO: for debugging model4g GUI...replace when no longer needed.
 		readout_box.Add(readout_grid, flag=wx.ALIGN_RIGHT)
 		
 		self.checkboxes = {}
@@ -143,7 +143,7 @@ class Model4GChannelPanel(wx.Panel):
 		
 		### Sweep buttons.
 		
-		sweep_buttons_grid = wx.FlexGridSizer(rows=2, cols=2, hgap=1)
+		sweep_buttons_grid = wx.FlexGridSizer(rows=2, cols=2, vgap=5, hgap=5)
 		sweep_buttons_box.Add(sweep_buttons_grid, flag=wx.CENTER|wx.ALL)
 		
 		sweepup_button = wx.Button(self, label='up')
@@ -174,7 +174,7 @@ class Model4GChannelPanel(wx.Panel):
 		limit_box = wx.StaticBoxSizer(limit_static_box, wx.VERTICAL)
 		self.control_box.Add(limit_box,flag=wx.EXPAND)
 						
-		limits_grid = wx.FlexGridSizer(rows=2, cols=3, hgap=1)
+		limits_grid = wx.FlexGridSizer(rows=2, cols=3, vgap=5, hgap=5)
 		limits_grid.AddGrowableCol(1,1)
 
 		limit_box.Add(limits_grid, flag=wx.ALIGN_RIGHT)

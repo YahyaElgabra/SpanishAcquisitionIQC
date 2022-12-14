@@ -1,6 +1,7 @@
 from threading import Thread
 from time import sleep
 import wx
+from wx.adv import AboutDialogInfo, AboutBox
 
 from spacq.devices.config import DeviceConfig
 from ..tool.box import MessageDialog
@@ -260,4 +261,10 @@ class DeviceConfigFrame(wx.Frame):
             sleep(0.2)
 
     def OnClose(self, evt):
-        evt.Skip()
+        info = AboutDialogInfo()
+        info.SetName("Don't close this")
+        info.SetDescription(
+            "Don't close this"
+        )
+
+        AboutBox(info)

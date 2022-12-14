@@ -235,11 +235,7 @@ class BinaryEncoder(object):
         msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
 
         log.debug('Encoded to: {0!r}'.format(msg_encoded))
-        test = bytes.fromhex(msg).decode("windows-1252")
-        if test != msg_encoded:
-            raise BlockDataError(f"Incorrect encoding for new function {msg}")
-        return msg_encoded  # .encode('utf')
-        # return bytes.fromhex()
+        return msg_encoded
 
     @staticmethod
     def decode(msg, pair_size=2, pair_up=True):

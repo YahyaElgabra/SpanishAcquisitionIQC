@@ -279,10 +279,10 @@ class SweepController(object):
 
             self.devices_configured = True
 
-        return self.__next__
+        return self.next_values
 
     @update_current_f
-    def next(self):
+    def next_values(self):
         """
         Get the next set of values from the iterators.
         """
@@ -562,7 +562,7 @@ class SweepController(object):
                 self.item += 1
                 return self.ramp_down
             else:
-                return self.__next__
+                return self.next_values
         if boolean == False:
             return self.conditional_dwell
 

@@ -1,11 +1,10 @@
+from ..tools import quantity_wrapped, quantity_unwrapped
+from ..abstract_device import AbstractDevice
+from spacq.tool.box import Synchronized
+from spacq.interface.resources import Resource
 import logging
 log = logging.getLogger(__name__)
 
-from spacq.interface.resources import Resource
-from spacq.tool.box import Synchronized
-
-from ..abstract_device import AbstractDevice
-from ..tools import quantity_wrapped, quantity_unwrapped
 
 """
 Agilent 8753ET Network Analyzer
@@ -16,104 +15,103 @@ ToDo: Could add sweep measurements (note: 8753ET locks GPIB while running sweep,
 
 
 class NWA8753ET(AbstractDevice):
-	"""
-	Interface for Agilent 8753ET
-	"""
+    """
+    Interface for Agilent 8753ET
+    """
 
-	def _setup(self):
-		AbstractDevice._setup(self)
+    def _setup(self):
+        AbstractDevice._setup(self)
 
-		# Resources.
-		read_only = ['marker']
-		for name in read_only:
-			self.resources[name] = Resource(self, name)
-		
-		read_write = ['cwFreq','power','markFreq']
-		for name in read_write:
-			self.resources[name] = Resource(self, name, name, name)
+        # Resources.
+        read_only = ['marker']
+        for name in read_only:
+            self.resources[name] = Resource(self, name)
 
-		self.resources['marker'].converter = float
-		self.resources['cwFreq'].units = 'Hz'
-		self.resources['power'].converter = float
-		self.resources['markFreq'].units = 'Hz'
+        read_write = ['cwFreq', 'power', 'markFreq']
+        for name in read_write:
+            self.resources[name] = Resource(self, name, name, name)
 
-	@Synchronized()
-	def _connected(self):
-		AbstractDevice._connected(self)
-		self.ask('opc?;pres')
-		self.write('chan1')
-		self.write('auxcoff')
-		# For now, just set minimum power
-		self.write('powe-20')
+        self.resources['marker'].converter = float
+        self.resources['cwFreq'].units = 'Hz'
+        self.resources['power'].converter = float
+        self.resources['markFreq'].units = 'Hz'
 
-	@Synchronized()
-	def reset(self):
-		"""
-		Reset the device to its default state.
-		"""
+    @Synchronized()
+    def _connected(self):
+        AbstractDevice._connected(self)
+        self.ask('opc?;pres')
+        self.write('chan1')
+        self.write('auxcoff')
+        # For now, just set minimum power
+        self.write('powe-20')
 
-		log.info('Resetting "{0}".'.format(self.name))
-		self.write('*rst')
+    @Synchronized()
+    def reset(self):
+        """
+        Reset the device to its default state.
+        """
 
-	@property
-	@quantity_wrapped('Hz')
-	def cwFreq(self):
-		"""
-		The frequency of the networkAnalyzer output
-		"""
+        log.info('Resetting "{0}".'.format(self.name))
+        self.write('*rst')
 
-		return float(self.ask('cwfreq?'))
+    @property
+    @quantity_wrapped('Hz')
+    def cwFreq(self):
+        """
+        The frequency of the networkAnalyzer output
+        """
 
-	@cwFreq.setter
-	@quantity_unwrapped('Hz')
-	def cwFreq(self, value):
-		self.write('cwfreq{0}'.format(value))
+        return float(self.ask('cwfreq?'))
 
-	@property
-	def power(self):
-		"""
-		The power (in dB)
-		"""
+    @cwFreq.setter
+    @quantity_unwrapped('Hz')
+    def cwFreq(self, value):
+        self.write('cwfreq{0}'.format(value))
 
-		return float(self.ask('powe?'))
+    @property
+    def power(self):
+        """
+        The power (in dB)
+        """
 
-	@power.setter
-	def power(self, value):
-		self.write('powe{0}'.format(value))
+        return float(self.ask('powe?'))
 
-	@property
-	@Synchronized()
-	def marker(self):
-		"""
-		The value measured by the device at marker, as a quantity in dB.
-		"""
+    @power.setter
+    def power(self, value):
+        self.write('powe{0}'.format(value))
 
-		self.status.append('Taking reading')
+    @property
+    @Synchronized()
+    def marker(self):
+        """
+        The value measured by the device at marker, as a quantity in dB.
+        """
 
-		try:
-			log.debug('Getting reading.')
-			result_raw = self.ask('OUTPMARK')
-			result = float([x.strip() for x in result_raw.split(',')][0])
-			log.debug('Got reading: {0}'.format(result))
+        self.status.append('Taking reading')
 
-			return result
-		finally:
-			self.status.pop()
-		
-	@property
-	@quantity_wrapped('Hz')
-	def markFreq(self):
-		"""
-		The frequency of the marker in Hz
-		"""
+        try:
+            log.debug('Getting reading.')
+            result_raw = self.ask('OUTPMARK')
+            result = float([x.strip() for x in result_raw.split(',')][0])
+            log.debug('Got reading: {0}'.format(result))
 
-		return float(self.ask('MARK1?'))
+            return result
+        finally:
+            self.status.pop()
 
-	@markFreq.setter
-	@quantity_unwrapped('Hz')
-	def markFreq(self, value):
-		self.write('MARK1{0}'.format(value))
+    @property
+    @quantity_wrapped('Hz')
+    def markFreq(self):
+        """
+        The frequency of the marker in Hz
+        """
 
+        return float(self.ask('MARK1?'))
+
+    @markFreq.setter
+    @quantity_unwrapped('Hz')
+    def markFreq(self, value):
+        self.write('MARK1{0}'.format(value))
 
 
 name = '8753ET'

@@ -11,20 +11,12 @@ Hardware device abstraction interface.
 """
 
 
-# PyVISA, Linux GPIB, PyVISA USB.
-drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb', 'telnet'])
+# PyVISA, PyVISA USB, telnet.
+drivers = Enum(['pyvisa', 'pyvisa_usb', 'telnet'])
 
 
 # Try to import all available drivers.
 available_drivers = []
-
-try:
-    import Gpib
-    import gpib
-except ImportError:
-    pass
-else:
-    available_drivers.append(drivers.lgpib)
 
 try:
     import telnetlib
@@ -97,19 +89,6 @@ class SuperDevice(object):
         """
         Post-connection setup.
         """
-
-        if hasattr(self, 'driver') and self.driver == drivers.lgpib:
-            # Some devices don't assert the EOI line, so look for their EOS character instead.
-            if hasattr(self, 'eos_char'):
-                self.device.config(gpib.IbcEOSchar, ord(self.eos_char))
-                self.device.config(gpib.IbcEOSrd, 1)
-
-            # Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
-            try:
-                log.debug('GPIB device IDN: {0!r}'.format(self.idn))
-            except gpib.GpibError as e:
-                raise DeviceNotFoundError(
-                    'Could not open device at "{0}".'.format(self.connection_resource), e)
 
         # Recursively.
         for name, subdev in list(self.subdevices.items()):
@@ -185,16 +164,7 @@ class AbstractDevice(SuperDevice):
                     'Telnetlib required, but not available.')
 
         elif gpib_pad is not None:
-            if drivers.lgpib in available_drivers:
-                log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
-                          'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
-                self.driver = drivers.lgpib
-                self.connection_resource = {
-                    'name': gpib_board,
-                    'pad': gpib_pad,
-                    'sad': gpib_sad,
-                }
-            elif drivers.pyvisa in available_drivers:
+            if drivers.pyvisa in available_drivers:
                 log.debug('Using PyVISA with gpib_board="{0}", gpib_pad="{1}", '
                           'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
                 self.driver = drivers.pyvisa
@@ -244,12 +214,6 @@ class AbstractDevice(SuperDevice):
             self.device = telnetlib.Telnet(
                 timeout=2, **self.connection_resource)
 
-        elif self.driver == drivers.lgpib:
-            try:
-                self.device = Gpib.Gpib(**self.connection_resource)
-            except gpib.GpibError as e:
-                raise DeviceNotFoundError(
-                    'Could not open device at "{0}".'.format(self.connection_resource), e)
         elif self.driver == drivers.pyvisa_usb:
             try:
                 rm = pyvisa.ResourceManager()
@@ -273,7 +237,7 @@ class AbstractDevice(SuperDevice):
         log.debug(
             'Starting multi-command message for device "{0}"'.format(self.name))
 
-        if self.driver not in [drivers.pyvisa, drivers.lgpib]:
+        if self.driver not in [drivers.pyvisa]:
             raise NotImplementedError(
                 'Unsupported driver: "{0}".'.format(self.driver))
 
@@ -350,15 +314,6 @@ class AbstractDevice(SuperDevice):
                 else:
                     raise
 
-        elif self.driver == drivers.lgpib:
-            try:
-                self.device.write(message)
-            except gpib.GpibError as e:
-                if 'timeout' in e.message:
-                    raise DeviceTimeout(e)
-                else:
-                    raise
-
         elif self.driver == drivers.pyvisa_usb:
             # Send the message raw.
             self.device.write_raw(message)
@@ -387,19 +342,6 @@ class AbstractDevice(SuperDevice):
                     raise DeviceTimeout(e)
                 else:
                     raise
-
-        elif self.driver == drivers.lgpib:
-            status = 0
-            while status == 0:
-                try:
-                    buf += self.device.read(len=chunk_size)
-                except gpib.GpibError as e:
-                    if 'timeout' in e.message:
-                        raise DeviceTimeout(e)
-                    else:
-                        raise
-
-                status = self.device.ibsta() & IbstaBits.END
 
         log.debug('Read from device "{0}": {1!r}'.format(self.name, buf))
 
@@ -485,7 +427,7 @@ class AbstractDevice(SuperDevice):
         Ask the device for identification.
         """
 
-        if self.driver in [drivers.pyvisa, drivers.lgpib]:
+        if self.driver in [drivers.pyvisa]:
             return self.ask('*idn?')
 
     @property
@@ -497,7 +439,7 @@ class AbstractDevice(SuperDevice):
         end_time = time() + self.max_timeout
 
         while True:
-            if self.driver in [drivers.pyvisa, drivers.lgpib]:
+            if self.driver in [drivers.pyvisa]:
                 try:
                     self.ask('*opc?')
                 except DeviceTimeout:

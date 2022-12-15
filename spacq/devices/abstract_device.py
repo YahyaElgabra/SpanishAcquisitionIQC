@@ -51,29 +51,6 @@ class DeviceTimeout(Exception):
     pass
 
 
-class IbstaBits(object):
-    """
-    Status bits (in ibsta) as reported by Linux GPIB.
-    """
-
-    DCAS = 0x1
-    DTAS = 0x2
-    LACS = 0x4
-    TACS = 0x8
-    ATN = 0x10
-    CIC = 0x20
-    REM = 0x40
-    LOK = 0x80
-    CMPL = 0x100
-    EVENT = 0x200
-    SPOLL = 0x400
-    RQS = 0x800,
-    SRQI = 0x1000
-    END = 0x2000
-    TIMO = 0x4000
-    ERR = 0x8000
-
-
 class SuperDevice(object):
     def _setup(self):
         """

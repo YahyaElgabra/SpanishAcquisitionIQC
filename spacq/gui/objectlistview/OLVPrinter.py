@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Name:         OLVPrinter.py
 # Author:       Phillip Piper
 # Created:      17 July 2008
 # Copyright:    (c) 2008 by Phillip Piper, 2008
 # License:      wxWindows license
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Change log:
 # 2008/07/17  JPP   Initial version
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # To do:
 
 """
@@ -28,7 +28,7 @@ import wx
 from ObjectListView import GroupListView
 from WordWrapRenderer import WordWrapRenderer
 
-#======================================================================
+# ======================================================================
 
 
 class OLVPrinter(wx.Printout):
@@ -50,7 +50,7 @@ class OLVPrinter(wx.Printout):
         if objectListView is not None:
             self.engine.AddListCtrl(objectListView, title)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def HasPage(self, page):
@@ -58,7 +58,7 @@ class OLVPrinter(wx.Printout):
         return page <= self.engine.GetTotalPages()
 
     def GetPageInfo(self):
-        #print("GetPageInfo")
+        # print("GetPageInfo")
         return (1, self.engine.GetTotalPages(), 1, 1)
 
     def GetReportFormat(self):
@@ -75,7 +75,7 @@ class OLVPrinter(wx.Printout):
 
     ReportFormat = property(GetReportFormat, SetReportFormat)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def PageSetup(self):
@@ -143,14 +143,14 @@ class OLVPrinter(wx.Printout):
 
         printout.Destroy()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Event handlers
 
     def OnPreparePrinting(self):
         """
         Prepare for printing. This event is sent before any of the others
         """
-        #print("OnPreparePrinting")
+        # print("OnPreparePrinting")
         #print("self.GetDC() = %s" % self.GetDC())
         self.engine.CalculateTotalPages(self.GetDC())
         self.engine.StartPrinting()
@@ -166,15 +166,15 @@ class OLVPrinter(wx.Printout):
         return True
 
     def OnEndDocument(self):
-        #print("OnEndDocument")
+        # print("OnEndDocument")
         super(OLVPrinter, self).OnEndDocument()
 
     def OnBeginPrinting(self):
-        #print("OnBeginPrinting")
+        # print("OnBeginPrinting")
         super(OLVPrinter, self).OnBeginPrinting()
 
     def OnEndPrinting(self):
-        #print("OnEndPrinting")
+        # print("OnEndPrinting")
         super(OLVPrinter, self).OnEndPrinting()
 
     def OnPrintPage(self, page):
@@ -182,7 +182,7 @@ class OLVPrinter(wx.Printout):
         return self.engine.PrintPage(self.GetDC(), page)
 
 
-#======================================================================
+# ======================================================================
 
 class ReportEngine(object):
 
@@ -215,7 +215,7 @@ class ReportEngine(object):
         self.watermarkFont = None
         self.watermarkColor = None
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetNamedFormat(self, name):
@@ -232,7 +232,7 @@ class ReportEngine(object):
         """
         return self.totalPages
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateTotalPages(self, dc):
@@ -254,7 +254,7 @@ class ReportEngine(object):
         self.pageBounds = (0, 0) + dc.GetSizeTuple()
         self.workBounds = list(self.pageBounds)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def AddBlock(self, block):
@@ -279,7 +279,7 @@ class ReportEngine(object):
         self.blocks.pop(0)
         self.blockInsertionIndex = 1
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Printing
 
     def StartPrinting(self):
@@ -360,7 +360,7 @@ class ReportEngine(object):
         self.workBounds = fmt.SubtractDecorations(dc, self.workBounds)
 
 
-#======================================================================
+# ======================================================================
 
 class ReportFormat(object):
 
@@ -450,7 +450,7 @@ class ReportFormat(object):
 
         return fmt
 
-#======================================================================
+# ======================================================================
 
 
 class BlockFormat(object):
@@ -471,7 +471,7 @@ class BlockFormat(object):
         self.cellPadding = None
         self.gridPen = None
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetFont(self):
@@ -573,7 +573,7 @@ class BlockFormat(object):
     CellPadding = property(GetCellPadding, SetCellPadding)
     GridPen = property(GetGridPen, SetGridPen)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Decorations
 
     def Add(self, decoration):
@@ -582,7 +582,7 @@ class BlockFormat(object):
         """
         self.decorations.append(decoration)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractPadding(self, bounds):
@@ -619,7 +619,7 @@ class BlockFormat(object):
             x.DrawDecoration(dc, bounds, block)
 
 
-#======================================================================
+# ======================================================================
 
 class Block(object):
 
@@ -632,7 +632,7 @@ class Block(object):
         # This is also set when the block is added to a print engine
         self.engine = engine
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetFont(self):
@@ -676,7 +676,7 @@ class Block(object):
         """
         RectUtils.MoveTopBy(self.engine.workBounds, amt)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateExtrasHeight(self, dc):
@@ -712,7 +712,7 @@ class Block(object):
         """
         return height <= RectUtils.Height(self.GetWorkBounds())
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -772,7 +772,7 @@ class Block(object):
             allowClipping=False)
 
 
-#======================================================================
+# ======================================================================
 
 class TextBlock(Block):
 
@@ -802,7 +802,7 @@ class TextBlock(Block):
             alignment=self.GetFormat().TextAlignment)
 
 
-#======================================================================
+# ======================================================================
 
 class CellBlock(Block):
 
@@ -810,7 +810,7 @@ class CellBlock(Block):
     A CellBlock is a Block whose data is presented in a cell format.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing - Subclasses should override
 
     def GetCellWidths(self):
@@ -837,7 +837,7 @@ class CellBlock(Block):
         """
         return list()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def CanCellsWrap(self):
@@ -863,7 +863,7 @@ class CellBlock(Block):
 
         return buckets
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Utiltities
 
     def GetColumnAlignments(self, olv, left, right):
@@ -888,7 +888,7 @@ class CellBlock(Block):
         """
         return [olv.GetColumnWidth(i) for i in range(left, right + 1)]
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateHeight(self, dc):
@@ -928,7 +928,7 @@ class CellBlock(Block):
 
         return cellPadding
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def DrawSelf(self, dc, bounds):
@@ -979,7 +979,7 @@ class CellBlock(Block):
             dc.DrawRectangle(left, top, right - left, bottom - top)
 
 
-#======================================================================
+# ======================================================================
 
 class ReportBlock(Block):
 
@@ -987,7 +987,7 @@ class ReportBlock(Block):
     A ReportBlock is boot strap Block that represents an entire report.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1010,7 +1010,7 @@ class ReportBlock(Block):
         self.engine.AddBlock(ReportFooterBlock())
         return True
 
-#======================================================================
+# ======================================================================
 
 
 class ReportHeaderBlock(TextBlock):
@@ -1023,7 +1023,7 @@ class ReportHeaderBlock(TextBlock):
     def GetText(self):
         return self.engine.reportHeaderText
 
-#======================================================================
+# ======================================================================
 
 
 class ReportFooterBlock(TextBlock):
@@ -1036,7 +1036,7 @@ class ReportFooterBlock(TextBlock):
         return self.engine.reportFooterText
 
 
-#======================================================================
+# ======================================================================
 
 class PageHeaderBlock(TextBlock):
 
@@ -1048,7 +1048,7 @@ class PageHeaderBlock(TextBlock):
         return self.engine.pageHeaderText
 
 
-#======================================================================
+# ======================================================================
 
 class PageFooterBlock(TextBlock):
 
@@ -1059,7 +1059,7 @@ class PageFooterBlock(TextBlock):
     def GetText(self):
         return self.engine.pageFooterText
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Printing
 
     def Print(self, dc):
@@ -1079,7 +1079,7 @@ class PageFooterBlock(TextBlock):
         return True
 
 
-#======================================================================
+# ======================================================================
 
 class PageBreakBlock(Block):
 
@@ -1087,7 +1087,7 @@ class PageBreakBlock(Block):
     A PageBreakBlock acts a page break.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1103,7 +1103,7 @@ class PageBreakBlock(Block):
 
         return True
 
-#======================================================================
+# ======================================================================
 
 
 class ListBlock(Block):
@@ -1116,7 +1116,7 @@ class ListBlock(Block):
         self.olv = olv
         self.title = title
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1190,7 +1190,7 @@ class ListBlock(Block):
         return pairs
 
 
-#======================================================================
+# ======================================================================
 
 class ListHeaderBlock(TextBlock):
 
@@ -1205,7 +1205,7 @@ class ListHeaderBlock(TextBlock):
     def GetText(self):
         return self.title
 
-#======================================================================
+# ======================================================================
 
 
 class ListFooterBlock(TextBlock):
@@ -1222,7 +1222,7 @@ class ListFooterBlock(TextBlock):
         return self.text
 
 
-#======================================================================
+# ======================================================================
 
 class GroupTitleBlock(TextBlock):
 
@@ -1237,7 +1237,7 @@ class GroupTitleBlock(TextBlock):
     def GetText(self):
         return self.group.title
 
-#======================================================================
+# ======================================================================
 
 
 class ListSliceBlock(Block):
@@ -1251,7 +1251,7 @@ class ListSliceBlock(Block):
         self.left = left
         self.right = right
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1280,7 +1280,7 @@ class ListSliceBlock(Block):
         return True
 
 
-#======================================================================
+# ======================================================================
 
 class ColumnHeaderBlock(CellBlock):
 
@@ -1294,7 +1294,7 @@ class ColumnHeaderBlock(CellBlock):
         self.left = left
         self.right = right
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing - Subclasses should override
 
     def GetCellWidths(self):
@@ -1327,7 +1327,7 @@ class ColumnHeaderBlock(CellBlock):
                 for i in range(self.left, self.right + 1)]
 
 
-#======================================================================
+# ======================================================================
 
 class ListRowsBlock(Block):
 
@@ -1344,7 +1344,7 @@ class ListRowsBlock(Block):
         self.currentIndex = 0
         self.totalRows = self.olv.GetItemCount()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1368,7 +1368,7 @@ class ListRowsBlock(Block):
 
         return True
 
-#======================================================================
+# ======================================================================
 
 
 class GroupListRowsBlock(Block):
@@ -1387,7 +1387,7 @@ class GroupListRowsBlock(Block):
         self.currentIndex = 0
         self.totalRows = self.olv.GetItemCount()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1427,7 +1427,7 @@ class GroupListRowsBlock(Block):
         return True
 
 
-#======================================================================
+# ======================================================================
 
 class RowBlock(CellBlock):
 
@@ -1477,7 +1477,7 @@ class RowBlock(CellBlock):
                 self.right +
                 1)]
 
-#======================================================================
+# ======================================================================
 
 
 class Decoration(object):
@@ -1498,7 +1498,7 @@ class Decoration(object):
     def __init__(self, *args):
         pass
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractFrom(self, dc, bounds):
@@ -1520,7 +1520,7 @@ class Decoration(object):
         """
         pass
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class BackgroundDecoration(Decoration):
@@ -1542,7 +1542,7 @@ class BackgroundDecoration(Decoration):
         dc.SetBrush(wx.Brush(self.color))
         dc.DrawRectangle(*bounds)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class FrameDecoration(Decoration):
@@ -1591,7 +1591,7 @@ class FrameDecoration(Decoration):
         else:
             dc.DrawRectangle(*rect)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class LineDecoration(Decoration):
@@ -1605,7 +1605,7 @@ class LineDecoration(Decoration):
         self.pen = pen
         self.space = space
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractFrom(self, dc, bounds):
@@ -1652,7 +1652,7 @@ class LineDecoration(Decoration):
         dc.DrawLine(pt1[0], pt1[1], pt2[0], pt2[1])
 
 
-#======================================================================
+# ======================================================================
 
 class Bucket(object):
 
@@ -1667,7 +1667,7 @@ class Bucket(object):
         strs = ["%s=%r" % kv for kv in self.__dict__.items()]
         return "Bucket(" + ", ".join(strs) + ")"
 
-#======================================================================
+# ======================================================================
 
 
 class RectUtils:
@@ -1676,7 +1676,7 @@ class RectUtils:
     Static rectangle utilities
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     @staticmethod
@@ -1719,7 +1719,7 @@ class RectUtils:
     def BottomRight(r):
         return [r[0] + r[2], r[1] + r[3]]
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Modifying
 
     @staticmethod
@@ -1764,7 +1764,7 @@ class RectUtils:
         r[3] -= delta
         return r
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculations
 
     @staticmethod
@@ -1787,9 +1787,10 @@ class RectUtils:
                     r[2] - (r2[0] + r2[2]),
                     r[3] - (r2[1] + r2[3])]
 
-#======================================================================
+# ======================================================================
 # TESTING ONLY
-#======================================================================
+# ======================================================================
+
 
 if __name__ == '__main__':
     import wx

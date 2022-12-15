@@ -3,10 +3,6 @@
 *.swp
 fileslist.list
 
-# Aptana Studio 3 project files.
-.project
-.pydevproject
-
 # Code coverage results from nose.
 .coverage
 

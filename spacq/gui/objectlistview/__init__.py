@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Name:         ObjectListView module initialization
 # Author:       Phillip Piper
 # Created:      29 February 2008
 # Copyright:    (c) 2008 by Phillip Piper
 # License:      wxWindows license
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Change log:
 # 2008/08/02  JPP   Added list printing material
 # 2008/07/24  JPP   Added list group related material

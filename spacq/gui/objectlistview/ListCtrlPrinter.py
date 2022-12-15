@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Name:         ListCtrlPrinter.py
 # Author:       Phillip Piper
 # Created:      17 July 2008
 # Copyright:    (c) 2008 by Phillip Piper, 2008
 # License:      wxWindows license
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Change log:
 # 2008/07/17  JPP   Inspired beginning
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # To do:
 # - persistence of ReportFormat
 # - allow cell contents to be vertically aligned
@@ -104,7 +104,7 @@ import wx
 
 from .WordWrapRenderer import WordWrapRenderer
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ListCtrlPrinter(object):
@@ -122,7 +122,7 @@ class ListCtrlPrinter(object):
         if listCtrl is not None:
             self.AddListCtrl(listCtrl, title)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetPageFooter(self):
@@ -195,7 +195,7 @@ class ListCtrlPrinter(object):
     PrintData = property(GetPrintData)
     Watermark = property(GetWatermark, SetWatermark)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Setup
 
     def AddListCtrl(self, listCtrl, title=None):
@@ -210,7 +210,7 @@ class ListCtrlPrinter(object):
         """
         self.engine.ClearListCtrls()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Printing Commands
 
     def PageSetup(self, parent=None):
@@ -239,7 +239,7 @@ class ListCtrlPrinter(object):
         """
         self.printout.DoPrint(parent)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Callbacks
     # These methods are invoked by the ListCtrlPrintout when required
 
@@ -263,7 +263,7 @@ class ListCtrlPrinter(object):
         """
         self.engine.PrintPage(dc, pageNumber, bounds)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ReportEngine(object):
@@ -302,7 +302,7 @@ class ReportEngine(object):
         # pages, or skipping to a specific page
         self.shouldDrawBlocks = True
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetNamedFormat(self, name):
@@ -331,7 +331,7 @@ class ReportEngine(object):
         }
         return info
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateTotalPages(self, dc, bounds):
@@ -348,7 +348,7 @@ class ReportEngine(object):
         self.shouldDrawBlocks = True
         return self.totalPages
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def AddBlock(self, block):
@@ -379,7 +379,7 @@ class ReportEngine(object):
         self.blocks.pop(0)
         self.blockInsertionIndex = 1
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Printing
 
     def StartPrinting(self):
@@ -487,7 +487,7 @@ class ReportEngine(object):
                 angle=watermarkFmt.Angle,
                 over=watermarkFmt.Over))
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ListCtrlPrintout(wx.Printout):
@@ -510,7 +510,7 @@ class ListCtrlPrintout(wx.Printout):
         self.printData.SetPaperId(wx.PAPER_A4)
         self.printData.SetPrintMode(wx.PRINT_MODE_PRINTER)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def HasPage(self, page):
@@ -535,7 +535,7 @@ class ListCtrlPrintout(wx.Printout):
         preview = wx.PrintPreview(forViewing, forPrinter, data)
         return preview
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def PageSetup(self, parent):
@@ -594,7 +594,7 @@ class ListCtrlPrintout(wx.Printout):
         finally:
             pdd.Destroy()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Event handlers
 
     def OnPreparePrinting(self):
@@ -661,7 +661,7 @@ class ListCtrlPrintout(wx.Printout):
         self.bounds = (left, top, right - left, bottom - top)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class ReportFormat(object):
 
@@ -715,7 +715,7 @@ class ReportFormat(object):
         # Initialize the watermark format to default values
         self.WatermarkFormat()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetNamedFormat(self, name):
@@ -724,7 +724,7 @@ class ReportFormat(object):
         """
         return getattr(self, name)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def WatermarkFormat(self, font=None, color=None, angle=30, over=False):
@@ -743,7 +743,7 @@ class ReportFormat(object):
         self.Watermark.Angle = angle
         self.Watermark.Over = over
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Standard formats
     # These are meant to be illustrative rather than definitive
 
@@ -922,7 +922,7 @@ class ReportFormat(object):
 
         return fmt
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class BlockFormat(object):
@@ -997,7 +997,7 @@ class BlockFormat(object):
         self.cellPadding = None
         self.gridPen = None
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetFont(self):
@@ -1129,7 +1129,7 @@ class BlockFormat(object):
     TextAlign = property(GetTextAlignment, SetTextAlignment)
     TextColour = property(GetTextColor, SetTextColor)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculations
 
     def CalculateCellPadding(self):
@@ -1148,7 +1148,7 @@ class BlockFormat(object):
 
         return cellPadding
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Decorations
 
     def Add(self, decoration):
@@ -1198,7 +1198,7 @@ class BlockFormat(object):
         """
         self.Add(RectangleDecoration(pen=pen, space=space))
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractPadding(self, bounds):
@@ -1227,7 +1227,7 @@ class BlockFormat(object):
                 x.DrawDecoration(dc, bounds, block)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class Block(object):
 
@@ -1240,7 +1240,7 @@ class Block(object):
         # This is also set when the block is added to a print engine
         self.engine = engine
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetFont(self):
@@ -1303,7 +1303,7 @@ class Block(object):
         """
         return True
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateExtrasHeight(self, dc):
@@ -1354,7 +1354,7 @@ class Block(object):
         """
         return height <= RectUtils.Height(self.GetWorkBounds())
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1520,7 +1520,7 @@ class Block(object):
             # We don't die if we get a substitution error - we just ignore it
             return strings
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class TextBlock(Block):
@@ -1572,7 +1572,7 @@ class TextBlock(Block):
             alignment=fmt.TextAlignment)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class CellBlock(Block):
 
@@ -1584,7 +1584,7 @@ class CellBlock(Block):
         self.scale = 1
         self.oldScale = 1
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing - Subclasses should override
 
     def GetCellWidths(self):
@@ -1611,7 +1611,7 @@ class CellBlock(Block):
         """
         return list()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetCombinedLists(self):
@@ -1654,7 +1654,7 @@ class CellBlock(Block):
         else:
             return self.GetTexts()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculating
 
     def CalculateHeight(self, dc):
@@ -1699,7 +1699,7 @@ class CellBlock(Block):
         return sum(
             x.cellWidth for x in self.GetCombinedLists()) + self.CalculateExtrasWidth(dc)
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def CalculateBounds(self, dc):
@@ -1788,7 +1788,7 @@ class CellBlock(Block):
             dc.DrawRectangle(left, top, right - left, bottom - top)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class ThreeCellBlock(CellBlock):
 
@@ -1820,7 +1820,7 @@ class ThreeCellBlock(CellBlock):
         """
         return (wx.ALIGN_LEFT, wx.ALIGN_CENTER_HORIZONTAL, wx.ALIGN_RIGHT)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ReportBlock(Block):
@@ -1829,7 +1829,7 @@ class ReportBlock(Block):
     A ReportBlock is boot strap Block that represents an entire report.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1851,7 +1851,7 @@ class ReportBlock(Block):
         return True
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class PageHeaderBlock(ThreeCellBlock):
 
@@ -1866,7 +1866,7 @@ class PageHeaderBlock(ThreeCellBlock):
         return self.engine.pageHeader
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class PageFooterBlock(ThreeCellBlock):
 
@@ -1880,7 +1880,7 @@ class PageFooterBlock(ThreeCellBlock):
         """
         return self.engine.pageFooter
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Printing
 
     def CalculateBounds(self, dc):
@@ -1900,7 +1900,7 @@ class PageFooterBlock(ThreeCellBlock):
         RectUtils.MoveBottomBy(self.engine.workBounds, -height)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class PageBreakBlock(Block):
 
@@ -1908,7 +1908,7 @@ class PageBreakBlock(Block):
     A PageBreakBlock acts a page break.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -1924,7 +1924,7 @@ class PageBreakBlock(Block):
 
         return True
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class RunningBlockPusher(Block):
@@ -1952,7 +1952,7 @@ class RunningBlockPusher(Block):
 
         return True
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ListBlock(Block):
@@ -1965,7 +1965,7 @@ class ListBlock(Block):
         self.lv = lv
         self.title = title
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -2048,7 +2048,7 @@ class ListBlock(Block):
         return pairs
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class ListHeaderBlock(TextBlock):
 
@@ -2066,7 +2066,7 @@ class ListHeaderBlock(TextBlock):
         """
         return self.title
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ListFooterBlock(TextBlock):
@@ -2086,7 +2086,7 @@ class ListFooterBlock(TextBlock):
         return self.text
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class GroupTitleBlock(TextBlock):
 
@@ -2104,7 +2104,7 @@ class GroupTitleBlock(TextBlock):
         """
         return self.group.title
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ListSliceBlock(Block):
@@ -2119,7 +2119,7 @@ class ListSliceBlock(Block):
         self.right = right
         self.allCellWidths = allCellWidths
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -2188,7 +2188,7 @@ class ListSliceBlock(Block):
         else:
             return 1
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ColumnBasedBlock(CellBlock):
@@ -2207,7 +2207,7 @@ class ColumnBasedBlock(CellBlock):
         self.scale = scale
         self.allCellWidths = allCellWidths
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing - Subclasses should override
 
     def GetListCtrl(self):
@@ -2224,7 +2224,7 @@ class ColumnBasedBlock(CellBlock):
         # self.right+1)]
         return self.allCellWidths[self.left:self.right + 1]
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Utiltities
 
     def GetColumnAlignments(self, lv, left, right):
@@ -2244,7 +2244,7 @@ class ColumnBasedBlock(CellBlock):
         return [mapping[x] for x in listAlignments]
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class ColumnHeaderBlock(ColumnBasedBlock):
 
@@ -2252,7 +2252,7 @@ class ColumnHeaderBlock(ColumnBasedBlock):
     A ColumnHeaderBlock prints a portion of the columns header in a ListCtrl.
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetTexts(self):
@@ -2294,7 +2294,7 @@ class ColumnHeaderBlock(ColumnBasedBlock):
         return False
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class ListRowsBlock(Block):
 
@@ -2313,7 +2313,7 @@ class ListRowsBlock(Block):
         self.currentIndex = 0
         self.totalRows = self.lv.GetItemCount()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -2339,7 +2339,7 @@ class ListRowsBlock(Block):
 
         return True
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class GroupListRowsBlock(Block):
@@ -2360,7 +2360,7 @@ class GroupListRowsBlock(Block):
         self.currentIndex = 0
         self.totalRows = self.lv.GetItemCount()
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def Print(self, dc):
@@ -2402,7 +2402,7 @@ class GroupListRowsBlock(Block):
         return True
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class RowBlock(ColumnBasedBlock):
 
@@ -2418,7 +2418,7 @@ class RowBlock(ColumnBasedBlock):
         self.scale = scale
         self.allCellWidths = allCellWidths
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def GetFont(self):
@@ -2473,7 +2473,7 @@ class RowBlock(ColumnBasedBlock):
         """
         return False
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Overrides for CellBlock
 
     def GetTexts(self):
@@ -2528,7 +2528,7 @@ class RowBlock(ColumnBasedBlock):
     # self.right+1)]
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class Decoration(object):
 
@@ -2546,7 +2546,7 @@ class Decoration(object):
 
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     def IsDrawOver(self):
@@ -2556,7 +2556,7 @@ class Decoration(object):
         """
         return False
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractFrom(self, dc, bounds):
@@ -2571,7 +2571,7 @@ class Decoration(object):
         """
         pass
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class RectangleDecoration(Decoration):
@@ -2607,7 +2607,7 @@ class RectangleDecoration(Decoration):
         self.width = width
         self.space = space
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractFrom(self, dc, bounds):
@@ -2686,7 +2686,7 @@ class RectangleDecoration(Decoration):
 
         return bounds
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class LineDecoration(Decoration):
@@ -2700,7 +2700,7 @@ class LineDecoration(Decoration):
         self.pen = pen
         self.space = space
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Commands
 
     def SubtractFrom(self, dc, bounds):
@@ -2744,7 +2744,7 @@ class LineDecoration(Decoration):
         dc.SetPen(self.pen)
         dc.DrawLine(pt1[0], pt1[1], pt2[0], pt2[1])
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class WatermarkDecoration(Decoration):
@@ -2790,7 +2790,7 @@ class WatermarkDecoration(Decoration):
 
         dc.DrawRotatedText(self.text, x, y, self.angle)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ImageDecoration(Decoration):
@@ -2842,7 +2842,7 @@ class ImageDecoration(Decoration):
         dc.DrawBitmap(self.bitmap, x, y, True)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 class Bucket(object):
 
@@ -2857,7 +2857,7 @@ class Bucket(object):
         strs = ["%s=%r" % kv for kv in self.__dict__.items()]
         return "Bucket(" + ", ".join(strs) + ")"
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class RectUtils:
@@ -2868,7 +2868,7 @@ class RectUtils:
     Rectangles are a list or tuple of 4-elements: [left, top, width, height]
     """
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Accessing
 
     @staticmethod
@@ -2923,7 +2923,7 @@ class RectUtils:
     def Center(r):
         return [r[0] + r[2] / 2, r[1] + r[3] / 2]
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Modifying
 
     @staticmethod
@@ -2968,7 +2968,7 @@ class RectUtils:
         r[3] += delta
         return r
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Calculations
 
     @staticmethod
@@ -2995,9 +2995,10 @@ class RectUtils:
     def MultiplyOrigin(r, factor):
         return [r[0] * factor, r[1] * factor, r[2], r[3]]
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # TESTING ONLY
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 if __name__ == '__main__':
     import wx

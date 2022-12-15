@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Name:         CellEditor.py
 # Author:       Phillip Piper
 # Created:      3 April 2008
 # Copyright:    (c) 2008 by Phillip Piper, 2008
 # License:      wxWindows license
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Change log:
 # 2009/06/09  JPP   All cell editors start life 0 sized to prevent flickering
 # 2008/05/26  JPP   Fixed pyLint annoyances
 # 2008/04/04  JPP   Initial version complete
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # To do:
 # - there has to be a better DateTimeEditor somewhere!!
 
@@ -58,7 +58,7 @@ else:
     from wx import DatePickerCtrl
 
 
-#======================================================================
+# ======================================================================
 # Editor Registry
 
 # Module level variable
@@ -127,7 +127,7 @@ class EditorRegistry:
         """
         self.typeToFunctionMap[aType] = aFunction
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Creator functions for standard types
 
     @staticmethod
@@ -181,7 +181,7 @@ class EditorRegistry:
 
         return editor
 
-#======================================================================
+# ======================================================================
 # Cell editors
 
 
@@ -205,7 +205,7 @@ class BooleanEditor(wx.Choice):
         else:
             self.Select(1)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class BaseCellTextEditor(wx.TextCtrl):
@@ -220,14 +220,15 @@ class BaseCellTextEditor(wx.TextCtrl):
                 style |= (wx.TE_CENTRE | wx.TE_MULTILINE)
             else:
                 style |= olv.columns[subItemIndex].GetAlignmentForText()
-        super(BaseCellTextEditor, self).__init__(olv, style=style, size=(0, 0), **kwargs)
+        super(BaseCellTextEditor, self).__init__(
+            olv, style=style, size=(0, 0), **kwargs)
 
         # With the MULTILINE flag, the text control always has a vertical
         # scrollbar, which looks stupid. I don't know how to get rid of it.
         # This doesn't do it:
         # self.ToggleWindowStyle(wx.VSCROLL)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class IntEditor(BaseCellTextEditor):
@@ -248,7 +249,7 @@ class IntEditor(BaseCellTextEditor):
             value = repr(value)
         super(IntEditor, self).SetValue(value)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class LongEditor(BaseCellTextEditor):
@@ -269,7 +270,7 @@ class LongEditor(BaseCellTextEditor):
             value = repr(value)
         super(LongEditor, self).SetValue(value)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class FloatEditor(BaseCellTextEditor):
@@ -293,7 +294,7 @@ class FloatEditor(BaseCellTextEditor):
             value = repr(value)
         super(FloatEditor, self).SetValue(value)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class DateTimeEditor(BaseCellTextEditor):
@@ -424,7 +425,7 @@ class DateTimeEditor(BaseCellTextEditor):
 
         return None
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class NumericValidator(wx.PyValidator):
@@ -466,7 +467,7 @@ class NumericValidator(wx.PyValidator):
 
         wx.Bell()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class DateEditor(DatePickerCtrl):
@@ -501,7 +502,7 @@ class DateEditor(DatePickerCtrl):
         else:
             return None
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class TimeEditor(BaseCellTextEditor):
@@ -537,7 +538,7 @@ class TimeEditor(BaseCellTextEditor):
 
         return None
 
-#======================================================================
+# ======================================================================
 # Auto complete controls
 
 
@@ -573,7 +574,7 @@ def MakeAutoCompleteComboBox(olv, columnIndex, maxObjectsToConsider=10000):
     return cb
 
 
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 class AutoCompleteHelper(object):
 

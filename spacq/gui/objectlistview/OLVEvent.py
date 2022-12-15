@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Name:         OLVEvent.py
 # Author:       Phillip Piper
 # Created:      3 April 2008
 # Copyright:    (c) 2008 by Phillip Piper, 2008
 # License:      wxWindows license
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Change log:
 # 2008/08/18  JPP   Added CELL_EDIT_STARTED and CELL_EDIT_FINISHED events
 # 2008/07/16  JPP   Added group-related events
 # 2008/06/19  JPP   Added EVT_SORT
 # 2008/05/26  JPP   Fixed pyLint annoyances
 # 2008/04/04  JPP   Initial version complete
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # To do:
 
 """
@@ -24,13 +24,14 @@ __date__ = "3 August 2008"
 
 import wx
 
-#======================================================================
+# ======================================================================
 # Event ids and types
 
 
 def _EventMaker():
     evt = wx.NewEventType()
     return (evt, wx.PyEventBinder(evt))
+
 
 (olv_EVT_CELL_EDIT_STARTING, EVT_CELL_EDIT_STARTING) = _EventMaker()
 (olv_EVT_CELL_EDIT_STARTED, EVT_CELL_EDIT_STARTED) = _EventMaker()
@@ -45,7 +46,7 @@ def _EventMaker():
 (olv_EVT_COLLAPSED, EVT_COLLAPSED) = _EventMaker()
 (olv_EVT_ITEM_CHECKED, EVT_ITEM_CHECKED) = _EventMaker()
 
-#======================================================================
+# ======================================================================
 # Event parameter blocks
 
 
@@ -71,7 +72,7 @@ class VetoableEvent(wx.PyCommandEvent):
         """
         return self.veto
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class CellEditEvent(VetoableEvent):
@@ -95,7 +96,7 @@ class CellEditEvent(VetoableEvent):
         self.cellValue = cellValue
         self.editor = editor
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class CellEditStartedEvent(CellEditEvent):
@@ -125,7 +126,7 @@ class CellEditStartedEvent(CellEditEvent):
             editor)
         self.cellBounds = cellBounds
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class CellEditStartingEvent(CellEditEvent):
@@ -182,7 +183,7 @@ class CellEditStartingEvent(CellEditEvent):
         Enter/Return or when the editor loses focus. """
         self.shouldConfigureEditor = False
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class CellEditFinishedEvent(CellEditEvent):
@@ -208,7 +209,7 @@ class CellEditFinishedEvent(CellEditEvent):
             None)
         self.userCancelled = userCancelled
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class CellEditFinishingEvent(CellEditEvent):
@@ -246,7 +247,7 @@ class CellEditFinishingEvent(CellEditEvent):
         """
         self.cellValue = value
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class SortEvent(VetoableEvent):
@@ -294,7 +295,7 @@ class SortEvent(VetoableEvent):
         """
         self.wasHandled = wasHandled
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class GroupCreationEvent(wx.PyCommandEvent):
@@ -312,7 +313,7 @@ class GroupCreationEvent(wx.PyCommandEvent):
         self.objectListView = objectListView
         self.groups = groups
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ExpandCollapseEvent(VetoableEvent):
@@ -362,7 +363,7 @@ def ExpandedCollapsedEvent(objectListView, groups, isExpand):
             groups,
             False)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class SortGroupsEvent(wx.PyCommandEvent):
@@ -390,7 +391,7 @@ class SortGroupsEvent(wx.PyCommandEvent):
         self.wasHandled = wasHandled
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 
 class ItemCheckedEvent(wx.PyCommandEvent):

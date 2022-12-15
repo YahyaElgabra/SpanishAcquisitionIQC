@@ -151,7 +151,7 @@ class ResourceTree(TreeListCtrl):
         def set(item, value):
             try:
                 self.SetItemText(item, str(value), self.col_value)
-            except wx.PyDeadObjectError:
+            except RuntimeError:
                 # The value isn't wanted anymore.
                 return
 

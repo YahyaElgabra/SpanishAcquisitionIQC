@@ -355,6 +355,13 @@ class AbstractDevice(SuperDevice):
         else:
             self.responses_expected += 1
 
+    @Synchronized()
+    def query(self, message):
+        """
+        Write then read using PyVisa's query command.
+        """
+        return self.query(message)
+
     def close(self):
         """
         Close the connection, if possible.

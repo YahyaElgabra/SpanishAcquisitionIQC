@@ -365,7 +365,7 @@ class Channel(AbstractSubdevice):
         """
         self.device.active_channel = self.channel
         
-        response = self.device.ask('units?')
+        response = self.device.ask('units?').decode()
         
         # We perform a conversion between the GUI and the device with this dict.
         read_dict = {'G':'kG','A':'A'}

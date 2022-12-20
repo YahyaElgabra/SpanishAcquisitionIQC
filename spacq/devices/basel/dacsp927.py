@@ -1,12 +1,9 @@
 
 
-from ..tools import quantity_unwrapped, quantity_wrapped, BinaryEncoder
+from ..tools import quantity_unwrapped, quantity_wrapped
 from ..abstract_device import AbstractDevice, AbstractSubdevice
 from spacq.tool.box import Synchronized
-from spacq.interface.units import Quantity
 from spacq.interface.resources import Resource
-import time
-import numpy
 import logging
 log = logging.getLogger(__name__)
 

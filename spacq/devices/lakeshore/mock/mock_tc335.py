@@ -19,8 +19,9 @@ class MockTC335(MockAbstractDevice, TC335):
 		
 		self.mock_state = {}
 		self.mock_state['readingstatus'] = 0
-		self.mock_state['read_only'] = ['temperature']
-
+		self.mock_state['read_only'] = ['temperature', 'powerA']#, 'powerB'] # added power A and B
+		self.mock_state['read_write'] = ['setTempA', 'rangeA'] #'setTempB' 'rangeB'] # addded this line
+		
 	def _reset(self):
 		pass
 		

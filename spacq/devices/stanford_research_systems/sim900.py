@@ -83,7 +83,7 @@ class Port(AbstractSubdevice):
 		"""
 		Set the voltage on this port, as a quantity in V.
 		"""
-
+		value = round(value, 3)
 		resulting_voltage = value
 		self.currentVoltage = value
 

@@ -211,7 +211,7 @@ class OutputVariable(Variable):
 		self.use_const = use_const
 
 		# Smooth set.
-		self.smooth_steps = 10
+		self.smooth_steps = 100
 		self.smooth_from = False
 		self.smooth_to = False
 		self.smooth_transition = False

@@ -8,3 +8,7 @@ fileslist.list
 
 # Virtual Environment
 /venv
+
+# Local build and distribution
+/build
+/dist

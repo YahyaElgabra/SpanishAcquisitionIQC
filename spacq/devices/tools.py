@@ -226,17 +226,15 @@ class BinaryEncoder(object):
 
         log.debug('Encoding to byte string: {0}'.format(msg))
 
-        # # Discard non-hexadecimal characters.
-        # msg_filtered = [x for x in msg if x in string.hexdigits]
-        # # Grab pairs.
-        # idxs = range(0, len(msg_filtered), 2)
-        # msg_paired = [''.join(msg_filtered[i:i+2]) for i in idxs]
-        # # Convert to bytes.
-        # msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
+        # Discard non-hexadecimal characters.
+        msg_filtered = [x for x in msg if x in string.hexdigits]
+        # Grab pairs.
+        idxs = range(0, len(msg_filtered), 2)
+        msg_paired = [''.join(msg_filtered[i:i+2]) for i in idxs]
+        # Convert to bytes.
+        msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
 
-        msg_encoded = bytes.fromhex(msg).decode('latin_1')
         log.debug('Encoded to: {0!r}'.format(msg_encoded))
-
         return msg_encoded
 
     @staticmethod

@@ -34,7 +34,6 @@ class Port(AbstractSubdevice):
         """
 
         log.debug('Formatting for DAC: {0}'.format(msg))
-
         msg_encoded = BinaryEncoder.encode(msg)
         # Flip each byte separately.
         msg_flipped = [chr(~ord(x) & 0xff) for x in msg_encoded]
@@ -42,7 +41,6 @@ class Port(AbstractSubdevice):
         missing_bytes = (4 - len(msg_encoded) % 4) % 4
 
         result = BinaryEncoder.decode(msg_flipped + ['\x00'] * missing_bytes)
-
         log.debug('Formatted for DAC (padded with {0} bytes): {1}'.format(
             missing_bytes, result))
 

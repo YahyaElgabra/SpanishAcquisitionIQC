@@ -791,6 +791,12 @@ class VariablesPanel(wx.Panel):
             # Remove the old entry.
             del self.global_store.variables[var.name]
 
+        elif col == self.col_order:
+            try:
+                self._new_order_temp = round(float(evt.editor.Value))
+            except TypeError:
+                pass # Assumed not an int was given in this cell
+
     def OnCellEditFinished(self, evt):
         col = evt.objectListView.columns[evt.subItemIndex]
 

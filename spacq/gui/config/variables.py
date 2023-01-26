@@ -801,6 +801,8 @@ class VariablesPanel(wx.Panel):
         col = evt.objectListView.columns[evt.subItemIndex]
 
         if col == self.col_order:
+            # self.olv.modelObjects[#proper index].order = self._new_order_temp
+            self.olv.SetObjects(self.olv.GetObjects())
             self.olv.RebuildGroups()
 
     def OnSave(self, evt=None):

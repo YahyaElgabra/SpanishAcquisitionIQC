@@ -793,15 +793,20 @@ class VariablesPanel(wx.Panel):
 
         elif col == self.col_order:
             try:
-                self._new_order_temp = round(float(evt.editor.Value))
-            except TypeError:
+                order_new = round(float(evt.editor.Value)) # Entry in cell (i.e. order to be set)
+                order = evt.rowModel  # With old order
+                if order_new == order.order:
+                # Not actually changed.
+                    return
+                else:
+                    order.order = order_new
+            except ValueError:
                 pass # Assumed not an int was given in this cell
 
     def OnCellEditFinished(self, evt):
         col = evt.objectListView.columns[evt.subItemIndex]
 
         if col == self.col_order:
-            # self.olv.modelObjects[#proper index].order = self._new_order_temp
             self.olv.SetObjects(self.olv.GetObjects())
             self.olv.RebuildGroups()
 

@@ -387,8 +387,9 @@ class AbstractDevice(SuperDevice):
         if self.driver == drivers.pyvisa:
             try:
                 self.device.write(message)
-            except visa.VisaIOError as e:
-                if e.error_code == visa.VI_ERROR_TMO:
+            except pyvisa.VisaIOError as e:
+                if e.error_code == pyvisa.errors.VI_ERROR_TMO:
+                    print("In pyvisa timeout error")
                     raise DeviceTimeout(e)
                 else:
                     raise

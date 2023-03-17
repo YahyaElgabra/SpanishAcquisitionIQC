@@ -389,6 +389,7 @@ class AbstractDevice(SuperDevice):
                 self.device.write(message)
             except pyvisa.VisaIOError as e:
                 if e.error_code == pyvisa.errors.VI_ERROR_TMO:
+                    print("In pyvisa timeout error")
                     raise DeviceTimeout(e)
                 else:
                     raise

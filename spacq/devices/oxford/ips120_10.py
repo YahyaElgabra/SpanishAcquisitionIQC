@@ -50,11 +50,11 @@ class IPS120_10(AbstractDevice):
         self.write('$Q4')  # Extended resolution.
         self.write('$C3')  # Remote & unlocked.
         self.write('$M9')  # Display in Tesla.
-        # if self.device_status.activity == 4:
-        # 	self.write('$A0')  # Unclamp.
-
-        # Ensure some initial sanity.
-        # assert self.device_status.activity == 0, 'Not on hold.'
+        if self.device_status.activity == 4:
+           self.write('$A0')  # Unclamp.
+        
+        #Ensure some initial sanity.
+        assert self.device_status.activity == 0, 'Not on hold.'
 
     @property
     def device_status(self):

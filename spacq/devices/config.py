@@ -70,6 +70,7 @@ class DeviceConfig(object):
 	address_modes = Enum([
 		'ethernet',
 		'telnet',
+		'requests',
 		'gpib',
 		'usb',
 	])
@@ -80,6 +81,7 @@ class DeviceConfig(object):
 		# Connection configuration.
 		self.address_mode = None
 		self.host_address = None
+		self.request_address = None
 		self.ip_address = None
 		self.gpib_board = 0
 		self.gpib_pad = 0
@@ -194,6 +196,12 @@ class DeviceConfig(object):
 				if self.host_address is None:
 					raise ConnectionError('No Host address specified.')
 				address['host_address'] = self.host_address
+
+			elif self.address_mode == self.address_modes.requests:
+				if self.request_address is None:
+					raise ConnectionError('No Request address specified.')
+				address['request_address'] = self.request_address
+
 			elif self.address_mode == self.address_modes.gpib:
 				address['gpib_board'] = self.gpib_board
 				address['gpib_pad'] = self.gpib_pad

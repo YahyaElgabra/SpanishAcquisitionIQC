@@ -360,7 +360,7 @@ class AbstractDevice(SuperDevice):
         """
         Write then read using PyVisa's query command.
         """
-        return self.query(message)
+        return self.device.query(message)
 
     def close(self):
         """

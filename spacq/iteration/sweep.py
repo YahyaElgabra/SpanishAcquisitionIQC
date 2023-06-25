@@ -62,7 +62,28 @@ class SweepController(object):
     init -> next -> transition -> write -> dwell -> pulse -> read -> condition -> ramp_down -> end
     ^       ^                                  |_____________^           |             |
     |       |____________________________________________________________|             |
-    |__________________________________________________________________________________|	
+    |__________________________________________________________________________________|
+
+    Parameters
+    ----------
+    resources : list of tuples
+        A list of tuples containing the name and the resource object to be swept
+    variables : list of lists
+        A list of lists of variables to be swept
+    num_items : int
+        The number of items to be swept
+    measurement_resources : list of tuples
+        A list of tuples containing the name and the resource object to be measured
+    measurement_variables : list of lists
+        A list of lists of variables to be measured
+    condition_resources : list of tuples, optional
+        A list of tuples containing the name and the resource object to be used for conditional waiting
+    condition_variables : list of lists, optional
+        A list of lists of variables to be used for conditional waiting
+    pulse_config : PulseConfiguration, optional
+        The configuration necessary to execute a pulse program with a device
+    continuous : bool, optional
+        Whether to run the sweep continuously
 
     """
 
@@ -112,8 +133,10 @@ class SweepController(object):
 
     def compute_order_periods(self):
         """
-        This function computes the number of elements iterated before each order changes.
+        Compute the number of elements iterated before each order changes and creates a
+        dictionary of order periods.
         """
+
         periods = []
         orders = []
 
@@ -153,6 +176,15 @@ class SweepController(object):
     def create_iterator(self, pos):
         """
         Create an iterator for an order of variables.
+
+        Parameters
+        ----------
+        pos : int
+            The position of the order of variables
+        
+        Returns
+        -------
+        iterator
         """
 
         return zip(*(iter(var) for var in self.variables[pos]))
@@ -160,6 +192,17 @@ class SweepController(object):
     def ramp(self, resources, values_from, values_to, steps):
         """
         Slowly sweep the resources.
+
+        Parameters
+        ----------
+        resources : list of tuples
+            A list of tuples containing the name and the resource object to be swept
+        values_from : list
+            A list of starting values for each resource being swept
+        values_to : list
+            The final values that the resources will be swept to
+        steps : list
+            The number of steps to take between the starting value and ending value for each resource being swept
         """
 
         thrs = []
@@ -185,6 +228,15 @@ class SweepController(object):
     def write_resource(self, name, resource, value):
         """
         Write a value to a resource and handle exceptions.
+
+        Parameters
+        ----------
+        name : str
+            The name of the resource
+        resource : object
+            The resource object to write to
+        value : object
+            The value to write to the resource
         """
 
         try:
@@ -197,6 +249,15 @@ class SweepController(object):
     def read_resource(self, name, resource, save_callback):
         """
         Read a value from a resource and handle exceptions.
+
+        Parameters
+        ----------
+        name : str
+            The name of the resource
+        resource : object
+            The resource object to read from
+        save_callback : function
+            The function to call to save the value read from the resource
         """
 
         try:
@@ -210,7 +271,14 @@ class SweepController(object):
 
     def run(self, next_f=None):
         """
-        Run the sweep.
+        Run the sweep by executing a sequence of functions until there are no more functions to
+        execute.
+
+        Parameters
+        ----------
+        next_f : function
+            The next function to execute in the trampoline loop. If next_f is not provided, the
+            initial function (self.init) is used as the starting point
         """
 
         try:
@@ -284,7 +352,7 @@ class SweepController(object):
     @update_current_f
     def next_values(self):
         """
-        Get the next set of values from the iterators.
+        Get the next set of values from the iterators.        
         """
 
         self.item += 1
@@ -618,6 +686,9 @@ class SweepController(object):
             self.close_callback()
 
     def pause(self):
+        """
+        Pause the sweep.
+        """
         log.debug('Pausing.')
 
         self.paused = True
@@ -625,6 +696,9 @@ class SweepController(object):
         log.debug('Paused.')
 
     def unpause(self):
+        """
+        Unpause the sweep.
+        """
         log.debug('Unpausing.')
 
         with self.pause_lock:

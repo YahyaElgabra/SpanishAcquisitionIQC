@@ -15,6 +15,13 @@ Waveform = namedtuple('Waveform', 'data, markers')
 class Generator(object):
 	"""
 	A generator for arbitrary waveforms.
+
+	Parameters
+	----------
+	frequency : float
+		The sampling frequency.
+	dry_run : bool, optional
+		If True, do not generate a waveform. Useful for verifying the generating code.
 	"""
 
 	# Generation should fail if the number of points exceeds this value.
@@ -57,6 +64,15 @@ class Generator(object):
 		return Waveform(resulting_wave, marker_data)
 
 	def check_length(self, additional):
+		"""
+		This function checks if the resulting length of a waveform after adding additional points exceeds
+		the maximum length and raises a ValueError if it does.
+		
+		Parameters
+		----------
+		additional : int
+			The number of additional points to be added to the waveform.
+		"""
 		resulting_length = self.length + additional
 
 		if resulting_length > self.max_length:
@@ -71,6 +87,17 @@ class Generator(object):
 	def _get_marker(self, num, length):
 		"""
 		Get the marker values for all data points in the waveform.
+
+		Parameters
+		----------
+		num : int
+			The marker channel number.
+		length : int
+			The length of the waveform.
+
+		Returns
+		-------
+		A list of marker values.
 		"""
 
 		result = []
@@ -95,6 +122,15 @@ class Generator(object):
 	def _parse_time(self, value):
 		"""
 		Convert a time value to a number of samples based on the frequency.
+
+		Parameters
+		----------
+		value : Quantity
+			The time value to convert.
+
+		Returns
+		-------
+		The number of samples.
 		"""
 
 		log.debug('Parsing time "{0!r}" with frequency {1!r}'.format(value, self.frequency))
@@ -108,6 +144,19 @@ class Generator(object):
 		Shorten or elongate a waveform in both axes.
 
 		Due to the discrete nature of these waveforms, interpolation is used when changing duration.
+
+		Parameters
+		----------
+		data : list
+			The waveform data.
+		amplitude : float, optional
+			The new amplitude.
+		duration : Quantity, optional
+			The new duration.
+
+		Returns
+		-------
+		The scaled waveform data.
 		"""
 
 		if not data:
@@ -135,6 +184,11 @@ class Generator(object):
 	def set_next(self, value):
 		"""
 		Set the next point to have the given amplitude.
+
+		Parameters
+		----------
+		value : float
+			The amplitude of the next point.
 		"""
 
 		self.check_length(1)
@@ -143,6 +197,13 @@ class Generator(object):
 	def delay(self, value, less_points=1):
 		"""
 		Extend the last value of the waveform to last the length of the delay.
+
+		Parameters
+		----------
+		value : Quantity
+			The length of the delay.
+		less_points : int, optional
+			The number of points to subtract from the delay length.
 		"""
 
 		delay_length = self._parse_time(value) - less_points
@@ -159,6 +220,13 @@ class Generator(object):
 	def square(self, amplitude, length):
 		"""
 		Generate a square pulse.
+
+		Parameters
+		----------
+		amplitude : float
+			The amplitude of the pulse.
+		length : Quantity
+			The length of the pulse.
 		"""
 
 		try:
@@ -173,6 +241,15 @@ class Generator(object):
 	def pulse(self, values, amplitude, duration):
 		"""
 		Literal amplitude values.
+
+		Parameters
+		----------
+		values : list
+			The amplitude values.
+		amplitude : float
+			The amplitude of the waveform.
+		duration : Quantity
+			The duration of the waveform.
 		"""
 
 		data = self._scale_waveform(values, amplitude, duration)
@@ -183,6 +260,13 @@ class Generator(object):
 	def marker(self, num, value):
 		"""
 		Set the value of a marker starting from the current position.
+
+		Parameters
+		----------
+		num : int
+			The marker channel number.
+		value : bool
+			The value of the marker.
 		"""
 
 		if self.dry_run:

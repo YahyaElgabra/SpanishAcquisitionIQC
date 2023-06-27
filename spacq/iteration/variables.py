@@ -9,9 +9,15 @@ def sort_output_variables(variables):
 	"""
 	Sort and group the variables based on their order.
 
-	The returned values are:
-		variables sorted and grouped by their order
-		number of items in the Cartesian product of the orders
+	Parameters
+	----------
+	variables : list of OutputVariable
+		The variables to sort and group.
+
+	Returns
+	-------
+	variables sorted and grouped by their order
+	number of items in the Cartesian product of the orders
 	"""
 
 	# Ignore disabled variables entirely!
@@ -48,8 +54,14 @@ def sort_condition_variables(variables):
 	Sort and group condition variables based on their order.
 	This function is similar to sort_output_variables.
 
-	The returned value is:
-		variables sorted and grouped by their order
+	Parameters
+	----------
+	variables : list of ConditionVariable
+		The variables to sort and group.
+
+	Returns
+	-------
+	variables sorted and grouped by their order
 
 	"""
 
@@ -68,6 +80,12 @@ def sort_condition_variables(variables):
 class Variable(object):
 	"""
 	An abstract superclass for all variables.
+	Parameters
+	----------
+	name : str
+		The name of the variable.
+	enabled : bool
+		Whether the variable is enabled.
 	"""
 
 	def __init__(self, name, enabled=False):
@@ -78,6 +96,17 @@ class Variable(object):
 class ConditionVariable(Variable):
 	"""
 	A condition variable. Used to define conditions to make loops in the sweep controller indefinite.
+
+	Parameters
+	----------
+	order : int
+		The order of the variable.
+	resource_names : list of str
+		The names of the resources to use in the conditions.
+	conditions : list of Condition
+		The conditions to evaluate.
+	wait : str
+		The time to wait between each iteration.
 	"""
 	
 	def __init__(self, order, resource_names=None, conditions=[], wait = '100 ms', *args, **kwargs):
@@ -92,6 +121,11 @@ class ConditionVariable(Variable):
 		"""
 		Checks the conditions where condition_resources contains the resources required to evaluate the
 		conditions.
+
+		Parameters
+		----------
+		condition_resources : list of 2-tuples (name, resource obj)
+			The resources to use in the conditions.
 		"""
 		# We take OR of all the conditions.
 		boolean = False
@@ -120,6 +154,19 @@ class ConditionVariable(Variable):
 class Condition(object):
 	"""
 	A class used to represent a condition.
+
+	Parameters
+	----------
+	type1 : str
+		The type of the first argument.
+	type2 : str
+		The type of the second argument.
+	arg1 : str
+		The first argument.
+	op_symbol : str
+		The operator symbol.
+	arg2 : str
+		The second argument.
 	"""
 	
 	allowed_types = set(['string', 'float', 'integer', 'quantity', 'resource name','resource'])
@@ -137,7 +184,17 @@ class Condition(object):
 				
 	def evaluate(self, resources=None):
 		"""
-		Evaluate a condition. 'resources' comes as a list of 2-tuples (name, resource obj).
+		Evaluate a condition. 
+		
+		Parameters
+		----------
+		resources : list of 2-tuples (name, resource obj)
+			The resources to use in the conditions.
+
+		Returns
+		-------
+		boolean: bool
+			True if the condition is satisfied, False otherwise.			
 		"""
 		op = {'>':operator.gt, '==':operator.eq, '!=':operator.ne, '<':operator.lt}
 		
@@ -175,6 +232,11 @@ class Condition(object):
 class InputVariable(Variable):
 	"""
 	An input (measurement) variable.
+
+	Parameters
+	----------
+	resource_name : str
+		The name of the resource to use.
 	"""
 	def __init__(self, resource_name='', *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
@@ -185,6 +247,21 @@ class InputVariable(Variable):
 class OutputVariable(Variable):
 	"""
 	An abstract superclass for output variables.
+
+	Parameters
+	----------
+	order : int
+		The order of the variable.
+	config : Config
+		The configuration of the variable.
+	wait : str
+		The time to wait between each iteration.
+	const : float
+		The constant value to set the variable to.
+	use_const : bool
+		Whether to use the constant value.
+	resource_name : str
+		The name of the resource to use.
 	"""
 
 	# Maximum number of initial values to display in string form.
@@ -234,6 +311,11 @@ class OutputVariable(Variable):
 	def with_type(self, value):
 		"""
 		Set to the correct type, and wrap with the correct units.
+
+		Parameters
+		----------
+		value : float
+			The value to set.
 		"""
 
 		if self.type == 'integer':
@@ -287,6 +369,15 @@ class OutputVariable(Variable):
 class LinSpaceConfig(object):
 	"""
 	Linear space variable configuration.
+
+	Parameters
+	----------
+	initial : float
+		The initial value.
+	final : float
+		The final value.
+	steps : int
+		The number of steps.
 	"""
 
 	def __init__(self, initial=0.0, final=0.0, steps=1):

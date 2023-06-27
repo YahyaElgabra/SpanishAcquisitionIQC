@@ -12,6 +12,11 @@ Generic tools.
 def flatten(iterable):
 	"""
 	Flatten an iterable by one level.
+
+	Parameters
+	----------
+	iterable : iterable
+		The iterable to flatten.
 	"""
 
 	return chain.from_iterable(iterable)
@@ -20,11 +25,36 @@ def flatten(iterable):
 def sift(items, cls):
 	"""
 	Filter out items which are not instances of cls.
+
+	Parameters
+	----------
+	items : iterable
+		The items to filter.
+	cls : type
+		The class to filter by.
 	"""
 
 	return [item for item in items if isinstance(item, cls)]
 
 def get_mask(x,y, tx, ty):
+	"""
+	The function calculates a mask based on the distance between two sets of coordinates and returns it.
+
+	Parameters
+	----------
+	x : array
+		The x-coordinates of the data points.
+	y : array
+		The y-coordinates of the data points.
+	tx : array
+		The x-coordinates of the grid.
+	ty : array	
+		The y-coordinates of the grid.
+
+	Returns
+	-------
+	A 2D array representing a mask for the given set of x and y coordinates and a set of tx and ty coordinates.
+	"""
 	dx = (tx[-1] - tx[0])/(tx.size -1)
 	dy = (ty[-1] - ty[0])/(ty.size -1)
 
@@ -53,11 +83,26 @@ def triples_to_mesh(x, y, z, max_mesh=[-1,-1], has_mask=False):
 	"""
 	Convert 3 equal-sized lists of co-ordinates into an interpolated 2D mesh of z-values.
 
-	Returns a tuple of:
-		the mesh
-		the x bounds
-		the y bounds
-		the z bounds
+	Parameters
+	----------
+	x : array
+		The x-coordinates of the data points.
+	y : array
+		The y-coordinates of the data points.
+	z : array
+		The z-coordinates of the data points.
+	max_mesh : array
+		The maximum size of the mesh to be returned. If the value is negative, the mesh will be
+		returned with the same size as the data points.
+	has_mask : bool
+		Whether or not to apply a mask to the data.
+
+	Returns
+	-------
+	the mesh
+	the x bounds
+	the y bounds
+	the z bounds
 	"""
 
 	x_values, y_values = sort(unique(x)), sort(unique(y))
@@ -90,11 +135,24 @@ def triples_to_mesh_y(x, y, z, max_mesh=[-1,-1]):
 	[x0,x0,x0...x1,x1,x1...,xn,xn,xn...xn] with each value xi repeaded the same number of times.
 	Otherwiese unexpected behaviour follows.
 
-	Returns a tuple of:
-		the mesh
-		the x bounds
-		the y bounds
-		the z bounds
+	Parameters
+	----------
+	x : array
+		The x-coordinates of the data points.
+	y : array
+		The y-coordinates of the data points.
+	z : array
+		The z-coordinates of the data points.
+	max_mesh : array
+		The maximum size of the mesh to be returned. If the value is negative, the mesh will be
+		returned with the same size as the data points.
+
+	Returns
+	-------
+	the mesh
+	the x bounds
+	the y bounds
+	the z bounds
 	"""
 	x_values, y_values = sort(unique(x)), sort(unique(y))
 
@@ -146,15 +204,15 @@ class Enum(set):
 class PubDict(dict):
 	"""
 	A locking, publishing dictionary.
+
+	Parameters
+	----------
+	lock: A re-entrant lock which supports context management.
+	send: Message-sending method of a PubSub publisher.
+	topic: The topic on which to send messages.
 	"""
 
 	def __init__(self, lock, send, topic, *args, **kwargs):
-		"""
-		lock: A re-entrant lock which supports context management.
-		send: Message-sending method of a PubSub publisher.
-		topic: The topic on which to send messages.
-		"""
-
 		dict.__init__(self, *args, **kwargs)
 
 		self.lock = lock

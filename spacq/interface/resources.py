@@ -32,16 +32,19 @@ class NotWritable(Exception):
 class Resource(object):
     """
     A generic resource which can potentially be read from or written to.
+
+    Parameters
+    ----------
+    obj: The device to which the resource belongs.
+    getter: The method used to get the value.
+    setter: The method used to set the value.
+    converter: A function which returns a valid value for the resource, given a string.
+    allowed_values: A set of all values which are valid for the resource.
+
     """
 
     def __init__(self, obj=None, getter=None, setter=None, converter=None, allowed_values=None):
         """
-        obj: The device to which the resource belongs.
-        getter: The method used to get the value.
-        setter: The method used to set the value.
-        converter: A function which returns a valid value for the resource, given a string.
-        allowed_values: A set of all values which are valid for the resource.
-
         The getter and setter can be actual methods, or just attribute/property name strings.
         """
 
@@ -85,6 +88,15 @@ class Resource(object):
         Ensure that the type and dimensions of the value are as expected.
 
         If from_string is True, the value is expected to be a unit symbol string.
+
+        Parameters
+        ----------
+        value : object
+            The value to check.
+        exception : bool, optional
+            Whether to raise an exception if the value is not valid.
+        from_string : bool, optional
+            Whether the value is expected to be a unit symbol string.
         """
 
         if from_string:
@@ -191,6 +203,11 @@ class Resource(object):
     def _find_wrapper_by_name(self, name):
         """
         Return the last index of the given wrapper.
+
+        Parameters
+        ----------
+        name : str
+            The name of the wrapper to find.
         """
 
         for i, (n, _, _) in reversed(list(enumerate(self.wrappers))):
@@ -202,8 +219,12 @@ class Resource(object):
     def is_wrapped_by(self, name):
         """
         Determine whether the given wrapper already wraps this Resource.
-        """
 
+        Parameters
+        ----------
+        name : str
+            The name of the wrapper to check for.
+        """
         try:
             self._find_wrapper_by_name(name)
         except ValueError:
@@ -215,9 +236,14 @@ class Resource(object):
         """
         Produce a Resource which is a wrapper around this Resource.
 
-        name: The name of the wrapper to add.
-        getter_filter: Function of one argument through which to pass any obtained values.
-        setter_filter: Function of one argument through which to pass values when setting.
+        Parameters
+        ----------
+        name : str
+            The name of the wrapper.
+        getter_filter : function, optional
+            A function of one argument through which to pass any obtained values.
+        setter_filter : function, optional
+            A function of one argument through which to pass values when setting.
         """
 
         result = copy(self)
@@ -230,10 +256,12 @@ class Resource(object):
     def unwrapped(self, name):
         """
         Produce a Resource with the last instance of the given wrapper removed.
-
-        name: The name of the wrapper to remove.
+        
+        Parameters
+        ----------
+        name : str
+            The name of the wrapper to remove.
         """
-
         result = copy(self)
 
         idx = self._find_wrapper_by_name(name)
@@ -244,6 +272,19 @@ class Resource(object):
     def sweep(self, value_from, value_to, steps, delay=0.1, exception_callback=None):
         """
         Sweep the Resource slowly over a linear space.
+
+        Parameters
+        ----------
+        value_from : object 
+            The starting value.
+        value_to : object
+            The ending value.
+        steps : int
+            The number of steps to take.
+        delay : float, optional
+            The delay between steps.
+        exception_callback : function, optional
+            A function to call if an exception occurs.
         """
 
         # Check for dimension mismatches.
@@ -275,6 +316,17 @@ class AcquisitionThread(Thread):
     Once every delay, call the callback with a fresh value from the resource.
 
     An optional running lock can block execution until it is released elsewhere.
+
+    Parameters
+    ----------
+    delay : Quantity
+        The delay between calls to the callback.
+    callback : function
+        The function to call with the value.
+    resource : Resource, optional
+        The resource to read from. If not specified, the callback will be called with no arguments.
+    running_lock : Lock, optional
+        A lock to block execution until it is released elsewhere.
     """
 
     def __init__(self, delay, callback, resource=None, running_lock=None):

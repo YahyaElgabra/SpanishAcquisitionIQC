@@ -27,6 +27,19 @@ def update_current_f(f):
 class virtLinSpaceConfig(object):
     """
     Like LinSpaceConfig but with order...
+
+    Parameters
+    ----------
+    name : str
+        The name of the variable.
+    initial : float
+        The initial value of the variable.
+    final : float
+        The final value of the variable.
+    steps : int
+        The number of steps.
+    order : int
+        The order of the variable.
     """
     def __init__(self, name='var', initial=0.0, final=0.0, steps=1, order=1):
         self.name = name
@@ -61,6 +74,13 @@ class virtLinSpaceConfig(object):
 class DependentConfig(object):
     """
     Like LinSpaceConfig but with order...
+
+    Parameters  
+    ----------
+    name : str
+        The name of the variable.
+    expression : str
+        The expression of the variable.
     """
     def __init__(self, name='var', expression='1'):
         self.name = name
@@ -68,6 +88,16 @@ class DependentConfig(object):
 
 
     def DependentFunctionMath(self, virt_headings, virt_values):
+        """
+        This function takes the expression and evaluates it with the virtual values.
+
+        Parameters
+        ----------
+        virt_headings : list   
+            The headings of the virtual variables.
+        virt_values : list
+            The values of the virtual variables.
+        """
 
         editExpression = self.expression
 
@@ -95,6 +125,15 @@ class DependentConfig(object):
 
 # something like SweepController:
 class virtSweepController(object):
+    """
+    Parameters
+    ----------
+    variables : list
+        The list of virtual variables.
+    num_items : int
+        The number of items in the sweep.
+
+    """
     def __init__(self, variables, num_items):
 
         # Sorted by order at this point
@@ -229,9 +268,15 @@ def sort_output_variables(variables):
     """
     Sort and group the variables based on their order.
 
-    The returned values are:
-        variables sorted and grouped by their order
-        number of items in the Cartesian product of the orders
+    Parameters
+    ----------
+    variables : list
+        The list of variables.
+
+    Returns
+    -------
+    variables sorted and grouped by their order
+    number of items in the Cartesian product of the orders
     """
 
     # Ignore disabled variables entirely!

@@ -277,7 +277,7 @@ class SweepController(object):
         Parameters
         ----------
         next_f : function
-            The next function to execute in the trampoline loop. If next_f is not provided, the
+            The next function to execute in the loop. If next_f is not provided, the
             initial function (self.init) is used as the starting point
         """
 
@@ -324,6 +324,10 @@ class SweepController(object):
     def init(self):
         """
         Initialize values and possibly devices.
+
+        Returns
+        -------
+        start next step
         """
 
         self.iterators = None
@@ -353,6 +357,10 @@ class SweepController(object):
     def next_values(self):
         """
         Get the next set of values from the iterators.        
+
+        Returns
+        -------
+        start transition step
         """
 
         self.item += 1
@@ -389,6 +397,10 @@ class SweepController(object):
     def transition(self):
         """
         Perform a transition for variables, as required.
+
+        Returns
+        -------
+        start write step
         """
 
         if self.last_values is None:
@@ -440,6 +452,10 @@ class SweepController(object):
     def write(self):
         """
         Write the next values to their resources.
+
+        Returns
+        -------
+        start dwelling
         """
 
         thrs = []
@@ -464,6 +480,10 @@ class SweepController(object):
     def dwell(self):
         """
         Wait for all changed variables.
+
+        Returns
+        -------
+        start read step if no pulse program, pulse otherwise
         """
 
         delay = max(
@@ -479,6 +499,10 @@ class SweepController(object):
     def pulse(self):
         """
         Run through the pulse program.
+
+        Returns
+        -------
+        start read step
         """
 
         if self.pulse_config.channels:
@@ -556,6 +580,10 @@ class SweepController(object):
     def read(self):
         """
         Take measurements.
+
+        Returns
+        -------
+        start condition step
         """
         measurements = [None] * len(self.measurement_resources)
 
@@ -595,6 +623,12 @@ class SweepController(object):
         with repeated measurements until conditions are true.
         Once conditions are true, then the sweep controller moves on to the next order
         and continues as usual.
+
+        Returns
+        -------
+        ramps down if conditions are true and all variables are exhausted
+        goes to next value if conditions are true and not all variables are exhausted
+        dwells if conditions are false
         """
         boolean = True
 
@@ -637,6 +671,10 @@ class SweepController(object):
     def conditional_dwell(self):
         """
         Dwell for the max time defined by the conditions in the current order.
+
+        Returns
+        -------
+        start read process
         """
         sleep(self.conditional_wait)
         return self.read
@@ -645,6 +683,10 @@ class SweepController(object):
     def ramp_down(self):
         """
         Sweep from the last values to const.
+
+        Returns
+        -------
+        start the init step if continuous
         """
 
         if not self.current_values:
@@ -710,6 +752,11 @@ class SweepController(object):
     def abort(self, fatal=False):
         """
         Ending abruptly for any reason.
+
+        Parameters
+        ----------
+        fatal : bool, optional
+            Whether to abort fatally. Default is False.
         """
 
         log.debug('Aborting.')

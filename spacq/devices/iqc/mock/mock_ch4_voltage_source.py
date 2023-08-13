@@ -48,6 +48,17 @@ class Mockch4VoltageSource(MockAbstractDevice, ch4VoltageSource):
 		self.mock_state['ports'] = [MockPort() for _ in range(6)]
 
 	def write(self, message, result=None, done=False):
+		"""
+		Write a message to the device.
+
+		Parameters
+		----------
+		message : str
+		result : str, optional
+			The expected result.
+		done : bool, optional
+			Whether the message is the last in a sequence.
+		"""
 		if done:
 			MockAbstractDevice.write(self, message, result, done)
 

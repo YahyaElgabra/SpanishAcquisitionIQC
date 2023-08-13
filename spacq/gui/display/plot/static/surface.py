@@ -10,6 +10,21 @@ from .common.plot_setup import PlotSetupDialog
 
 
 class SurfacePlotPanel(wx.Panel):
+	"""
+	Plot a surface.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	surface_data : numpy.ndarray
+	x_bounds : tuple of float
+	y_bounds : tuple of float
+	x_label : str
+	y_label : str
+	z_label : str
+	style : str
+		'surface' or 'waveform'
+	"""
 	def __init__(self, parent, surface_data, x_bounds, y_bounds, x_label, y_label, z_label,
 			style, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
@@ -28,6 +43,20 @@ class SurfacePlotPanel(wx.Panel):
 
 
 class SurfacePlotFrame(wx.Frame):
+	"""
+	Plot a surface.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	surface_data : tuple of (numpy.ndarray, tuple of float, tuple of float)
+		a tuple of (z, x_bounds, y_bounds)
+	x_label : str
+	y_label : str
+	z_label : str
+	style : str
+		'surface' or 'waveform'
+	"""
 	def __init__(self, parent, surface_data, x_bounds, y_bounds, x_label, y_label, z_label,
 			style, *args, **kwargs):
 		wx.Frame.__init__(self,  parent, *args, **kwargs)
@@ -51,6 +80,15 @@ class SurfacePlotFrame(wx.Frame):
 
 
 class SurfacePlotSetupDialog(PlotSetupDialog):
+	"""
+	Plot a surface.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'z'],
 				*args, **kwargs)
@@ -60,6 +98,14 @@ class SurfacePlotSetupDialog(PlotSetupDialog):
 		self.data = data
 
 	def make_plot(self):
+		"""
+		Plot a surface.
+		
+		Returns
+		-------
+		bool
+			Whether the plot was successful.
+		"""
 		try:
 			x_data, y_data, z_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:
@@ -83,6 +129,15 @@ class SurfacePlotSetupDialog(PlotSetupDialog):
 
 
 class WaveformsPlotSetupDialog(PlotSetupDialog):
+	"""
+	Plot a surface of waveforms.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		PlotSetupDialog.__init__(self, parent, headings, ['z'],
 				*args, **kwargs)
@@ -92,6 +147,14 @@ class WaveformsPlotSetupDialog(PlotSetupDialog):
 		self.data = data
 
 	def make_plot(self):
+		"""
+		Plot a surface of waveforms.
+		
+		Returns
+		-------
+		bool
+			Whether the plot was successful.
+		"""
 		axis = self.axes[0]
 		lp = ListParser()
 

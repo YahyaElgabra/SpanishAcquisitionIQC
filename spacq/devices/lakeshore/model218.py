@@ -44,6 +44,13 @@ class model218(AbstractDevice):
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature1(self):
+		"""
+		Return the temperature of channel 1 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 
 		return float(self.ask('krdg? 1'))
 
@@ -51,42 +58,91 @@ class model218(AbstractDevice):
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature2(self):
+		"""
+		Return the temperature of channel 2 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 2'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature3(self):
+		"""
+		Return the temperature of channel 3 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 3'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature4(self):
+		"""
+		Return the temperature of channel 4 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 4'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature5(self):
+		"""
+		Return the temperature of channel 5 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 5'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature6(self):
+		"""
+		Return the temperature of channel 6 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 6'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature7(self):
+		"""
+		Return the temperature of channel 7 in Kelvin.
+
+		Returns
+		-------
+		float		
+		"""
 		return float(self.ask('krdg? 7'))
 
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
 	def temperature8(self):
+		"""
+		Return the temperature of channel 8 in Kelvin.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('krdg? 8'))
 
 name = 'Model 218 Temperature Monitor'

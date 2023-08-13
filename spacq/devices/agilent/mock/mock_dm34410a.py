@@ -26,6 +26,17 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
         self.mock_state['auto_zero'] = 1
 
     def write(self, message, result=None, done=False):
+        """
+        Write a message to the device.
+
+        Parameters
+        ----------
+        message : str
+        result : str, optional
+            The response to return.
+        done : bool, optional
+            True if this is the last message in a sequence.
+        """
         if not done:
             cmd, args, query = self._split_message(message)
 

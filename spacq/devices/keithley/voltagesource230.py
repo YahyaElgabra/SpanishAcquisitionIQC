@@ -73,6 +73,14 @@ class voltageSource230(AbstractDevice):
 	def calculate_voltage(self, voltage):
 		"""
 		Determine the value corresponding to the given voltage.
+
+		Parameters
+		----------
+		voltage : float
+
+		Returns
+		-------
+		float
 		"""
 
 		try:
@@ -91,6 +99,10 @@ class voltageSource230(AbstractDevice):
 	def set_voltage(self, voltage):
 		"""
 		Set the voltage on this port, as a quantity in V.
+
+		Parameters
+		----------
+		float
 		"""
 
 		# Left-align the bits within the value:
@@ -109,7 +121,11 @@ class voltageSource230(AbstractDevice):
 	@property
 	def I_limit(self):
 		"""
-		The current limit (in mA)
+		Return the current limit (in mA)
+
+		Returns
+		-------
+		float
 		"""
 		# If no I limit has been set, use the 2mA default
 		if not hasattr(self, 'currentILimit'):
@@ -120,6 +136,13 @@ class voltageSource230(AbstractDevice):
 
 	@I_limit.setter
 	def I_limit(self, value):
+		"""
+		Set the current limit (in mA)
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value not in self.allowed_I_limit:
 			raise ValueError('Invalid I Limit value: {0}'.format(value))
 
@@ -134,7 +157,11 @@ class voltageSource230(AbstractDevice):
 	@property
 	def dwell_time(self):
 		"""
-		The dwell time of the vsrc
+		Return the dwell time of the vsrc
+
+		Returns
+		-------
+		float
 		"""
 		# If no dwell time has been set, use 10ms default
 		if not hasattr(self, 'dwelltime'):
@@ -143,6 +170,13 @@ class voltageSource230(AbstractDevice):
 	
 	@dwell_time.setter
 	def dwell_time(self, value):
+		"""
+		Set the dwell time of the vsrc
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.dwellMin or value > self.dwellMax:
 			raise ValueError('Dwell time must be within [{0}, {1}]. Given: {2}.'.format(self.dwellMin, self.dwellMax, value))
 		self.dwelltime = value

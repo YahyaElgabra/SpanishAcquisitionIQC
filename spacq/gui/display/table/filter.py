@@ -9,6 +9,15 @@ Graphical interface for data filters.
 
 
 class FilterEditDialog(Dialog):
+    """
+    Dialog for editing a filter.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    headings : list of str
+    ok_callback : function
+    """
     def __init__(self, parent, headings, ok_callback, *args, **kwargs):
         kwargs['style'] = kwargs.get(
             'style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
@@ -58,6 +67,13 @@ class FilterEditDialog(Dialog):
         (self.column_input.StringSelection, self.function_input.Value) = values
 
     def OnOk(self, evt=None):
+        """
+        Callback for the OK button.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         try:
             self.ok_callback(self)
         except ValueError as e:
@@ -68,6 +84,19 @@ class FilterEditDialog(Dialog):
 
 
 class FilterListDialog(Dialog):
+    """
+    Dialog for editing a list of filters.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    table : Table
+        table to filter
+    close_callback : function
+    filters : dict, optional
+    filter_columns : dict, optional
+        If filters is not None, this must also be provided.
+    """
     def __init__(self, parent, table, close_callback, filters=None, filter_columns=None,
                  *args, **kwargs):
         kwargs['style'] = kwargs.get(
@@ -113,6 +142,15 @@ class FilterListDialog(Dialog):
     def create_filter(self, f_text, col):
         """
         Create a filter out of text.
+
+        Parameters
+        ----------
+        f_text : str
+        col : str
+
+        Returns
+        -------
+        function
         """
 
         col_idx = self.table.headings.index(col)
@@ -123,6 +161,10 @@ class FilterListDialog(Dialog):
     def meta_filter(self):
         """
         Create a meta-filter out of all the filters.
+
+        Returns
+        -------
+        function
         """
 
         filters = [self.create_filter(f, col) for f, col in
@@ -131,6 +173,15 @@ class FilterListDialog(Dialog):
         return lambda i, x: all([f(i, x) for f in filters])
 
     def edit_ok_callback(self, dlg, selection=None):
+        """
+        Callback for the filter edit dialog.
+        
+        Parameters
+        ----------
+        dlg : FilterEditDialog
+        selection : str, optional
+            If not None, the filter with this name will be removed.
+        """
         col, f = dlg.GetValue()
 
         name = '{0}: {1}'.format(col, f)
@@ -164,6 +215,13 @@ class FilterListDialog(Dialog):
                          self.edit_ok_callback).Show()
 
     def OnEditFilter(self, evt=None):
+        """
+        Edit a filter.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         selection = self.filter_list.StringSelection
 
         if not selection:
@@ -175,6 +233,15 @@ class FilterListDialog(Dialog):
         dlg.Show()
 
     def OnRemoveFilter(self, evt=None, selection=None):
+        """
+        Remove a filter.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        selection : str, optional
+            The filter to remove.
+        """
         if selection is None:
             selection = self.filter_list.StringSelection
 

@@ -66,6 +66,10 @@ class TC335(AbstractDevice):
     def temperature(self):
         """
         The value measured by the device, as a quantity in K.
+
+        Returns
+        -------
+        temperature : float
         """
 
         self.status.append('Taking reading')
@@ -91,6 +95,10 @@ class TC335(AbstractDevice):
     def powerA(self):
         """
         The value measured by the device, as a quantity in %.
+
+        Returns
+        -------
+        power : float
         """
         return float(self.ask('HTR? 1'))
     
@@ -106,11 +114,25 @@ class TC335(AbstractDevice):
     @property
     @quantity_wrapped('K')
     def setPointA(self):
+        """
+        Returns the setpoint of channel A in Kelvin.
+
+        Returns
+        -------
+        setPoint : float
+        """
         return float(self.ask('SETP? 1'))
         
     @setPointA.setter
     @quantity_unwrapped('K')
     def setPointA(self, value):
+        """
+        Sets the setpoint of channel A in Kelvin.
+
+        Parameters
+        ----------
+        setPoint : float
+        """
         self.write('SETP 1,{0}'.format(value))
         self.currentSetPointA = value
     
@@ -127,12 +149,26 @@ class TC335(AbstractDevice):
 
     @property
     def rangeA(self):
+        """
+        Returns the range of channel A.
+
+        Returns
+        -------
+        range : string
+        """
         value = int(self.ask('RANGE? 1'))
         reverse_dict = {0:'Off',1:'Low',2:'Medium',3:'High'}
         return reverse_dict[value]
         
     @rangeA.setter
     def rangeA(self, value):
+        """
+        Sets the range of channel A.
+
+        Parameters
+        ----------
+        range : string
+        """
             #if value not in self.allowed_ranges:
         #	raise ValueError('Invalid rangeA value: {0}'.format(value))
     

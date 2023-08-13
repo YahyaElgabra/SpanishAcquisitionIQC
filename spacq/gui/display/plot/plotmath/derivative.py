@@ -3,6 +3,15 @@ from .common.math_setup import MathSetupDialog_Derivative
 from numpy import concatenate
 
 class DerivativeMathSetupDialog(MathSetupDialog_Derivative):
+	"""
+	Dialog for setting up a derivative plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 
 	dheading = []
 	ddata = []

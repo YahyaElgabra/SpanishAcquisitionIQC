@@ -50,7 +50,7 @@ class SIValues(object):
 	prefixes_ = dict([(v, k) for (k, v) in list(prefixes.items())])
 
 	# SI base units. Note the g instead of kg.
-	units = set(['A', 'cd', 'g', 'K', 'm', 'mol', 's'])
+	units = {'A', 'cd', 'g', 'K', 'm', 'mol', 's'}
 	# SI derived units. Add more as necessary.
 	units.update(['Hz', 'J', 'N', 'T', 'V', 'G'])
 
@@ -67,7 +67,14 @@ class Quantity(object):
 			Determine the multipliers and strip the prefixes.
 			Use "*" and "**" to combine units.
 
-		eg. ' mN.m.ks-2' -> 'N*m*s**-2', 3
+		Returns
+		-------
+		The units in pq-acceptable notation.
+			
+		Example
+		--------
+		>>> Quantity.parse_units(' mN.m.ks-2')
+		('N*m*s**-2', 3)
 		"""
 
 		symbols = [x.strip() for x in string.split('.')]
@@ -118,6 +125,16 @@ class Quantity(object):
 	def from_string(string):
 		"""
 		Separate the value from the units.
+		
+		Returns
+		-------
+		The value of the quantity.
+		The units of the quantity.
+
+		Example
+		--------
+		>>> Quantity.from_string('100 ms')
+		(100.0, 'ms')
 		"""
 
 		for i in range(len(string), 0, -1):
@@ -191,14 +208,21 @@ class Quantity(object):
 		"""
 		The magnitude of the quantity that matches the units.
 		"""
-
 		return self._q.magnitude / (10 ** self.original_multiplier)
 
 	def assert_dimensions(self, other, exception=True):
 		"""
-		Whether the dimensions match.
-
 		If exception is True and we would have returned False, raise an exception.
+
+		Parameters
+		----------
+		other : set
+			The dimensions to compare to.
+		exception : bool, optional
+
+		Returns
+		-------
+		Whether the dimensions match.
 		"""
 
 		if isinstance(other, str):

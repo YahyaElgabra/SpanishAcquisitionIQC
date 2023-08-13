@@ -12,6 +12,12 @@ An embeddable colormapped plot.
 class ColormappedPlot(ChacoPlot):
 	"""
 	A colormapped plot.
+
+	Parameters
+	----------
+	parent : wx.Window
+	x_bounds : tuple
+	y_bounds : tuple
 	"""
 
 	def __init__(self, parent, x_bounds, y_bounds, *args, **kwargs):
@@ -30,6 +36,10 @@ class ColormappedPlot(ChacoPlot):
 	def plot_obj(self):
 		"""
 		The actual plot object.
+
+		Returns
+		-------
+		chaco.api.Plot
 		"""
 
 		return list(self.plots.values())[0][0]
@@ -67,6 +77,10 @@ class ColormappedPlot(ChacoPlot):
 	def color_data(self):
 		"""
 		Plotted values.
+
+		Returns
+		-------
+		numpy.ndarray
 		"""
 
 		return self.data.get_data('color')
@@ -79,6 +93,10 @@ class ColormappedPlot(ChacoPlot):
 	def low_setting(self):
 		"""
 		Lowest color value.
+
+		Returns
+		-------
+		float
 		"""
 
 		return self.plot_obj.color_mapper.range.low
@@ -91,6 +109,10 @@ class ColormappedPlot(ChacoPlot):
 	def high_setting(self):
 		"""
 		Highest color value.
+
+		Returns
+		-------
+		float
 		"""
 
 		return self.plot_obj.color_mapper.range.high

@@ -22,6 +22,17 @@ class MockSourceMeter2401(MockAbstractDevice, sm2401):
 		self.mock_state['setting'] = 'default value'
 
 	def write(self, message, result=None, done=False):
+		"""
+		Write a message to the device.
+
+		Parameters
+		----------
+		message : str
+		result : str, optional
+			The result of the write.
+		done : bool, optional
+			Whether the write is done.
+		"""
 		if not done:
 			cmd, args, query = self._split_message(message)
 

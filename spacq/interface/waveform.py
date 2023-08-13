@@ -46,6 +46,10 @@ class Generator(object):
 	def waveform(self):
 		"""
 		The waveform and marker data for the generated waveform.
+
+		Returns
+		-------
+		A Waveform tuple.
 		"""
 
 		try:
@@ -65,13 +69,17 @@ class Generator(object):
 
 	def check_length(self, additional):
 		"""
-		This function checks if the resulting length of a waveform after adding additional points exceeds
+		Checks if the resulting length of a waveform after adding additional points exceeds
 		the maximum length and raises a ValueError if it does.
 		
 		Parameters
 		----------
 		additional : int
 			The number of additional points to be added to the waveform.
+
+		Raises
+		------
+		ValueError if the resulting length of the waveform exceeds the maximum length.
 		"""
 		resulting_length = self.length + additional
 
@@ -93,7 +101,6 @@ class Generator(object):
 		num : int
 			The marker channel number.
 		length : int
-			The length of the waveform.
 
 		Returns
 		-------
@@ -126,7 +133,6 @@ class Generator(object):
 		Parameters
 		----------
 		value : Quantity
-			The time value to convert.
 
 		Returns
 		-------
@@ -148,11 +154,8 @@ class Generator(object):
 		Parameters
 		----------
 		data : list
-			The waveform data.
 		amplitude : float, optional
-			The new amplitude.
 		duration : Quantity, optional
-			The new duration.
 
 		Returns
 		-------
@@ -188,7 +191,6 @@ class Generator(object):
 		Parameters
 		----------
 		value : float
-			The amplitude of the next point.
 		"""
 
 		self.check_length(1)
@@ -200,8 +202,7 @@ class Generator(object):
 
 		Parameters
 		----------
-		value : Quantity
-			The length of the delay.
+		value : Quantit
 		less_points : int, optional
 			The number of points to subtract from the delay length.
 		"""
@@ -224,9 +225,7 @@ class Generator(object):
 		Parameters
 		----------
 		amplitude : float
-			The amplitude of the pulse.
 		length : Quantity
-			The length of the pulse.
 		"""
 
 		try:
@@ -245,11 +244,8 @@ class Generator(object):
 		Parameters
 		----------
 		values : list
-			The amplitude values.
 		amplitude : float
-			The amplitude of the waveform.
 		duration : Quantity
-			The duration of the waveform.
 		"""
 
 		data = self._scale_waveform(values, amplitude, duration)
@@ -266,7 +262,6 @@ class Generator(object):
 		num : int
 			The marker channel number.
 		value : bool
-			The value of the marker.
 		"""
 
 		if self.dry_run:

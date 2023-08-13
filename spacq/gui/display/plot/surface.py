@@ -12,6 +12,12 @@ An embeddable three-dimensional surface plot.
 class SurfacePlot(object):
 	"""
 	A surface plot.
+
+	Parameters
+	----------
+	parent : wx.Window
+	style : str
+		'surface' or 'waveform'
 	"""
 
 	alpha = 0.8
@@ -49,6 +55,11 @@ class SurfacePlot(object):
 	def set_surface_data(self, data):
 		"""
 		Set the surface data based on the data tuple.
+
+		Parameters
+		----------
+		data : tuple
+			(surface_data, x_bounds, y_bounds)
 		"""
 
 		if self.surface is not None:
@@ -81,6 +92,10 @@ class SurfacePlot(object):
 	def x_label(self):
 		"""
 		The x axis label.
+
+		Returns
+		-------
+		str
 		"""
 		return self.axes.get_xlabel()
 
@@ -92,6 +107,10 @@ class SurfacePlot(object):
 	def y_label(self):
 		"""
 		The y axis label.
+
+		Returns
+		-------
+		str
 		"""
 		return self.axes.get_ylabel()
 
@@ -103,6 +122,10 @@ class SurfacePlot(object):
 	def z_label(self):
 		"""
 		The z axis label.
+
+		Returns
+		-------
+		str
 		"""
 		return self.axes.get_zlabel()
 

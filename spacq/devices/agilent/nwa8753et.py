@@ -59,6 +59,10 @@ class NWA8753ET(AbstractDevice):
     def cwFreq(self):
         """
         The frequency of the networkAnalyzer output
+
+        Returns
+        -------
+        float
         """
 
         return float(self.ask('cwfreq?'))
@@ -72,6 +76,10 @@ class NWA8753ET(AbstractDevice):
     def power(self):
         """
         The power (in dB)
+
+        Returns
+        -------
+        float
         """
 
         return float(self.ask('powe?'))
@@ -85,6 +93,10 @@ class NWA8753ET(AbstractDevice):
     def marker(self):
         """
         The value measured by the device at marker, as a quantity in dB.
+
+        Returns
+        -------
+        float
         """
 
         self.status.append('Taking reading')
@@ -104,6 +116,10 @@ class NWA8753ET(AbstractDevice):
     def markFreq(self):
         """
         The frequency of the marker in Hz
+
+        Returns
+        -------
+        float
         """
 
         return float(self.ask('MARK1?'))

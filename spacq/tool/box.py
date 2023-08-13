@@ -16,7 +16,11 @@ def flatten(iterable):
 	Parameters
 	----------
 	iterable : iterable
-		The iterable to flatten.
+
+	Example
+	-------
+	>>> list(flatten([[1, 2], [3, 4]]))
+	[1, 2, 3, 4]
 	"""
 
 	return chain.from_iterable(iterable)
@@ -29,12 +33,17 @@ def sift(items, cls):
 	Parameters
 	----------
 	items : iterable
-		The items to filter.
 	cls : type
 		The class to filter by.
+
+	Example
+	-------
+	>>> list(sift([1, 2, 'a', 'b'], str))
+	['a', 'b']
 	"""
 
 	return [item for item in items if isinstance(item, cls)]
+
 
 def get_mask(x,y, tx, ty):
 	"""
@@ -54,17 +63,27 @@ def get_mask(x,y, tx, ty):
 	Returns
 	-------
 	A 2D array representing a mask for the given set of x and y coordinates and a set of tx and ty coordinates.
+
+	Example
+	-------
+	>>> x = linspace(0, 10, 11)
+	>>> y = linspace(0, 10, 11)
+	>>> tx = linspace(0, 10, 21)
+	>>> ty = linspace(0, 10, 21)
+	>>> mask = get_mask(x, y, tx, ty)
+	>>> mask.shape
+	(21, 21)
 	"""
-	dx = (tx[-1] - tx[0])/(tx.size -1)
-	dy = (ty[-1] - ty[0])/(ty.size -1)
+	dx = (tx[-1] - tx[0]) / (tx.size - 1)
+	dy = (ty[-1] - ty[0]) / (ty.size - 1)
 
-	d2 = dx**2 + dy**2
+	d2 = dx ** 2 + dy ** 2
 
-	xgrid = meshgrid(x,tx)
-	ygrid = meshgrid(y,ty)
+	xgrid = meshgrid(x, tx)
+	ygrid = meshgrid(y, ty)
 	
-	xdist = (xgrid[0] - xgrid[1])**2
-	ydist = (ygrid[0] - ygrid[1])**2
+	xdist = (xgrid[0] - xgrid[1]) ** 2
+	ydist = (ygrid[0] - ygrid[1]) ** 2
 
 	mask = ones((tx.shape[0], ty.shape[0]))
 	
@@ -72,7 +91,7 @@ def get_mask(x,y, tx, ty):
 		for j in range (mask.shape[1]):
 			mask[i,j] = npmin(xdist[i] + ydist[j])
 
-	mask = (mask < d2)*1
+	mask = mask < d2
 	mask = where(mask, mask, nan)
 
 	return mask.T
@@ -103,13 +122,28 @@ def triples_to_mesh(x, y, z, max_mesh=[-1,-1], has_mask=False):
 	the x bounds
 	the y bounds
 	the z bounds
+
+	Example
+	-------
+	>>> x = linspace(0, 10, 11)
+	>>> y = linspace(0, 10, 11)
+	>>> z = linspace(0, 10, 11)
+	>>> mesh, x_bounds, y_bounds, z_bounds = triples_to_mesh(x, y, z)
+	>>> mesh.shape
+	(11, 11)
+	>>> x_bounds
+	(0.0, 10.0)
+	>>> y_bounds
+	(0.0, 10.0)
+	>>> z_bounds
+	(0.0, 10.0)
 	"""
 
 	x_values, y_values = sort(unique(x)), sort(unique(y))
 	
-	if (all (item > 0 for item in max_mesh)):
-		display_len_x = min (len(x_values), max_mesh[0])
-		display_len_y = min (len(y_values), max_mesh[1])
+	if all(item > 0 for item in max_mesh):
+		display_len_x = min(len(x_values), max_mesh[0])
+		display_len_y = min(len(y_values), max_mesh[1])
 	else:
 		display_len_x = len(x_values)
 		display_len_y = len(y_values)
@@ -121,19 +155,20 @@ def triples_to_mesh(x, y, z, max_mesh=[-1,-1], has_mask=False):
 
 	target_z = griddata((x, y), z, (target_x, target_y), method='cubic')
 
-	if (has_mask):	
-		mask =	get_mask (x, y, x_space, y_space)
+	if has_mask:	
+		mask =	get_mask(x, y, x_space, y_space)
 		target_z = target_z * mask
 
 	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
 			(min(z), max(z)))
 
+
 def triples_to_mesh_y(x, y, z, max_mesh=[-1,-1]):
 	"""
 	Convert 3 equal-sized lists of co-ordinates into an interpolated mesh of z-values; with 
 	interpolation along the y-axis only. The x-data must be of the form
-	[x0,x0,x0...x1,x1,x1...,xn,xn,xn...xn] with each value xi repeaded the same number of times.
-	Otherwiese unexpected behaviour follows.
+	[x0, x0, x0, ..., x1, x1, x1, ..., xn, xn, xn, ..., xn] with each value xi repeated the same number of times.
+	Otherwise unexpected behavior follows.
 
 	Parameters
 	----------
@@ -153,24 +188,39 @@ def triples_to_mesh_y(x, y, z, max_mesh=[-1,-1]):
 	the x bounds
 	the y bounds
 	the z bounds
+
+	Example
+	-------
+	>>> x = linspace(0, 10, 11)
+	>>> y = linspace(0, 10, 11)
+	>>> z = x * y
+	>>> mesh, x_bounds, y_bounds, z_bounds = triples_to_mesh_y(x, y, z)
+	>>> mesh.shape
+	(11, 11)
+	>>> x_bounds
+	(0.0, 10.0)
+	>>> y_bounds
+	(0.0, 10.0)
+	>>> z_bounds
+	(0.0, 100.0)
 	"""
 	x_values, y_values = sort(unique(x)), sort(unique(y))
 
 	display_len_x = len(x_values)
-	if (max_mesh[1]>0):
+	if (max_mesh[1] > 0):
 		display_len_y = min (len(y_values), max_mesh[1])
 	else:
 		display_len_y = len(y_values)
 
 	x_space = x_values
 	y_space = linspace(y_values[0], y_values[-1], display_len_y)
-	xperiod = float(len(x)) / len(x_values)
+	x_period = float(len(x)) / len(x_values)
 
 	target_z = zeros([display_len_x, display_len_y])
 
 	for i, xi in enumerate(x_space):
-		yrange = arange(i*xperiod, (i+1)*xperiod-1).tolist()
-		fy = interp1d (y[yrange], z[yrange], kind='cubic', bounds_error=False)
+		y_range = arange(i * x_period, (i + 1) * x_period - 1).tolist()
+		fy = interp1d (y[y_range], z[y_range], kind='cubic', bounds_error=False)
 		tempy = fy(y_space)
 		target_z[i] = tempy
 
@@ -186,6 +236,8 @@ class Enum(set):
 	"""
 	An enumerated type.
 
+	Example
+	-------
 	>>> e = Enum(['a', 'b', 'c'])
 	>>> e.a
 	'a'

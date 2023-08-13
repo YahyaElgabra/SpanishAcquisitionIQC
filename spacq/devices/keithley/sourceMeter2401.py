@@ -62,12 +62,18 @@ class sm2401(AbstractDevice):
         """
         Reset the device to its default state.
         """
-
         log.info('Resetting "{0}".'.format(self.name))
         self.write('*rst')
 
     @property
     def output(self):
+        """
+        The output on/off state.
+
+        Returns
+        -------
+        {'on', 'off'}
+        """
         # Coded setting of the output on/off (1 = on, 0 = off)
         result = self.ask('OUTP?')
         if result == '0':
@@ -79,6 +85,13 @@ class sm2401(AbstractDevice):
 
     @output.setter
     def output(self, value):
+        """
+        Turn the output on or off.
+
+        Parameters
+        ----------
+        value : {'on', 'off'}
+        """
         if value not in self.allowedOutput:
             raise ValueError('Invalid Output State: {0}'.format(value))
 
@@ -94,6 +107,13 @@ class sm2401(AbstractDevice):
     @property
     @quantity_wrapped('V')
     def voltageIn(self):
+        """
+        The voltage measured at the input.
+
+        Returns
+        -------
+        float
+        """
         if self.currOutputState:
             outString = self.ask('READ?').decode()
             # The output returns a 5 number string, first number is voltage, second is current, third is res
@@ -104,6 +124,13 @@ class sm2401(AbstractDevice):
     @property
     @quantity_wrapped('A')
     def currentIn(self):
+        """
+        The current measured at the input.
+
+        Returns
+        -------
+        float
+        """
         if self.currOutputState:
             outString = self.ask('READ?').decode()
             return float(outString.split(',')[1])
@@ -113,6 +140,13 @@ class sm2401(AbstractDevice):
     @property
     @quantity_wrapped('V')
     def voltageOut(self):
+        """
+        The voltage applied at the output.
+
+        Returns
+        -------
+        float
+        """
         if self.currOutputState:
             return float(self.ask('SOUR:VOLT?'))
         else:
@@ -121,6 +155,13 @@ class sm2401(AbstractDevice):
     @voltageOut.setter
     @quantity_unwrapped('V')
     def voltageOut(self, value):
+        """
+        Set the voltage applied at the output.
+
+        Parameters
+        ----------
+        voltage : float
+        """
         self.write('SOUR:FUNC VOLT')
         self.write('SOUR:VOLT:LEV {0}'.format(value))
         self.currentOutputVoltage = value
@@ -128,6 +169,13 @@ class sm2401(AbstractDevice):
     @property
     @quantity_wrapped('A')
     def currentOut(self):
+        """
+        The current applied at the output.
+
+        Returns
+        -------
+        float        
+        """
         if self.currOutputState:
             return float(self.ask('SOUR:CURR?'))
         else:
@@ -136,6 +184,13 @@ class sm2401(AbstractDevice):
     @currentOut.setter
     @quantity_unwrapped('A')
     def currentOut(self, value):
+        """
+        Set the current applied at the output.
+
+        Parameters
+        ----------
+        current : float
+        """
         #self.write('SOUR:FUNC CURR')
         self.write('SOUR:CURR:LEV {0}'.format(value))
         self.currentOutputCurrent = value

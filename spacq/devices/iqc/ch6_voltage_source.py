@@ -21,6 +21,23 @@ Control the output voltages on all the ports.
 class Port(AbstractSubdevice):
 	"""
 	An output port on the voltage source.
+
+	Parameters
+	----------
+	device: ch6VoltageSource
+	num: int
+		The index of this port.
+	max_value: float
+	resolution: int
+		How many bits the output value contains.
+	apply_settings: bool, optional
+		Whether to automatically apply all the settings.
+	adaptive_filtering: bool, optional
+	calibrate_connected: bool, optional
+		Do not disconnect output while calibrating.
+	fast_settling: bool, optional
+	freq: int
+		Clock rate in kHz.
 	"""
 
 	# Since there is no way to determine whether calibration has completed,
@@ -33,6 +50,14 @@ class Port(AbstractSubdevice):
 		Perform some formatting to make the device happy:
 			flip all the bits in the message
 			pad messages until their length in bytes is a multiple of 4
+
+		Parameters
+		----------
+		msg: string of hex digits
+		
+		Returns
+		-------
+		string of hex digits
 		"""
 
 		log.debug('Formatting for DAC: {0}'.format(msg))
@@ -74,17 +99,6 @@ class Port(AbstractSubdevice):
 			fast_settling=True,	freq=100, *args, **kwargs):
 		"""
 		Initialize the output port.
-
-		device: The ch6VoltageSource to which this Port belongs.
-		num: The index of this port.
-		resolution: How many bits the output value contains.
-		apply_settings: Whether to automatically apply all the settings.
-		min_value: Smallest value the port can produce.
-		max_value: Largest value the port can produce.
-		adaptive_filtering: Enable adaptive filtering.
-		calibrate_connected: Do not disconnect output while calibrating.
-		fast_settling: Enable fast settling.
-		freq: Clock rate in kHz.
 		"""
 
 		AbstractSubdevice.__init__(self, device, *args, **kwargs)
@@ -105,6 +119,14 @@ class Port(AbstractSubdevice):
 	def calculate_voltage(self, voltage):
 		"""
 		Determine the value corresponding to the given voltage.
+
+		Parameters
+		----------
+		voltage: float
+
+		Returns
+		-------
+		int
 		"""
 
 		try:
@@ -137,6 +159,10 @@ class Port(AbstractSubdevice):
 			my lack of time & desire to properly reverse engineer the ni845x DLL
 
 		If the conversation does not go according to plan, bails out with an AssertionError!
+
+		Parameters
+		----------
+		message: string of hex digits
 		"""
 
 		message_length = BinaryEncoder.length(message)
@@ -165,7 +191,9 @@ class Port(AbstractSubdevice):
 		"""
 		Apply the settings for the DAC on this port.
 
-		calibrate: Run self-calibration on this port as well.
+		Parameters
+		----------
+		calibrate: Whether to run self-calibration on this port as well.
 
 		Note: If self-calibrating, it is essential to wait the calibration_delay after this method returns.
 		"""
@@ -190,6 +218,10 @@ class Port(AbstractSubdevice):
 	def voltage(self, value):
 		"""
 		Set the voltage on this port, as a quantity in V.
+
+		Parameters
+		----------
+		value: float
 		"""
 
 		# Left-align the bits within the value:
@@ -206,11 +238,15 @@ class Port(AbstractSubdevice):
 		"""
 		Take some measured data and solve for the gain and offset.
 
-		voltage_resource: A resource which provides the realtime measured data for this port.
-		min_value: Smallest value to take into account.
-		max_value: Largest value to take into account.
-		final_value: Value to set port to after all measurements are taken.
-		set_result: Whether to apply the resulting gain and offset.
+		Parameters
+		----------
+		voltage_resource: resource
+			A resource which provides the realtime measured data for this port.
+		min_value: float, optional
+		max_value: float, optional
+		final_value: float, optional
+		set_result: bool, optional
+			Whether to apply the resulting gain and offset.
 		"""
 
 		self.device.status.append('Autotuning port {0}'.format(self.num))
@@ -263,6 +299,11 @@ class ch6VoltageSource(AbstractDevice):
 	Interface for the custom voltage source.
 
 	It uses several TI DAC1220 chips and an NI USB-8451 to interface with them over SPI.
+
+	Parameters
+	----------
+	port_settings: dict, optional
+		Settings to pass to each port.
 	"""
 
 	@property
@@ -291,8 +332,6 @@ class ch6VoltageSource(AbstractDevice):
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""
 		Initialize the voltage source and all its ports.
-
-		port_settings: A dictionary of values to give to each port upon creation.
 		"""
 
 		if port_settings is None:
@@ -306,6 +345,11 @@ class ch6VoltageSource(AbstractDevice):
 	def ask_encoded(self, msg, assertion=None):
 		"""
 		Encode and write the message; then read and decode the answer.
+
+		Parameters
+		----------
+		msg: string of hex digits
+		assertion: string of hex digits, optional
 		"""
 
 		self.write(BinaryEncoder.encode(msg))

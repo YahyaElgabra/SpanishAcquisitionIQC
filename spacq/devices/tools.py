@@ -15,6 +15,14 @@ def str_to_bool(value):
     """
     False and 'False' => False
     otherwise => True
+
+    Parameters
+    ----------
+    value : str
+
+    Returns
+    -------
+    bool
     """
 
     return bool(value) and value.lower() != 'false'
@@ -23,6 +31,15 @@ def str_to_bool(value):
 def quantity_wrapped(units, multiplier=1.0):
     """
     A decorator for getters to wrap the plain device value into a quantity with a unit.
+
+    Parameters
+    ----------
+    units : str
+    multiplier : float, optional
+
+    Returns
+    -------
+    function
     """
 
     def wrap(f):
@@ -38,6 +55,15 @@ def quantity_wrapped(units, multiplier=1.0):
 def quantity_unwrapped(units, multiplier=1.0):
     """
     A decorator for setters to extract the plain device value from the quantity.
+
+    Parameters
+    ----------
+    units : str
+    multiplier : float, optional
+
+    Returns
+    -------
+    function
     """
 
     def wrap(f):
@@ -56,6 +82,15 @@ def converted_quantity_unwrapped(units, multiplier=1.0):
     """
     A variation of quantity_unwrapped that extracts the value in the units provided, and then applies the multiplier
     if given.
+
+    Parameters
+    ----------
+    units : str
+    multiplier : float, optional
+
+    Returns
+    -------
+    function
     """
 
     def wrap(f):
@@ -82,6 +117,16 @@ def dynamic_quantity_wrapped(units_attr_string, multiplier=1.0):
     is defined by an attribute extracted from the device.
 
     Note: Will work on a chain of dotted attributes.
+
+    Parameters
+    ----------
+    units_attr_string : str
+        The attribute name of the units of the quantity.
+    multiplier : float, optional
+
+    Returns
+    -------
+    function
     """
 
     def wrap(f):
@@ -101,6 +146,16 @@ def dynamic_quantity_wrapped(units_attr_string, multiplier=1.0):
 def dynamic_converted_quantity_unwrapped(units_attr_string, multiplier=1.0):
     """
     A variation of dynamic_quantity_unwrapped that will extract the units from an attribute of the device.
+
+    Parameters
+    ----------
+    units_attr_string : str
+        The attribute name of the units of the quantity.
+    multiplier : float, optional
+
+    Returns
+    -------
+    function
     """
 
     def wrap(f):
@@ -146,6 +201,14 @@ class BlockData(object):
         As per section 7.7.6 of IEEE Std 488.2-1992.
 
         Note: Does not produce indefinitely-formatted block data.
+
+        Parameters
+        ----------
+        data : str
+
+        Returns
+        -------
+        str
         """
 
         log.debug('Converting to block data: {0!r}'.format(data))
@@ -161,6 +224,14 @@ class BlockData(object):
         Extracts binary data from 488.2 block data.
 
         As per section 7.7.6 of IEEE Std 488.2-1992.
+
+        Parameters
+        ----------
+        block_data : str
+
+        Returns
+        -------
+        str
         """
 
         log.debug('Converting from block data: {0!r}'.format(block_data))
@@ -222,6 +293,14 @@ class BinaryEncoder(object):
     def encode(msg):
         """
         Convert a string of hexadecimal digits to a byte string.
+
+        Parameters
+        ----------
+        msg : str
+
+        Returns
+        -------
+        str
         """
 
         log.debug('Encoding to byte string: {0}'.format(msg))
@@ -241,6 +320,18 @@ class BinaryEncoder(object):
     def decode(msg, pair_size=2, pair_up=True):
         """
         Convert a byte string to a string of hexadecimal digits.
+
+        Parameters
+        ----------
+        msg : str
+        pair_size : int, optional
+            The number of bytes to group together.
+        pair_up : bool, optional
+            Whether to separate the bytes with spaces.
+
+        Returns
+        -------
+        str
         """
 
         log.debug('Decoding from byte string: {0!r}'.format(msg))
@@ -270,6 +361,14 @@ class BinaryEncoder(object):
     def length(msg):
         """
         Calculate the number of bytes an unencoded message takes up when encoded.
+
+        Parameters
+        ----------
+        msg : str
+
+        Returns
+        -------
+        int
         """
 
         log.debug('Finding encoded length: {0}'.format(msg))

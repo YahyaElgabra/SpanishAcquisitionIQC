@@ -30,6 +30,19 @@ class PulseSyntaxError(PulseError):
 def read_quantity(s, loc, toks):
 	"""
 	Attempt to create a Quantity object.
+
+	Parameters
+	----------
+	s : str
+		The original string being parsed.
+	loc : int
+		The location of the error.
+	toks : list
+		The tokens parsed.
+
+	Returns
+	-------
+	The parsed quantity.
 	"""
 
 	try:
@@ -44,6 +57,10 @@ def Parser(raw=False):
 
 	If raw is True, returns the pyparsing parser object.
 	Otherwise, returns a function which takes a string and returns an AST.
+
+	Returns
+	-------
+	The parser.
 	"""
 
 	old_whitespace = ParserElement.DEFAULT_WHITE_CHARS

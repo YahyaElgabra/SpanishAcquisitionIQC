@@ -112,6 +112,9 @@ class ListCtrlPrinter(object):
     """
     An ListCtrlPrinter creates a pretty report from an ObjectListView/ListCtrl.
 
+    Parameters
+    ----------
+    listCtrl : ObjectListView or wx.ListCtrl, optional
     """
 
     def __init__(self, listCtrl=None, title="ListCtrl Printing"):
@@ -129,6 +132,10 @@ class ListCtrlPrinter(object):
         """
         Return a 3-tuple of the texts that will be shown in left, center, and right cells
         of the page footer
+
+        Return
+        ------
+        tuple of str
         """
         return self.engine.pageFooter
 
@@ -137,6 +144,12 @@ class ListCtrlPrinter(object):
         Set the texts that will be shown in various cells of the page footer.
 
         leftText can be a string or a 3-tuple of strings.
+
+        Parameters
+        ----------
+        leftText : str or tuple of str, optional
+        centerText : str, optional
+        rightText : str, optional
         """
         if isinstance(leftText, (tuple, list)):
             self.engine.pageFooter = leftText
@@ -153,6 +166,12 @@ class ListCtrlPrinter(object):
     def SetPageHeader(self, leftText="", centerText="", rightText=""):
         """
         Set the texts that will be shown in various cells of the page header
+
+        Parameters
+        ----------
+        leftText : str, optional
+        centerText : str, optional
+        rightText : str, optional
         """
         if isinstance(leftText, (tuple, list)):
             self.engine.pageHeader = leftText
@@ -174,18 +193,30 @@ class ListCtrlPrinter(object):
     def SetReportFormat(self, fmt):
         """
         Set the ReportFormat object that controls the appearance of this printout
+
+        Parameters
+        ----------
+        fmt : ReportFormat
         """
         self.engine.reportFormat = fmt
 
     def GetWatermark(self, txt):
         """
         Get the text that will be printed as a watermark on the report
+
+        Parameters
+        ----------
+        txt : str
         """
         return self.engine.watermark
 
     def SetWatermark(self, txt):
         """
         Set the text that will be printed as a watermark on the report
+
+        Parameters
+        ----------
+        txt : str
         """
         self.engine.watermark = txt
 
@@ -201,6 +232,11 @@ class ListCtrlPrinter(object):
     def AddListCtrl(self, listCtrl, title=None):
         """
         Add the given list to those that will be printed by this report.
+
+        Parameters
+        ----------
+        listCtrl : ObjectListView or wx.ListCtrl
+        title : str, optional
         """
         self.engine.AddListCtrl(listCtrl, title)
 
@@ -216,6 +252,10 @@ class ListCtrlPrinter(object):
     def PageSetup(self, parent=None):
         """
         Show a Page Setup dialog that will change the configuration of this printout
+
+        Parameters
+        ----------
+        parent : wx.Window, optional
         """
         self.printout.PageSetup(parent)
 
@@ -230,12 +270,23 @@ class ListCtrlPrinter(object):
             800)):
         """
         Show a Print Preview of this report
+
+        Parameters
+        ----------
+        parent : wx.Window, optional
+        title : str, optional
+        bounds : 4-tuple of int, optional
+            The (x, y, width, height) of the preview window
         """
         self.printout.PrintPreview(parent, title, bounds)
 
     def Print(self, parent=None):
         """
         Print this report to the selected printer
+
+        Parameters
+        ----------
+        parent : wx.Window, optional
         """
         self.printout.DoPrint(parent)
 
@@ -248,6 +299,13 @@ class ListCtrlPrinter(object):
         Do the work of calculating how many pages this report will occupy?
 
         This is expensive because it basically prints the whole report.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the page
         """
         return self.engine.CalculateTotalPages(dc, bounds)
 
@@ -260,6 +318,14 @@ class ListCtrlPrinter(object):
     def PrintPage(self, dc, pageNumber, bounds):
         """
         Print the given page on the given device context.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        pageNumber : int
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the page
         """
         self.engine.PrintPage(dc, pageNumber, bounds)
 
@@ -278,7 +344,6 @@ class ReportEngine(object):
          the datetime be formatted? This must be a valid format string for the
          strftime() method.
          Default: "%x %X"
-
     """
 
     def __init__(self):
@@ -308,6 +373,14 @@ class ReportEngine(object):
     def GetNamedFormat(self, name):
         """
         Return the given format
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        ReportFormat
         """
         return self.reportFormat.GetNamedFormat(name)
 
@@ -316,12 +389,20 @@ class ReportEngine(object):
         Return the total number of pages that this report will produce.
 
         CalculateTotalPages() must be called before this is accurate.
+
+        Return
+        ------
+        int
         """
         return self.totalPages
 
     def GetSubstitutionInfo(self):
         """
         Return a dictionary that can be used for substituting values into strings
+
+        Return
+        ------
+        dict
         """
         dateString = datetime.datetime.now().strftime(self.dateFormat)
         info = {
@@ -339,6 +420,17 @@ class ReportEngine(object):
         Do the work of calculating how many pages this report will occupy?
 
         This is expensive because it basically prints the whole report.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the page
+
+        Return
+        ------
+        int
         """
         self.StartPrinting()
         self.totalPages = 1
@@ -354,6 +446,10 @@ class ReportEngine(object):
     def AddBlock(self, block):
         """
         Add the given block at the current insertion point
+
+        Parameters
+        ----------
+        block : Block
         """
         self.blocks.insert(self.blockInsertionIndex, block)
         self.blockInsertionIndex += 1
@@ -362,6 +458,11 @@ class ReportEngine(object):
     def AddListCtrl(self, listCtrl, title=None):
         """
         Add the given list to those that will be printed by this report.
+
+        Parameters
+        ----------
+        listCtrl : ObjectListView or wx.ListCtrl
+        title : str, optional
         """
         if listCtrl.InReportView():
             self.listCtrls.append([listCtrl, title])
@@ -400,6 +501,10 @@ class ReportEngine(object):
     def AddRunningBlock(self, block):
         """
         A running block is printed on every page until it is removed
+
+        Parameters
+        ----------
+        block : Block
         """
         self.runningBlocks.append(block)
         block.engine = self
@@ -407,12 +512,29 @@ class ReportEngine(object):
     def RemoveRunningBlock(self, block):
         """
         A running block is printed on every page until it is removed
+        
+        Parameters
+        ----------
+        block : Block
         """
         self.runningBlocks.remove(block)
 
     def PrintPage(self, dc, pageNumber, bounds):
         """
         Print the given page on the given device context.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        pageNumber : int
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the page
+
+        Return  
+        ------
+        bool
+            True if there is still more to print
         """
         # If the request page isn't next in order, we have to restart
         # the printing process and advance until we reach the desired page.
@@ -430,6 +552,19 @@ class ReportEngine(object):
         Print the current page on the given device context.
 
         Return true if there is still more to print.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        pageNumber : int
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the page
+
+        Return
+        ------
+        bool
+            True if there is still more to print
         """
         # Initialize state
         self.currentPage = pageNumber
@@ -454,6 +589,11 @@ class ReportEngine(object):
     def SubtractDecorations(self, dc):
         """
         # Subtract the area used from the work area
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
         """
         fmt = self.GetNamedFormat("Page")
         self.workBounds = fmt.SubtractDecorations(dc, self.workBounds)
@@ -461,6 +601,13 @@ class ReportEngine(object):
     def DrawPageDecorations(self, dc, over):
         """
         Draw the page decorations
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
+        over : bool
+            True if the decorations should be drawn over the text
         """
         if not self.shouldDrawBlocks:
             return
@@ -495,6 +642,12 @@ class ListCtrlPrintout(wx.Printout):
     """
     An ListCtrlPrintout is the interface between the wx printing system
     and ListCtrlPrinter.
+
+    Parameters
+    ----------
+    olvPrinter : ListCtrlPrinter
+    margins : 2-tuple of wx.Point, optional
+        The (top-left, bottom-right) margins of the page
     """
 
     def __init__(self, olvPrinter, margins=None):
@@ -516,6 +669,14 @@ class ListCtrlPrintout(wx.Printout):
     def HasPage(self, page):
         """
         Return true if this printout has the given page number
+
+        Parameters
+        ----------
+        page : int
+
+        Return
+        ------
+        bool
         """
         return page <= self.totalPages
 
@@ -528,6 +689,10 @@ class ListCtrlPrintout(wx.Printout):
     def GetPrintPreview(self):
         """
         Get a wxPrintPreview of this report
+
+        Return
+        ------
+        wx.PrintPreview
         """
         data = wx.PrintDialogData(self.printData)
         forViewing = ListCtrlPrintout(self.olvPrinter, self.margins)
@@ -541,6 +706,10 @@ class ListCtrlPrintout(wx.Printout):
     def PageSetup(self, parent):
         """
         Show a Page Setup dialog that will change the configuration of this printout
+
+        Parameters
+        ----------
+        parent : wx.Window
         """
         data = wx.PageSetupDialogData()
         data.SetPrintData(self.printData)
@@ -560,6 +729,13 @@ class ListCtrlPrintout(wx.Printout):
     def PrintPreview(self, parent, title, bounds):
         """
         Show a Print Preview of this report
+
+        Parameters
+        ----------
+        parent : wx.Window
+        title : str
+        bounds : 4-tuple of int
+            The (x, y, width, height) of the preview window
         """
         self.preview = self.GetPrintPreview()
 
@@ -578,6 +754,10 @@ class ListCtrlPrintout(wx.Printout):
     def DoPrint(self, parent):
         """
         Send the report to the configured printer
+
+        Parameters
+        ----------
+        parent : wx.Window
         """
         try:
             pdd = wx.PrintDialogData(self.printData)
@@ -609,6 +789,16 @@ class ListCtrlPrintout(wx.Printout):
     def OnBeginDocument(self, start, end):
         """
         Begin printing one copy of the document. Return False to cancel the job
+
+        Parameters
+        ----------
+        start : int
+        end : int
+
+        Return
+        ------
+        bool
+            If False, the print job will be cancelled
         """
         return super(ListCtrlPrintout, self).OnBeginDocument(start, end)
 
@@ -624,6 +814,10 @@ class ListCtrlPrintout(wx.Printout):
     def OnPrintPage(self, page):
         """
         Do the work of printing the given page number.
+
+        Parameters
+        ----------
+        page : int
         """
         # We bounce this back to the printer facade
         dc = self.GetDC()
@@ -634,6 +828,11 @@ class ListCtrlPrintout(wx.Printout):
         """
         Calculate the scale required for our printout to match what appears on screen,
         and the bounds that will be effective at that scale and margins
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context that will be used for printing
         """
         # This code comes from Robin Dunn's "wxPython In Action."
         # Without that, I would never have figured this out.
@@ -695,8 +894,7 @@ class ReportFormat(object):
     def __init__(self):
         """
         """
-        # Initialize the formats that control the various portions of the
-        # report
+        # Initialize the formats that control the various portions of the report
         self.Page = BlockFormat()
         self.PageHeader = BlockFormat()
         self.ListHeader = BlockFormat()
@@ -721,6 +919,10 @@ class ReportFormat(object):
     def GetNamedFormat(self, name):
         """
         Return the format used in to format a block with the given name.
+
+        Parameters
+        ----------
+        name : str
         """
         return getattr(self, name)
 
@@ -732,6 +934,15 @@ class ReportFormat(object):
         Change the format of the watermark printed on this report.
 
         The actual text of the water mark is set by `ListCtrlPrinter.Watermark` property.
+
+        Parameters
+        ----------
+        font : wx.Font, optional
+        color : wx.Colour, optional
+        angle : int, optional
+            The angle of the watermark text, in degrees
+        over : bool, optional
+            If True, the watermark will be printed over the text of the report
         """
         defaultFaceName = "Stencil"
         self.Watermark.Font = font or wx.FFont(
@@ -751,6 +962,15 @@ class ReportFormat(object):
     def Minimal(headerFontName="Arial", rowFontName="Times New Roman"):
         """
         Return a minimal format for a report
+
+        Parameters
+        ----------
+        headerFontName : str, optional
+        rowFontName : str, optional
+
+        Returns
+        -------
+        ReportFormat
         """
         fmt = ReportFormat()
         fmt.IsShrinkToFit = False
@@ -807,6 +1027,15 @@ class ReportFormat(object):
     def Normal(headerFontName="Gill Sans", rowFontName="Times New Roman"):
         """
         Return a reasonable default format for a report
+
+        Parameters
+        ----------
+        headerFontName : str, optional
+        rowFontName : str, optional
+
+        Returns
+        -------
+        ReportFormat
         """
         fmt = ReportFormat()
         fmt.IsShrinkToFit = True
@@ -866,6 +1095,15 @@ class ReportFormat(object):
     def TooMuch(headerFontName="Chiller", rowFontName="Gill Sans"):
         """
         Return a reasonable default format for a report
+
+        Parameters
+        ----------
+        headerFontName : str, optional
+        rowFontName : str, optional
+
+        Returns
+        -------
+        ReportFormat
         """
         fmt = ReportFormat()
         fmt.IsShrinkToFit = False
@@ -1003,42 +1241,73 @@ class BlockFormat(object):
     def GetFont(self):
         """
         Return the font used by this format
+
+        Return
+        ------
+        wx.Font
         """
         return self.font
 
     def SetFont(self, font):
         """
         Set the font used by this format
+
+        Parameters
+        ----------
+        font : wx.Font
         """
         self.font = font
 
     def GetTextAlignment(self):
         """
         Return the alignment of text in this format
+
+        Return
+        ------
+        int
         """
         return self.textAlignment
 
     def SetTextAlignment(self, alignment):
         """
         Set the alignment of text in this format
+
+        Parameters
+        ----------
+        alignment : int
+            One of wx.ALIGN_LEFT, wx.ALIGN_CENTER, or wx.ALIGN_RIGHT
         """
         self.textAlignment = alignment
 
     def GetTextColor(self):
         """
         Return the color of text in this format
+
+        Return
+        ------
+        wx.Colour
         """
         return self.textColor
 
     def SetTextColor(self, color):
         """
         Set the color of text in this format
+
+        Parameters
+        ----------
+        color : wx.Colour
         """
         self.textColor = color
 
     def GetPadding(self):
         """
         Get the padding around this format
+
+        Parameters
+        ----------
+        padding : int or 4-tuple of int
+            either a single numeric (indicating the values on all sides)
+            or a collection of paddings (left, top, right, bottom)
         """
         return self.padding
 
@@ -1046,14 +1315,22 @@ class BlockFormat(object):
         """
         Set the padding around this format
 
-        Padding is either a single numeric (indicating the values on all sides)
-        or a collection of paddings [left, top, right, bottom]
+        Parameters
+        ----------
+        padding : int or 4-tuple of int
+            either a single numeric (indicating the values on all sides)
+            or a collection of paddings (left, top, right, bottom)
         """
         self.padding = self._MakePadding(padding)
 
     def GetCellPadding(self):
         """
         Get the padding around cells in this format
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         return self.cellPadding
 
@@ -1061,20 +1338,31 @@ class BlockFormat(object):
         """
         Set the padding around cells in this format
 
-        Padding is either a single numeric (indicating the values on all sides)
-        or a collection of paddings [left, top, right, bottom]
+        Parameters
+        ----------
+        padding : int or 4-tuple of int
+            either a single numeric (indicating the values on all sides)
+            or a collection of paddings (left, top, right, bottom)
         """
         self.cellPadding = self._MakePadding(padding)
 
     def GetGridPen(self):
         """
         Return the pen used to draw a grid in this format
+
+        Return
+        ------
+        wx.Pen
         """
         return self.gridPen
 
     def SetGridPen(self, pen):
         """
         Set the pen used to draw a grid in this format
+
+        Parameters
+        ----------
+        pen : wx.Pen
         """
         self.gridPen = pen
         if self.gridPen:
@@ -1083,6 +1371,20 @@ class BlockFormat(object):
             self.gridPen.SetJoin(wx.JOIN_MITER)
 
     def _MakePadding(self, padding):
+        """
+        Return a 4-tuple of padding values, if it is an int, pad the 4-tuple out with zeros
+
+        Parameters
+        ----------
+        padding : int or 4-tuple of int
+            either a single numeric (indicating the values on all sides)
+            or a collection of paddings (left, top, right, bottom)
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
+        """
         try:
             if len(padding) < 4:
                 return (tuple(padding) + (0, 0, 0, 0))[:4]
@@ -1094,24 +1396,40 @@ class BlockFormat(object):
     def GetAlwaysCenter(self):
         """
         Return if the text controlled by this format should always be centered?
+
+        Return
+        ------
+        bool
         """
         return self.alwaysCenter
 
     def SetAlwaysCenter(self, value):
         """
         Remember if the text controlled by this format should always be centered?
+
+        Parameters
+        ----------
+        value : bool
         """
         self.alwaysCenter = value
 
     def GetCanWrap(self):
         """
         Return if the text controlled by this format can wrap to cover more than one line?
+
+        Return
+        ------
+        bool
         """
         return self.canWrap
 
     def SetCanWrap(self, value):
         """
         Remember if the text controlled by this format can wrap to cover more than one line?
+
+        Parameters
+        ----------
+        value : bool
         """
         self.canWrap = value
 
@@ -1154,6 +1472,10 @@ class BlockFormat(object):
     def Add(self, decoration):
         """
         Add the given decoration to those adorning blocks with this format
+
+        Parameters
+        ----------
+        decoration : Decoration
         """
         self.decorations.append(decoration)
 
@@ -1169,6 +1491,17 @@ class BlockFormat(object):
         Add a line to our decorations.
         If a pen is given, we use a straight Line decoration, otherwise we use a
         coloured rectangle
+
+        Parameters
+        ----------
+        side : int, optional
+            One of wx.TOP, wx.BOTTOM, wx.LEFT, wx.RIGHT
+        color : wx.Colour, optional
+        width : int, optional
+        toColor : wx.Colour, optional
+        space : int, optional
+        pen : wx.Pen, optional
+
         """
         if pen:
             self.Add(LineDecoration(side, pen, space))
@@ -1185,6 +1518,12 @@ class BlockFormat(object):
     def Background(self, color=wx.BLUE, toColor=None, space=0):
         """
         Add a coloured background to the block
+
+        Parameters
+        ----------
+        color : wx.Colour, optional
+        toColor : wx.Colour, optional
+        space : int, optional
         """
         self.Add(
             RectangleDecoration(
@@ -1195,6 +1534,11 @@ class BlockFormat(object):
     def Frame(self, pen=None, space=0):
         """
         Add a rectangle around this block
+
+        Parameters
+        ----------
+        pen : wx.Pen, optional
+        space : int, optional
         """
         self.Add(RectangleDecoration(pen=pen, space=space))
 
@@ -1204,6 +1548,16 @@ class BlockFormat(object):
     def SubtractPadding(self, bounds):
         """
         Subtract any padding used by this format from the given bounds
+
+        Parameters
+        ----------
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
+        
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         if self.padding is None:
             return bounds
@@ -1213,6 +1567,17 @@ class BlockFormat(object):
     def SubtractDecorations(self, dc, bounds):
         """
         Subtract any space used by our decorations from the given bounds
+
+        Parameters
+        ----------
+        dc : wx.DC
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         for x in self.decorations:
             bounds = x.SubtractFrom(dc, bounds)
@@ -1221,6 +1586,16 @@ class BlockFormat(object):
     def DrawDecorations(self, dc, bounds, block, over):
         """
         Draw our decorations on the given block
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
+        block : Block
+        over : bool
+            If True, draw decorations over the text of the block
         """
         for x in self.decorations:
             if x.IsDrawOver() == over:
@@ -1234,6 +1609,10 @@ class Block(object):
     """
     A Block is a portion of a report that will stack vertically with other
     Block. A report consists of several Blocks.
+
+    Parameters
+    ----------
+    engine : ReportEngine, optional
     """
 
     def __init__(self, engine=None):
@@ -1246,24 +1625,48 @@ class Block(object):
     def GetFont(self):
         """
         Return Font that should be used to draw text in this block
+
+        Return
+        ------
+        wx.Font
         """
         return self.GetFormat().GetFont()
 
     def GetTextColor(self):
         """
         Return Colour that should be used to draw text in this block
+
+        Return
+        ------
+        wx.Colour
         """
         return self.GetFormat().GetTextColor()
 
     def GetFormat(self):
         """
         Return the BlockFormat object that controls the formatting of this block
+
+        Return
+        ------
+        BlockFormat
         """
         return self.engine.GetNamedFormat(self.__class__.__name__[:-5])
 
     def GetReducedBlockBounds(self, dc, bounds=None):
         """
         Return the bounds of this block once padding and decoration have taken their toll.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+        bounds : 4-tuple of int, optional
+            (left, top, right, bottom)
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         bounds = bounds or list(self.GetWorkBounds())
         fmt = self.GetFormat()
@@ -1274,24 +1677,41 @@ class Block(object):
     def GetWorkBounds(self):
         """
         Return the boundaries of the work area for this block
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         return self.engine.workBounds
 
     def IsColumnHeadingsOnEachPage(self):
         """
         Should the column headers be report at the top of each new page?
+
+        Return
+        ------
+        bool
         """
         return self.engine.reportFormat.IsColumnHeadingsOnEachPage
 
     def IncludeImages(self):
         """
         Should the images from the ListCtrl be printed in the report?
+
+        Return
+        ------
+        bool
         """
         return self.engine.reportFormat.IncludeImages
 
     def IsShrinkToFit(self):
         """
         Should row blocks be shrunk to fit within the width of a page?
+
+        Return
+        ------
+        bool
         """
         return self.engine.reportFormat.IsShrinkToFit
 
@@ -1300,6 +1720,10 @@ class Block(object):
         Should the text values printed by this block have substitutions performed before being printed?
 
         This allows, for example, footers to have '%(currentPage)d of %(totalPages)d'
+
+        Return
+        ------
+        bool
         """
         return True
 
@@ -1309,6 +1733,15 @@ class Block(object):
     def CalculateExtrasHeight(self, dc):
         """
         Return the height of the padding and decorations themselves
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+            
+        Return
+        ------
+        int
         """
         return 0 - RectUtils.Height(
             self.GetReducedBlockBounds(
@@ -1318,6 +1751,15 @@ class Block(object):
     def CalculateExtrasWidth(self, dc):
         """
         Return the width of the padding and decorations themselves
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+
+        Return
+        ------
+        int
         """
         return 0 - RectUtils.Width(
             self.GetReducedBlockBounds(
@@ -1327,12 +1769,34 @@ class Block(object):
     def CalculateHeight(self, dc):
         """
         Return the heights of this block in pixels
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+
+        Return
+        ------
+        int
         """
         return -1
 
     def CalculateTextHeight(self, dc, txt, bounds=None, font=None):
         """
         Return the height of the given txt in pixels
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+        txt : str
+        bounds : 4-tuple of int, optional
+            (left, top, right, bottom)
+        font : wx.Font, optional
+
+        Return
+        ------
+        int
         """
         bounds = bounds or self.GetReducedBlockBounds(dc)
         font = font or self.GetFont()
@@ -1351,6 +1815,14 @@ class Block(object):
     def CanFit(self, height):
         """
         Can this block fit into the remaining work area on the page?
+
+        Parameters
+        ----------
+        height : int
+
+        Return
+        ------
+        bool
         """
         return height <= RectUtils.Height(self.GetWorkBounds())
 
@@ -1361,7 +1833,15 @@ class Block(object):
         """
         Print this Block.
 
-        Return True if the Block has finished printing
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for printing
+
+        Return
+        ------
+        bool
+            True if the block has finished printing
         """
         if not self.ShouldPrint():
             return True
@@ -1381,6 +1861,10 @@ class Block(object):
     def ShouldPrint(self):
         """
         Should this block be printed?
+
+        Return
+        ------
+        bool
         """
         # If this block does not have a format, it is simply skipped
         return self.GetFormat() is not None
@@ -1388,6 +1872,16 @@ class Block(object):
     def CalculateBounds(self, dc):
         """
         Calculate the bounds of this block
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for calculations
+
+        Return
+        ------
+        4-tuple of int
+            (left, top, right, bottom)
         """
         height = self.CalculateHeight(dc)
         bounds = list(self.GetWorkBounds())
@@ -1397,12 +1891,23 @@ class Block(object):
     def ChangeWorkBoundsBy(self, amt):
         """
         Move the top of our work bounds down by the given amount
+
+        Parameters
+        ----------
+        amt : int
         """
         RectUtils.MoveTopBy(self.engine.workBounds, amt)
 
     def Draw(self, dc, bounds):
         """
         Draw this block and its decorations allowing for any padding
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
         """
         fmt = self.GetFormat()
         decorationBounds = fmt.SubtractPadding(bounds)
@@ -1414,18 +1919,39 @@ class Block(object):
     def PreDraw(self, dc, bounds):
         """
         Executed before any drawing is done
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
         """
         pass
 
     def DrawSelf(self, dc, bounds):
         """
         Do the actual work of rendering this block.
+
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
         """
         pass
 
     def PostDraw(self, dc, bounds):
         """
         Executed after drawing has completed
+    
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
         """
         pass
 
@@ -1447,20 +1973,46 @@ class Block(object):
 
         This is the workhorse text drawing method for our reporting engine.
 
-        The *font*, *alignment*, and *color* attributes are applied to the drawn text.
-
-        If *image* is not None, it will be drawn to the left of the text. All text is indented
-        by the width of the image, even if the text is multi-line.
-
-        If *imageIndex* is 0 or more and *listCtrl* is not None, the corresponding image from
-        the ListCtrl's small image list will be drawn to the left of the text.
-
-        If *canWrap* is True, the text will be wrapped to fit within the given bounds. If it is False,
-        then the first line of *txt* will be truncated at the edge of the given *bounds*.
+        Parameters
+        ----------
+        dc : wx.DC
+            The device context to use for drawing
+        txt : str
+        bounds : 4-tuple of int
+            (left, top, right, bottom)
+        font : wx.Font, optional
+        alignment : int, optional
+            One of wx.ALIGN_LEFT, wx.ALIGN_CENTER, or wx.ALIGN_RIGHT
+        valignment : int, optional
+            One of wx.ALIGN_TOP, wx.ALIGN_CENTER, or wx.ALIGN_BOTTOM
+        image : wx.Bitmap, optional
+            If not None, this image will be drawn to the left of the text
+            and the text will be indented by the width of the image
+        color : wx.Colour, optional
+        canWrap : bool, optional
+            If True, the text will be wrapped to fit within the given bounds
+            If False, then the first line of *txt* will be truncated at the edge of the given *bounds*
+        imageIndex : int, optional
+            If 0 or more and *listCtrl* is not None, the corresponding image from
+            the ListCtrl's small image list will be drawn to the left of the text
+        listCtrl : wx.ListCtrl, optional
         """
         GAP_BETWEEN_IMAGE_AND_TEXT = 4
 
         def _CalcBitmapPosition(r, height):
+            """
+            Return the y position of the given bitmap given the alignment and the height of the bitmap
+
+            Parameters
+            ----------
+            r : 4-tuple of int
+                (left, top, right, bottom)
+            height : int
+            
+            Return
+            ------
+            int
+            """
             if valignment == wx.ALIGN_TOP:
                 return RectUtils.Top(r)
             elif valignment == wx.ALIGN_CENTER:

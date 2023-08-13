@@ -9,6 +9,13 @@ Mock Model4G Power Supply
 class MockChannel(object):
 	"""
 	A mock channel for a mock 4G power supply.
+
+	Parameters
+	----------
+	device : MockModel4G
+		The mock device that this channel belongs to.
+	channel : int
+		The channel number.
 	"""
 	def __init__(self, device, channel, *args, **kwargs):
 		self.mock_state = {}
@@ -41,6 +48,12 @@ class MockData(object):
 	It wraps a list that contains N datapoints in min to max, including min and max.
 	Note that it is possible to have max < min. This will merely make the list go in
 	descending order (such as if the 4G was sweeping down).
+
+	Parameters
+	----------
+	data_min : float
+	data_max : float
+	N : int
 	'''
 	
 	def __init__(self, data_min, data_max, N):
@@ -54,7 +67,13 @@ class MockData(object):
 			self.data_list = [data_min]
 			
 	def GetDatum(self):
-		
+		"""
+		Returns the next datum in the list.
+
+		Returns
+		-------
+		float
+		"""
 		result = self.data_list[self.index]
 
 		#once the magnet sweeps to the last value, if one keeps retrieving values, it will stay
@@ -75,6 +94,12 @@ class MockTimeData(object):
 	t = 0 			<-> data_min
 	t = time_to_max <-> data_max
 	where t is the time since instantiation
+
+	Parameters
+	----------
+	data_min : float
+	data_max : float
+	time_to_max : float
 	'''
 	
 	def __init__(self, data_min, data_max, time_to_max):
@@ -118,6 +143,17 @@ class MockModel4G(MockAbstractDevice, Model4G):
 		self.mock_state['active_channel'] = 1
 				
 	def write(self, message, result=None, done=False):
+		"""
+		Write a message to the device.
+		
+		Parameters
+		----------
+		message : str
+		result : str, optional
+			The response to return.
+		done : bool, optional
+			True if this is the last message in a sequence.
+		"""
 		if not done:
 			cmd, args, query = self._split_message(message)
 			

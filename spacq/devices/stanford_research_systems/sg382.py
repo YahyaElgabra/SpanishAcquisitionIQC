@@ -78,6 +78,10 @@ class SG382(AbstractDevice):
 	def frequency(self):
 		"""
 		The output frequency of the signal generator
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('FREQ?'))
@@ -85,6 +89,13 @@ class SG382(AbstractDevice):
 	@frequency.setter
 	@quantity_unwrapped('Hz')
 	def frequency(self, value):
+		"""
+		Set the output frequency of the signal generator
+		
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.minFreq or value > self.maxFreq:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minFreq, self.maxFreq))
 
@@ -95,6 +106,10 @@ class SG382(AbstractDevice):
 	def FMDeviation(self):
 		"""
 		The amplitude of the frequency modulation
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('FDEV?'))
@@ -102,27 +117,59 @@ class SG382(AbstractDevice):
 	@FMDeviation.setter
 	@quantity_unwrapped('Hz')
 	def FMDeviation(self, value):
+		"""
+		Set the amplitude of the frequency modulation
+
+		Parameters
+		----------
+		value : float
+		"""
 		self.write('FDEV {0}'.format(value))
 
 	@property
 	def AMDepth(self):
 		"""
 		The amplitude of amplitude modulation (as a percentage of total signal [eg, 90.0 is 90%]
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('ADEP?'))
 
 	@AMDepth.setter
 	def AMDepth(self, value):
+		"""
+		Set the amplitude of amplitude modulation (as a percentage of total signal [eg, 90.0 is 90%]
+
+		Parameters
+		----------
+		value : float
+		"""
 		self.write('ADEP {0}'.format(value))
 
 	@property
 	def phase(self):
+		"""
+		Returns the phase of the output
+
+		Returns
+		-------
+		float
+		"""
 		# The phase of the output, (in degrees but SpanishAcquisition uses no units for this TODO: fix this)
 		return float(self.ask('PHAS?'))
 		
 	@phase.setter
 	def phase(self,value):
+		"""
+		Set the phase of the output
+
+		Parameters
+		----------
+		value : float
+		"""
 		if float(value) < self.minPhase or float(value) > self.maxPhase:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minPhase, self.maxPhase))
 			
@@ -131,6 +178,13 @@ class SG382(AbstractDevice):
 	@property
 	@quantity_wrapped('V')
 	def BNCAmplitude(self):
+		"""
+		Returns the amplitude of the output on the BNC output line (if enabled)
+
+		Returns
+		-------
+		float
+		"""
 		# The amplitude of the output on the BNC output line (if enabled)
 		# Currently using Vpp value, as Spanish Acquisition doesn't handle dBm currently (TODO: add dBm units)
 		return float(self.ask('AMPL? VPP'))
@@ -138,6 +192,13 @@ class SG382(AbstractDevice):
 	@BNCAmplitude.setter
 	@quantity_unwrapped('V')
 	def BNCAmplitude(self,value):
+		"""
+		Set the amplitude of the output on the BNC output line
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.minBNCAmp or value > self.maxBNCAmp:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minBNCAmp, self.maxBNCAmp))
 		
@@ -146,6 +207,13 @@ class SG382(AbstractDevice):
 	@property
 	@quantity_wrapped('V')
 	def typeNAmplitude(self):
+		"""
+		Returns the amplitude of the output on the Type N output line (if enabled)
+
+		Returns
+		-------
+		float
+		"""
 		# The amplitude of the output on the Type N output line (if enabled)
 		# Currently using Vpp value, as Spanish Acquisition doesn't handle dBm currently (TODO: add dBm units)
 		return float(self.ask('AMPR? VPP'))
@@ -153,6 +221,13 @@ class SG382(AbstractDevice):
 	@typeNAmplitude.setter
 	@quantity_unwrapped('V')
 	def typeNAmplitude(self,value):
+		"""
+		Set the amplitude of the output on the Type N output line
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.minTypeNAmp or value > self.maxTypeNAmp:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.minTypeNAmp, self.maxTypeNAmp))
 		
@@ -160,6 +235,13 @@ class SG382(AbstractDevice):
 		
 	@property
 	def modulationType(self):
+		"""
+		Returns the modulation type (eg, AM, FM, Phase, Blank, IQ)
+
+		Returns
+		-------
+		string
+		"""
 		# Coded setting of the modulation type (eg, 1 = Amplitude Modulation)
 		result = self.ask('TYPE?')
 		if result == '0':
@@ -179,6 +261,13 @@ class SG382(AbstractDevice):
 		
 	@modulationType.setter
 	def modulationType(self,value):
+		"""
+		Set the modulation type (eg, AM, FM, Phase, Blank, IQ)
+
+		Parameters
+		----------
+		value : string
+		"""
 		if value not in self.allowedModType:
 			raise ValueError('Invalid Modulation Type: {0}'.format(value))
 		
@@ -201,6 +290,13 @@ class SG382(AbstractDevice):
 
 	@property
 	def modulationFunction(self):
+		"""
+		Returns the modulation function (eg, Sine, Ramp, Triangle, Square, Noise, External)
+
+		Returns
+		-------
+		string
+		"""
 		# Coded setting of the modulation type (eg, 1 = Amplitude Modulation)
 		result = self.ask('MFNC?')
 		if result == '0':
@@ -218,6 +314,13 @@ class SG382(AbstractDevice):
 		
 	@modulationFunction.setter
 	def modulationFunction(self,value):
+		"""
+		Set the modulation function (eg, Sine, Ramp, Triangle, Square, Noise, External)
+
+		Parameters
+		----------
+		value : string
+		"""
 		if value not in self.allowedModFunc:
 			raise ValueError('Invalid Modulation Function: {0}'.format(value))
 		
@@ -238,6 +341,13 @@ class SG382(AbstractDevice):
 		
 	@property
 	def modulationEnabled(self):
+		"""
+		Returns the modulation enable setting (on/off)
+
+		Returns
+		-------
+		string
+		"""
 		# Turn on/off modulation of signal
 		result = self.ask('MODL?')
 		if result == '0':
@@ -247,6 +357,13 @@ class SG382(AbstractDevice):
 	
 	@modulationEnabled.setter
 	def modulationEnabled(self,value):
+		"""
+		Set the modulation enable setting (on/off)
+
+		Parameters
+		----------
+		value : string
+		"""
 		if value not in self.allowedEnable:
 			raise ValueError('Invalid modulation enable setting: {0}'.format(value))
 			
@@ -259,6 +376,13 @@ class SG382(AbstractDevice):
 		
 	@property
 	def BNCEnable(self):
+		"""
+		Returns the BNC output enable setting (on/off)
+
+		Returns
+		-------
+		string
+		"""
 		# Turn on/off the BNC output (it is automatically off above 62.5 MHz)
 		result = self.ask('ENBL?')
 		if result == '0':
@@ -268,6 +392,13 @@ class SG382(AbstractDevice):
 	
 	@BNCEnable.setter
 	def BNCEnable(self,value):
+		"""
+		Set the BNC output enable setting (on/off)
+
+		Parameters
+		----------
+		value : string
+		"""
 		if value not in self.allowedEnable:
 			raise ValueError('Invalid BNC enable setting: {0}'.format(value))
 			
@@ -280,6 +411,13 @@ class SG382(AbstractDevice):
 		
 	@property
 	def typeNEnable(self):
+		"""
+		Returns the type-N output enable setting (on/off)
+
+		Returns
+		-------
+		string
+		"""
 		# Turn on/off the type-N output
 		result = self.ask('ENBR?')
 		if result == '0':
@@ -289,6 +427,13 @@ class SG382(AbstractDevice):
 	
 	@typeNEnable.setter
 	def typeNEnable(self,value):
+		"""
+		Set the type-N output enable setting (on/off)
+
+		Parameters
+		----------
+		value : string
+		"""
 		if value not in self.allowedEnable:
 			raise ValueError('Invalid type-N enable setting: {0}'.format(value))
 			

@@ -48,6 +48,11 @@ class Channel(AbstractSubdevice):
 	def acquisition_window(self):
 		"""
 		The minimum and maximum obtainable values in V.
+
+		Returns
+		-------
+		tuple of floats
+			(minimum, maximum)
 		"""
 
 		# 10 divisions total.
@@ -61,6 +66,14 @@ class Channel(AbstractSubdevice):
 	def transform_waveform(self, waveform):
 		"""
 		Transform some curve data onto the true amplitude interval in V, and intermix time values in s.
+
+		Parameters
+		----------
+		waveform : list of floats
+
+		Returns
+		-------
+		list of floats
 		"""
 
 		value_min, value_max = self.device.value_range
@@ -77,6 +90,10 @@ class Channel(AbstractSubdevice):
 	def enabled(self):
 		"""
 		The input state (on/off) of the channel.
+
+		Returns
+		-------
+		bool
 		"""
 
 		result = self.device.ask('select:ch{0}?'.format(self.channel))
@@ -93,6 +110,10 @@ class Channel(AbstractSubdevice):
 		A waveform acquired by the scope.
 
 		Values are returned in the format [(time1, value1), (time2, value2), ...].
+
+		Returns
+		-------
+		list of (float, float)
 		"""
 
 		self.device.status.append('Getting waveform for channel {0}'.format(self.channel))
@@ -137,6 +158,10 @@ class Channel(AbstractSubdevice):
 		Vertical scale for the channel, as a quantity in V.
 
 		Note: This is for a single division, of which there are 10.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.device.ask('ch{0}:scale?'.format(self.channel)))
@@ -151,6 +176,10 @@ class Channel(AbstractSubdevice):
 	def offset(self):
 		"""
 		Vertical offset for the channel, as a quantity in V.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.device.ask('ch{0}:offset?'.format(self.channel)))
@@ -212,6 +241,10 @@ class DPO7104(AbstractDevice):
 	def stopafter(self):
 		"""
 		The acqusition mode.
+
+		Returns
+		-------
+		str
 		"""
 
 		value = self.ask('acquire:stopafter?').lower()
@@ -223,6 +256,13 @@ class DPO7104(AbstractDevice):
 
 	@stopafter.setter
 	def stopafter(self, value):
+		"""
+		Set the acquisition mode.
+
+		Parameters
+		----------
+		value : str
+		"""
 		if value not in self.allowed_stopafters:
 			raise ValueError('Invalid acquisition mode: {0}'.format(value))
 
@@ -232,18 +272,33 @@ class DPO7104(AbstractDevice):
 	def waveform_bytes(self):
 		"""
 		Number of bytes per data point in the acquired waveforms.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('wfmoutpre:byt_nr?'))
 
 	@waveform_bytes.setter
 	def waveform_bytes(self, value):
+		"""
+		Set the number of bytes per data point in the acquired waveforms.
+
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('wfmoutpre:byt_nr {0}'.format(value))
 
 	@property
 	def value_range(self):
 		"""
 		Range of values possible for each data point.
+
+		Returns
+		-------
+		tuple of ints
 		"""
 
 		# The returned values are signed.
@@ -256,6 +311,10 @@ class DPO7104(AbstractDevice):
 	def acquiring(self):
 		"""
 		Whether the device is currently acquiring data.
+
+		Returns
+		-------
+		bool
 		"""
 
 		result = self.ask('acquire:state?')
@@ -263,6 +322,13 @@ class DPO7104(AbstractDevice):
 
 	@acquiring.setter
 	def acquiring(self, value):
+		"""
+		Set whether the device is currently acquiring data.
+
+		Parameters
+		----------
+		value : bool
+		"""
 		self.write('acquire:state {0}'.format(str(int(value))))
 
 	@property
@@ -270,6 +336,10 @@ class DPO7104(AbstractDevice):
 	def sample_rate(self):
 		"""
 		The sample rate in s-1.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('horizontal:mode:samplerate?'))
@@ -277,6 +347,13 @@ class DPO7104(AbstractDevice):
 	@sample_rate.setter
 	@quantity_unwrapped('Hz')
 	def sample_rate(self, value):
+		"""
+		Set the sample rate in s-1.
+
+		Parameters
+		----------
+		value : float
+		"""
 		self.write('horizontal:mode:samplerate {0}'.format(value))
 
 	@property
@@ -284,6 +361,10 @@ class DPO7104(AbstractDevice):
 	def time_scale(self):
 		"""
 		The length for a waveform.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('horizontal:divisions?')) * float(self.ask('horizontal:mode:scale?'))
@@ -291,12 +372,23 @@ class DPO7104(AbstractDevice):
 	@time_scale.setter
 	@quantity_unwrapped('s')
 	def time_scale(self, value):
+		"""
+		Set the length for a waveform.
+		
+		Parameters
+		----------
+		value : float
+		"""
 		self.write('horizontal:mode:scale {0}'.format(value / float(self.ask('horizontal:divisions?'))))
 
 	@property
 	def data_source(self):
 		"""
 		The source from which to transfer data.
+
+		Returns
+		-------
+		int
 		"""
 
 		result = self.ask('data:source?')
@@ -306,36 +398,69 @@ class DPO7104(AbstractDevice):
 
 	@data_source.setter
 	def data_source(self, value):
+		"""
+		Set the source from which to transfer data.
+		
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('data:source ch{0}'.format(value))
 
 	@property
 	def data_start(self):
 		"""
 		The first data point to transfer.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('data:start?'))
 
 	@data_start.setter
 	def data_start(self, value):
+		"""
+		Set the first data point to transfer.
+		
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('data:start {0}'.format(value))
 
 	@property
 	def data_stop(self):
 		"""
 		The last data point to transfer.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('data:stop?'))
 
 	@data_stop.setter
 	def data_stop(self, value):
+		"""
+		Set the last data point to transfer.
+
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('data:stop {0}'.format(value))
 
 	@property
 	def record_length(self):
 		"""
 		The number of data points in a waveform.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('horizontal:mode:recordlength?'))
@@ -352,18 +477,33 @@ class DPO7104(AbstractDevice):
 	def fastframe(self):
 		"""
 		Whether fastframe is enabled.
+
+		Returns
+		-------
+		bool
 		"""
 
 		return bool(int(self.ask('horizontal:fastframe:state?')))
 
 	@fastframe.setter
 	def fastframe(self, value):
+		"""
+		Set whether fastframe is enabled.
+		
+		Parameters
+		----------
+		value : bool
+		"""
 		return self.write('horizontal:fastframe:state {0}'.format(int(value)))
 
 	@property
 	def fastframe_sum(self):
 		"""
 		The fastframe summary frame.
+
+		Returns
+		-------
+		str, one of 'none', 'average', 'envelope'
 		"""
 
 		result = self.ask('horizontal:fastframe:sumframe?').lower()
@@ -379,6 +519,14 @@ class DPO7104(AbstractDevice):
 
 	@fastframe_sum.setter
 	def fastframe_sum(self, value):
+		"""
+		Set the fastframe summary frame.
+
+		Parameters
+		----------
+		value : str, one of 'none', 'average', 'envelope'
+
+		"""
 		if value not in self.allowed_fastframe_sums:
 			raise ValueError('Invalid summary frame mode: {0}'.format(value))
 
@@ -388,12 +536,23 @@ class DPO7104(AbstractDevice):
 	def fastframe_count(self):
 		"""
 		The number of waveforms to acquire in fastframe mode.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('horizontal:fastframe:count?'))
 
 	@fastframe_count.setter
 	def fastframe_count(self, value):
+		"""
+		Set the number of waveforms to acquire in fastframe mode.
+
+		Parameters
+		----------
+		value : int
+		"""
 		if value <= 0:
 			raise ValueError('Must provide a positive integer, not "{0}"'.format(value))
 
@@ -403,30 +562,56 @@ class DPO7104(AbstractDevice):
 	def fastframe_start(self):
 		"""
 		The first frame to transfer.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('data:framestart?'))
 
 	@fastframe_start.setter
 	def fastframe_start(self, value):
+		"""
+		Set the first frame to transfer.
+
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('data:framestart {0}'.format(value))
 
 	@property
 	def fastframe_stop(self):
 		"""
 		The last frame to transfer.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('data:framestop?'))
 
 	@fastframe_stop.setter
 	def fastframe_stop(self, value):
+		"""
+		Set the last frame to transfer.
+
+		Parameters
+		----------
+		value : int
+		"""
 		self.write('data:framestop {0}'.format(value))
 
 	@property
 	def acquisitions(self):
 		"""
 		The number of acquisitions made so far on the oscilloscope.
+
+		Returns
+		-------
+		int
 		"""
 
 		return int(self.ask('acquire:numacq?'))

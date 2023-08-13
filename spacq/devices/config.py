@@ -13,6 +13,12 @@ cached_tree = None
 def device_tree():
     """
     Build a device tree from the existing devices.
+
+    Returns
+    -------
+    dict
+        A dictionary of dictionaries of dictionaries
+        (manufacturer -> model -> kind -> implementation).
     """
 
     global cached_tree
@@ -66,6 +72,10 @@ class ConnectionError(Exception):
 class DeviceConfig(object):
     """
     Description for a device.
+
+    Parameters
+    ----------
+    name : str
     """
 
     address_modes = Enum([
@@ -107,6 +117,10 @@ class DeviceConfig(object):
     def __getstate__(self):
         """
         Return a modified dictionary for pickling.
+
+        Returns
+        -------
+        dict
         """
 
         result = self.__dict__.copy()
@@ -120,6 +134,10 @@ class DeviceConfig(object):
     def __setstate__(self, dict):
         """
         Revert the changes done by __getstate__.
+        
+        Parameters
+        ----------
+        dict : dict
         """
 
         self.__dict__ = dict
@@ -132,12 +150,23 @@ class DeviceConfig(object):
     def device(self):
         """
         The connected device object.
+
+        Returns
+        -------
+        AbstractDevice
         """
 
         return self._device
 
     @device.setter
     def device(self, value):
+        """
+        Set the connected device object.
+
+        Parameters
+        ----------
+        value : AbstractDevice
+        """
         self._device = value
 
         self.gui_setup = None
@@ -151,11 +180,14 @@ class DeviceConfig(object):
         """
         Compare the resources belonging to 2 DeviceConfig objects.
 
-        The result is a tuple of:
-                resources which appear
-                resources which change
-                resources which disappear
-        where all "resources" are resource labels.
+        Parameters
+        ----------
+        new : DeviceConfig
+
+        Returns
+        -------
+        tuple of set of str
+            (appeared, changed, disappeared) where each is a resource label.
         """
 
         old_labels, new_labels = set(self.resources), set(new.resources)

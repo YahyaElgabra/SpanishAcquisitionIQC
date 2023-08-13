@@ -60,6 +60,10 @@ class DM34410A(AbstractDevice):
     def integration_time(self):
         """
         The integration time of the multimeter in terms of PLC.
+
+        Returns
+        -------
+        float
         """
 
         return float(self.ask('sense:voltage:dc:nplc?'))
@@ -75,6 +79,10 @@ class DM34410A(AbstractDevice):
     def auto_zero(self):
         """
         The auto zero state.
+
+        Returns
+        -------
+        str
         """
 
         result = self.ask('sense:voltage:dc:zero:auto?')
@@ -97,6 +105,10 @@ class DM34410A(AbstractDevice):
     def reading(self):
         """
         The value measured by the device, as a quantity in V.
+
+        Returns
+        -------
+        float
         """
 
         self.status.append('Taking reading')

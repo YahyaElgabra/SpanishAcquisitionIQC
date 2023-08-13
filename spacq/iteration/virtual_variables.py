@@ -26,20 +26,15 @@ def update_current_f(f):
 # currently in config/variables.py like linspaceConfig
 class virtLinSpaceConfig(object):
     """
-    Like LinSpaceConfig but with order...
+    Like LinSpaceConfig but with order.
 
     Parameters
     ----------
     name : str
-        The name of the variable.
     initial : float
-        The initial value of the variable.
     final : float
-        The final value of the variable.
     steps : int
-        The number of steps.
     order : int
-        The order of the variable.
     """
     def __init__(self, name='var', initial=0.0, final=0.0, steps=1, order=1):
         self.name = name
@@ -71,21 +66,19 @@ class virtLinSpaceConfig(object):
     def __len__(self):
         return self.steps
 
+
 class DependentConfig(object):
     """
-    Like LinSpaceConfig but with order...
+    Like LinSpaceConfig but with order.
 
     Parameters  
     ----------
     name : str
-        The name of the variable.
     expression : str
-        The expression of the variable.
     """
     def __init__(self, name='var', expression='1'):
         self.name = name
         self.expression = expression
-
 
     def DependentFunctionMath(self, virt_headings, virt_values):
         """
@@ -94,20 +87,22 @@ class DependentConfig(object):
         Parameters
         ----------
         virt_headings : list   
-            The headings of the virtual variables.
         virt_values : list
-            The values of the virtual variables.
+
+        Returns
+        -------
+        The result of the expression.
         """
 
         editExpression = self.expression
 
-        for i,heading in enumerate(virt_headings):
+        for i, heading in enumerate(virt_headings):
             # shouldnt be issue because disabled are always on tail?
-            editExpression = editExpression.replace(heading,'virt_values[:,{0}]'.format(i))
+            editExpression = editExpression.replace(heading, 'virt_values[:,{0}]'.format(i))
 
         # if nothing gets entered for a enabled variable
         if editExpression is None or editExpression == '':
-            result = numpy.zeros((1,len(virt_values)))[0]
+            result = numpy.zeros((1, len(virt_values)))[0]
         else:
             try:
                 # Allows for constant input
@@ -123,6 +118,7 @@ class DependentConfig(object):
 
         return result
 
+
 # something like SweepController:
 class virtSweepController(object):
     """
@@ -131,7 +127,6 @@ class virtSweepController(object):
     variables : list
         The list of virtual variables.
     num_items : int
-        The number of items in the sweep.
 
     """
     def __init__(self, variables, num_items):
@@ -150,7 +145,7 @@ class virtSweepController(object):
                 self.names.append(var.name)
 
         # for writing to csv
-        self.value_history = numpy.zeros([self.num_items,self.var_count])
+        self.value_history = numpy.zeros([self.num_items, self.var_count])
 
         # Count for iterations of needed outputs
         self.item = -1
@@ -158,7 +153,6 @@ class virtSweepController(object):
         # definitely needed
         self.orders = [vars[0].order for vars in self.variables]
         self.orders.reverse()
-
 
     def compute_order_periods(self):
         """
@@ -200,7 +194,6 @@ class virtSweepController(object):
 
     # maybe some renaming
     def sweepTable(self):
-
         """
         Initialize values and possibly devices.
         """
@@ -257,10 +250,9 @@ class virtSweepController(object):
             # fills in value_history
             counter = 0
             for pos in self.full_indices[0:]:
-                for i, (var,value) in enumerate(zip(self.variables[pos],self.current_values[pos])):
+                for i, (var, value) in enumerate(zip(self.variables[pos], self.current_values[pos])):
                     self.value_history[self.item][counter] = value
                     counter += 1
-
 
 
 # copeid from iteration/variables.py
@@ -271,12 +263,11 @@ def sort_output_variables(variables):
     Parameters
     ----------
     variables : list
-        The list of variables.
 
     Returns
     -------
-    variables sorted and grouped by their order
-    number of items in the Cartesian product of the orders
+    List of variables sorted and grouped by their order
+    Number of items in the Cartesian product of the orders
     """
 
     # Ignore disabled variables entirely!

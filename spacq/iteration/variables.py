@@ -12,7 +12,6 @@ def sort_output_variables(variables):
 	Parameters
 	----------
 	variables : list of OutputVariable
-		The variables to sort and group.
 
 	Returns
 	-------
@@ -49,6 +48,7 @@ def sort_output_variables(variables):
 
 	return grouped, num_items
 
+
 def sort_condition_variables(variables):
 	"""
 	Sort and group condition variables based on their order.
@@ -57,12 +57,10 @@ def sort_condition_variables(variables):
 	Parameters
 	----------
 	variables : list of ConditionVariable
-		The variables to sort and group.
 
 	Returns
 	-------
 	variables sorted and grouped by their order
-
 	"""
 
 	# Ignore disabled variables entirely!
@@ -77,15 +75,14 @@ def sort_condition_variables(variables):
 
 	return grouped
 
+
 class Variable(object):
 	"""
 	An abstract superclass for all variables.
 	Parameters
 	----------
 	name : str
-		The name of the variable.
 	enabled : bool
-		Whether the variable is enabled.
 	"""
 
 	def __init__(self, name, enabled=False):
@@ -100,13 +97,9 @@ class ConditionVariable(Variable):
 	Parameters
 	----------
 	order : int
-		The order of the variable.
 	resource_names : list of str
-		The names of the resources to use in the conditions.
 	conditions : list of Condition
-		The conditions to evaluate.
 	wait : str
-		The time to wait between each iteration.
 	"""
 	
 	def __init__(self, order, resource_names=None, conditions=[], wait = '100 ms', *args, **kwargs):
@@ -125,7 +118,6 @@ class ConditionVariable(Variable):
 		Parameters
 		----------
 		condition_resources : list of 2-tuples (name, resource obj)
-			The resources to use in the conditions.
 		"""
 		# We take OR of all the conditions.
 		boolean = False
@@ -151,6 +143,7 @@ class ConditionVariable(Variable):
 	def __str__(self):
 		return '['+', '.join(map(str,self.conditions))+']'
 		
+
 class Condition(object):
 	"""
 	A class used to represent a condition.
@@ -158,18 +151,13 @@ class Condition(object):
 	Parameters
 	----------
 	type1 : str
-		The type of the first argument.
 	type2 : str
-		The type of the second argument.
 	arg1 : str
-		The first argument.
 	op_symbol : str
-		The operator symbol.
 	arg2 : str
-		The second argument.
 	"""
 	
-	allowed_types = set(['string', 'float', 'integer', 'quantity', 'resource name','resource'])
+	allowed_types = {'string', 'float', 'integer', 'quantity', 'resource name', 'resource'}
 	
 	def __init__(self, type1, type2, arg1, op_symbol, arg2):
 		for type in [type1, type2]:
@@ -189,12 +177,10 @@ class Condition(object):
 		Parameters
 		----------
 		resources : list of 2-tuples (name, resource obj)
-			The resources to use in the conditions.
 
 		Returns
 		-------
-		boolean: bool
-			True if the condition is satisfied, False otherwise.			
+		True if the condition is satisfied, False otherwise.			
 		"""
 		op = {'>':operator.gt, '==':operator.eq, '!=':operator.ne, '<':operator.lt}
 		
@@ -221,13 +207,9 @@ class Condition(object):
 		
 		return boolean
 
-
-
 	def __str__(self):
 		return '{0} {1} {2}'.format(self.arg1,self.op_symbol,self.arg2)
 		
-		
-
 
 class InputVariable(Variable):
 	"""
@@ -236,7 +218,6 @@ class InputVariable(Variable):
 	Parameters
 	----------
 	resource_name : str
-		The name of the resource to use.
 	"""
 	def __init__(self, resource_name='', *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
@@ -251,17 +232,13 @@ class OutputVariable(Variable):
 	Parameters
 	----------
 	order : int
-		The order of the variable.
 	config : Config
-		The configuration of the variable.
 	wait : str
 		The time to wait between each iteration.
 	const : float
 		The constant value to set the variable to.
 	use_const : bool
-		Whether to use the constant value.
 	resource_name : str
-		The name of the resource to use.
 	"""
 
 	# Maximum number of initial values to display in string form.
@@ -307,7 +284,6 @@ class OutputVariable(Variable):
 				
 		self._wait = wait
 
-
 	def with_type(self, value):
 		"""
 		Set to the correct type, and wrap with the correct units.
@@ -315,7 +291,6 @@ class OutputVariable(Variable):
 		Parameters
 		----------
 		value : float
-			The value to set.
 		"""
 
 		if self.type == 'integer':
@@ -373,11 +348,8 @@ class LinSpaceConfig(object):
 	Parameters
 	----------
 	initial : float
-		The initial value.
 	final : float
-		The final value.
 	steps : int
-		The number of steps.
 	"""
 
 	def __init__(self, initial=0.0, final=0.0, steps=1):

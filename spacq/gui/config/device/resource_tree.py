@@ -16,15 +16,18 @@ A tree of subdevices and resources.
 class ResourceFetcher(Thread):
     """
     A thread which iterates over a list of items, getting resource values.
+
+    Parameters
+    ----------
+    items : list
+        List of TreeListCtrl items.
+    getter : function
+        Given an item, returns a Resource or None.
+    callback : function
+        Is called with the item and the value of the resource.
     """
 
     def __init__(self, items, getter, callback, *args, **kwargs):
-        """
-        items: List of TreeListCtrl items.
-        getter: Given an item, returns a Resource or None.
-        callback: Is called with the item and the value of the resource.
-        """
-
         Thread.__init__(self, *args, **kwargs)
 
         self.items = items
@@ -32,6 +35,9 @@ class ResourceFetcher(Thread):
         self.callback = callback
 
     def run(self):
+        """
+        Get the values of the resources.
+        """
         try:
             for item in self.items:
                 resource = self.getter(item)
@@ -49,6 +55,11 @@ class ResourceFetcher(Thread):
 class ItemData(object):
     """
     Useful information about a node to be stored in its PyData.
+
+    Parameters
+    ----------
+    path : tuple
+    resource : Resource
     """
 
     def __init__(self, path, resource):
@@ -61,6 +72,10 @@ class ItemData(object):
 class ResourceTree(TreeListCtrl):
     """
     A tree list to display an hierarchy of subdevices and resources.
+
+    Parameters
+    ----------
+    parent : wx.Window
     """
 
     def __init__(self, parent, *args, **kwargs):
@@ -95,6 +110,15 @@ class ResourceTree(TreeListCtrl):
     def GetChildren(self, item):
         """
         Non-recursive generator for the children of an item.
+
+        Parameters
+        ----------
+        item : TreeListCtrl
+
+        Returns
+        -------
+        generator
+            a generator of TreeListCtrl items
         """
 
         if self.HasChildren(item):
@@ -108,6 +132,14 @@ class ResourceTree(TreeListCtrl):
     def GetLeaves(self, item=None):
         """
         Recursively collect the leaves under an item.
+
+        Parameters
+        ----------
+        item : TreeListCtrl, optional
+
+        Returns
+        -------
+        list
         """
 
         if item is None:
@@ -137,6 +169,10 @@ class ResourceTree(TreeListCtrl):
     def spawn_fetch_thread(self, items):
         """
         Create a thread to populate the items.
+
+        Parameters
+        ----------
+        items : list
         """
 
         def fetch(item):
@@ -162,6 +198,14 @@ class ResourceTree(TreeListCtrl):
     def build_tree(self, device, resource_labels, root=None, path=None):
         """
         Recursively append all subdevices and resources.
+
+        Parameters
+        ----------
+        device : Device
+        resource_labels : dict
+            Maps resource paths to labels.
+        root : TreeListCtrl, optional
+        path : tuple, optional
         """
 
         if root is None:
@@ -205,6 +249,12 @@ class ResourceTree(TreeListCtrl):
     def set_value(self, item, value, error_callback=None):
         """
         Set the value of a resource, as well as the displayed value.
+
+        Parameters
+        ----------
+        item : wx.TreeListItem
+        value : str
+        error_callback : callable, optional
         """
 
         pydata = self.GetItemPyData(item)
@@ -245,6 +295,14 @@ class ResourceTree(TreeListCtrl):
         self.spawn_fetch_thread(self.GetChildren(evt.GetItem()))
 
     def OnBeginLabelEdit(self, evt):
+        """
+        The `OnBeginLabelEdit` function is used to handle the event when a label in a tree control is about
+        to be edited, and it performs various checks and actions based on the column being edited.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         # EVT_TREE_END_LABEL_EDIT does not carry this value.
         self.editing_col = evt.Int
 
@@ -288,6 +346,13 @@ class ResourceTree(TreeListCtrl):
             evt.Veto()
 
     def OnEndLabelEdit(self, evt):
+        """
+        Update the label or value of a resource.
+
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         if self.editing_col == self.col_label:
             # Prevent duplicates.
             value = evt.GetLabel()
@@ -323,6 +388,10 @@ class ResourceTree(TreeListCtrl):
 class DeviceResourcesPanel(wx.Panel):
     """
     A panel for displaying the subdevices and resources of a device.
+
+    Parameters
+    ----------
+    parent : wx.Window
     """
 
     def __init__(self, parent, *args, **kwargs):
@@ -338,12 +407,28 @@ class DeviceResourcesPanel(wx.Panel):
         self.SetSizer(panel_box)
 
     def set_device(self, device, resource_labels):
+        """
+        Set the device to display.
+        
+        Parameters
+        ----------
+        device : Device
+        resource_labels : dict
+            A dictionary mapping resource paths to labels.
+        """
         if device is None:
             self.tree.fell()
         else:
             self.tree.build_tree(device, resource_labels)
 
     def GetValue(self):
+        """
+        Get the labels and values of the resources.
+        
+        Returns
+        -------
+        (dictionary mapping resource paths to labels, dictionary mapping labels to values)
+        """
         labels = {}
         resources = {}
 
@@ -358,6 +443,16 @@ class DeviceResourcesPanel(wx.Panel):
         return (labels, resources)
 
     def SetValue(self, resource_labels, resources):
+        """
+        Set the labels and values of the resources.
+        
+        Parameters
+        ----------
+        resource_labels : dict
+            A dictionary mapping resource paths to labels.
+        resources : dict
+            A dictionary mapping labels to values.
+        """
         for path, name in list(resource_labels.items()):
             for leaf in self.tree.GetLeaves():
                 pydata = self.tree.GetItemPyData(leaf)

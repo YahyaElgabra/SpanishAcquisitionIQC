@@ -25,6 +25,17 @@ class MockModel218(MockAbstractDevice, model218):
 		pass
 		
 	def write(self, message, result=None, done=False):
+		"""
+		Write a message to the device.
+
+		Parameters
+		----------
+		message : str
+		result : str, optional
+			What to return when the message is a query.
+		done : bool, optional
+			Whether the message is complete.
+		"""
 		if not done:
 			cmd, args, query = self._split_message(message)
 					

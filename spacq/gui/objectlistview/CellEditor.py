@@ -68,6 +68,10 @@ _cellEditorRegistrySingleton = None
 def CellEditorRegistry():
     """
     Return the registry that is managing type to creator functions
+
+    Returns
+    -------
+    EditorRegistry
     """
     global _cellEditorRegistrySingleton
 
@@ -86,12 +90,10 @@ class EditorRegistry:
     """
 
     def __init__(self):
-        self.typeToFunctionMap = {}
 
         # Standard types and their creator functions
-        self.typeToFunctionMap[str] = self._MakeStringEditor
-        self.typeToFunctionMap[six.text_type] = self._MakeStringEditor
-        self.typeToFunctionMap[bool] = self._MakeBoolEditor
+        self.typeToFunctionMap = {str: self._MakeStringEditor, six.text_type: self._MakeStringEditor,
+                                  bool: self._MakeBoolEditor}
 
         if six.PY2:
             self.typeToFunctionMap[int] = self._MakeIntegerEditor
@@ -210,7 +212,15 @@ class BooleanEditor(wx.Choice):
 
 class BaseCellTextEditor(wx.TextCtrl):
 
-    """This is a base text editor for text-like editors used in an ObjectListView"""
+    """
+    This is a base text editor for text-like editors used in an ObjectListView
+
+    Parameters
+    ----------
+    olv : ObjectListView
+    subItemIndex : int
+        The index of the column that is being edited
+    """
 
     def __init__(self, olv, subItemIndex, **kwargs):
         style = wx.TE_PROCESS_ENTER | wx.TE_PROCESS_TAB
@@ -244,7 +254,13 @@ class IntEditor(BaseCellTextEditor):
             return None
 
     def SetValue(self, value):
-        "Put a new value into the editor"
+        """
+        Put a new value into the editor
+        
+        Parameters
+        ----------
+        value : object
+        """
         if isinstance(value, int):
             value = repr(value)
         super(IntEditor, self).SetValue(value)
@@ -265,7 +281,13 @@ class LongEditor(BaseCellTextEditor):
             return None
 
     def SetValue(self, value):
-        "Put a new value into the editor"
+        """
+        Put a new value into the editor
+        
+        Parameters
+        ----------
+        value : object
+        """
         if isinstance(value, (int, float)):
             value = repr(value)
         super(LongEditor, self).SetValue(value)
@@ -390,7 +412,13 @@ class DateTimeEditor(BaseCellTextEditor):
         super(DateTimeEditor, self).SetValue(value)
 
     def GetValue(self):
-        "Get the value from the editor"
+        """
+        Get the value from the editor
+        
+        Returns
+        -------
+        datetime.datetime
+        """
         s = super(DateTimeEditor, self).GetValue().strip()
         return self._ParseDateTime(s)
 
@@ -430,7 +458,13 @@ class DateTimeEditor(BaseCellTextEditor):
 
 class NumericValidator(wx.PyValidator):
 
-    """This validator only accepts numeric keys"""
+    """
+    This validator only accepts numeric keys
+    
+    Parameters
+    ----------
+    acceptableChars : str of ints, optional
+    """
 
     def __init__(self, acceptableChars="0123456789+-"):
         wx.Validator.__init__(self)
@@ -479,11 +513,14 @@ class DateEditor(DatePickerCtrl):
     """
 
     def __init__(self, *args, **kwargs):
-        #kwargs["size"] = (0,0)
+        # kwargs["size"] = (0,0)
         super(DateEditor, self).__init__(*args, **kwargs)
         self.SetValue(None)
 
     def SetValue(self, value):
+        """
+        Set the date of the editor
+        """
         if value:
             dt = wx.DateTime()
             dt.Set(value.day, value.month - 1, value.year)
@@ -492,7 +529,13 @@ class DateEditor(DatePickerCtrl):
         super(DateEditor, self).SetValue(dt)
 
     def GetValue(self):
-        "Get the value from the editor"
+        """
+        Get the value from the editor
+
+        Returns
+        -------
+        datetime.date
+        """
         dt = super(DateEditor, self).GetValue()
         if dt.IsValid():
             if 'phoenix' in wx.PlatformInfo:
@@ -506,7 +549,6 @@ class DateEditor(DatePickerCtrl):
 
 
 class TimeEditor(BaseCellTextEditor):
-
     """A text editor that expects and return time values"""
 
     # Acceptable formats: '23:59', '11:59pm', '11pm'
@@ -524,7 +566,13 @@ class TimeEditor(BaseCellTextEditor):
         super(TimeEditor, self).SetValue(value)
 
     def GetValue(self):
-        "Get the value from the editor"
+        """
+        Get the value from the editor
+        
+        Returns
+        -------
+        datetime.time
+        """
         s = super(TimeEditor, self).GetValue().strip()
         fmts = self.STD_TIME_FORMATS[:]
         if self.formatString not in fmts:
@@ -546,6 +594,16 @@ def MakeAutoCompleteTextBox(olv, columnIndex, maxObjectsToConsider=10000):
     """
     Return a TextCtrl that lets the user choose from all existing values in this column.
     Do not call for large lists
+
+    Parameters
+    ----------
+    olv : ObjectListView
+    columnIndex : int
+    maxObjectsToConsider : int, optional
+
+    Returns
+    -------
+    wx.TextCtrl
     """
     col = olv.columns[columnIndex]
     # THINK: We could make this time based, i.e. it escapes after 1 second.
@@ -562,6 +620,16 @@ def MakeAutoCompleteComboBox(olv, columnIndex, maxObjectsToConsider=10000):
     """
     Return a ComboBox that lets the user choose from all existing values in this column.
     Do not call for large lists
+
+    Parameters
+    ----------
+    olv : ObjectListView
+    columnIndex : int
+    maxObjectsToConsider : int, optional
+
+    Returns
+    -------
+    wx.ComboBox
     """
     col = olv.columns[columnIndex]
     maxObjectsToConsider = min(maxObjectsToConsider, olv.GetItemCount())
@@ -582,6 +650,10 @@ class AutoCompleteHelper(object):
     This class operates on a text control or combobox, and automatically completes the
     text typed by the user from a list of entries in a given list.
 
+    Parameters
+    ----------
+    control : wx.TextCtrl or wx.ComboBox
+    possibleValues : list of str, optional
     """
 
     def __init__(self, control, possibleValues=None):
@@ -595,6 +667,13 @@ class AutoCompleteHelper(object):
         self.lowerCasePossibleValues = [x.lower() for x in self.possibleValues]
 
     def _OnTextEvent(self, evt):
+        """
+        Handle the EVT_TEXT event
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         evt.Skip()
         # After the SetValue() we want to ignore this event. If we get this event
         # and the value hasn't been modified, we know it was a SetValue() call.

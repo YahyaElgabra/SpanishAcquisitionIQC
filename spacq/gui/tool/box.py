@@ -11,6 +11,15 @@ def determine_wildcard(extension=None, file_type=None):
 	"""
 	Assemble a wildcard string of the form:
 		[[file_type ](*.extension)|*.extension|]<all_files>
+
+	Parameters
+	----------
+	extension : str, optional
+	file_type : str, optional
+
+	Returns
+	-------
+	The wildcard string.
 	"""
 
 	all_files = 'All files|*'
@@ -35,6 +44,16 @@ def determine_wildcard(extension=None, file_type=None):
 def load_pickled(parent, extension=None, file_type=None):
 	"""
 	Unpickle data from a file based on a file dialog.
+
+	Parameters
+	----------
+	parent : wx.Window
+	extension : str, optional
+	file_type : str, optional
+
+	Returns
+	-------
+	The unpickled data.
 	"""
 
 	wildcard = determine_wildcard(extension, file_type)
@@ -51,9 +70,17 @@ def load_pickled(parent, extension=None, file_type=None):
 				# Wrap all problems.
 				raise IOError('Could not load data.', e)
 
+
 def save_pickled(parent, values, extension=None, file_type=None):
 	"""
 	Pickle data to a file based on a file dialog.
+
+	Parameters
+	----------
+	parent : wx.Window
+	values : object
+	extension : str, optional
+	file_type : str, optional
 	"""
 
 	wildcard = determine_wildcard(extension, file_type)
@@ -82,6 +109,18 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 	ZParrott: has_header functions partially in that it removes a blank first
 	row, but hte has_header boolean then fails in subsequent dependicies where
 	it has meaning of having a column title or not.
+
+	Parameters
+	----------
+	parent : wx.Window
+	extension : str, optional
+	file_type : str, optional
+
+	Returns
+	-------
+	Whether the first row is a header
+	The data
+	The filename
 	"""
 
 	wildcard = determine_wildcard(extension, file_type)
@@ -110,9 +149,19 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 				# Wrap all problems.
 				raise IOError('Could not load data.', e)
 
+
 def save_csv(parent, values, headers=None, extension='csv', file_type='CSV'):
 	"""
 	Save data to a CSV file based on a file dialog.
+
+	Parameters
+	----------
+	parent : wx.Window
+	values : list of lists
+	headers : list of str, optional
+		The column headers.
+	extension : str, optional
+	file_type : str, optional
 	"""
 
 	wildcard = determine_wildcard(extension, file_type)
@@ -166,6 +215,16 @@ class Dialog(wx.Dialog):
 class MessageDialog(Dialog):
 	"""
 	A simple error message dialog.
+
+	Parameters
+	----------
+	parent : wx.Window
+	message : str
+	title : str, optional
+	unclosable : bool, optional
+		Whether the dialog can be closed by the user.
+	monospace : bool, optional
+		Whether to use a monospace font.
 	"""
 
 	def __init__(self, parent, message, title='', unclosable=False, monospace=False,
@@ -198,6 +257,17 @@ class MessageDialog(Dialog):
 class YesNoQuestionDialog(Dialog):
 	"""
 	A yes/no question dialog.
+
+	Parameters
+	----------
+	parent : wx.Window
+	prompt : str
+		The question to ask.
+	yes_callback : callable, optional
+		The function to call when the user clicks "Yes".
+	no_callback : callable, optional
+		The function to call when the user clicks "No".
+	title : str, optional
 	"""
 
 	def __init__(self, parent, prompt, yes_callback=None, no_callback=None, title='',

@@ -19,6 +19,13 @@ Cryomagnetics model 4G Device
 class Channel(AbstractSubdevice):
     """
     Interface for a channel on the Model4G
+
+    Parameters
+    ----------
+    device : AbstractDevice
+        The device to which this subdevice belongs.
+    channel : int
+        The channel number of this subdevice.
     """
     
 
@@ -83,10 +90,10 @@ class Channel(AbstractSubdevice):
         self._imag_target = self.magnet_current.original_value
 
     def _wait_for_sweep(self):
-        '''
+        """
         This is an internal function that loops until a sweep is complete.
         This allows some of the virtual features to wait until a sweep is complete before performing other commands.
-        '''
+        """
         
         for i in range(0,2):
             current_sweep = self.sweep
@@ -135,6 +142,10 @@ class Channel(AbstractSubdevice):
     def high_limit(self):
         """
         The upper limit on the magnetic current
+
+        Returns
+        -------
+        Quantity
         """
         response = self.device.ask('ulim?')    
         stripped_response =  Quantity.from_string(response)[0]
@@ -145,6 +156,13 @@ class Channel(AbstractSubdevice):
     @dynamic_converted_quantity_unwrapped('_units')
     @_set_channel()
     def high_limit(self,value):
+        """
+        The upper limit on the magnetic current
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('ulim {0}'.format(value))
     
     @property
@@ -154,6 +172,10 @@ class Channel(AbstractSubdevice):
     def low_limit(self):
         """
         The lower limit on the magnetic current
+
+        Returns
+        -------
+        Quantity
         """
         response = self.device.ask('llim?')
         stripped_response =  Quantity.from_string(response)[0]
@@ -164,6 +186,13 @@ class Channel(AbstractSubdevice):
     @dynamic_converted_quantity_unwrapped('_units')
     @_set_channel()
     def low_limit(self,value):
+        """
+        The lower limit on the magnetic current
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         
         self.device.write('llim {0}'.format(value))
     
@@ -174,6 +203,10 @@ class Channel(AbstractSubdevice):
     def magnet_current(self):
         """
         This is the persistent magnet current setting
+
+        Returns
+        -------
+        Quantity
         """
         response = self.device.ask('imag?')    
         stripped_response =  Quantity.from_string(response)[0]
@@ -185,6 +218,11 @@ class Channel(AbstractSubdevice):
     def persistent_switch_heater(self):
         """
         The persistent switch heater
+
+        Returns
+        -------
+        str
+            The persistent switch heater state
         """
         response = float(self.device.ask('pshtr?'))
         
@@ -202,7 +240,15 @@ class Channel(AbstractSubdevice):
     @persistent_switch_heater.setter
     @Synchronized()
     @_set_channel()
-    def persistent_switch_heater(self,value):
+    def persistent_switch_heater(self, value):
+        """
+        The persistent switch heater
+
+        Parameters
+        ----------
+        value : str
+            The persistent switch heater state
+        """
         
         if value not in self.allowed_switch_heater:
             raise ValueError('Invalid heater switch value: {0}'.format(value))
@@ -224,6 +270,10 @@ class Channel(AbstractSubdevice):
     def power_supply_current(self):
         """
         The power supply output current
+
+        Returns
+        -------
+        Quantity
         """
         response = self.device.ask('iout?')    
         stripped_response =  Quantity.from_string(response)[0]
@@ -232,10 +282,18 @@ class Channel(AbstractSubdevice):
     @quantity_wrapped('A')
     @Synchronized()
     @_set_channel()
-    def ranges(self,range_id):
-        '''
+    def ranges(self, range_id):
+        """
         Used to grab the range for a given range id.
-        '''
+
+        Parameters
+        ----------
+        range_id : int
+
+        Returns
+        -------
+        str
+        """
         if range_id != 0:
             lower = self.device.ask('range? {0}'.format(range_id-1))
         else:
@@ -252,6 +310,10 @@ class Channel(AbstractSubdevice):
     def rate_0(self):
         """
         A rate for a rate range
+        
+        Returns
+        -------
+        Quantity
         """
         return float(self.device.ask('rate? 0'))
     
@@ -260,7 +322,13 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def rate_0(self,value):
+        """
+        A rate for a rate range
 
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('rate 0 {0}'.format(value))
                                 
     @property
@@ -270,6 +338,10 @@ class Channel(AbstractSubdevice):
     def rate_1(self):
         """
         A rate for a rate range
+
+        Returns
+        -------
+        Quantity
         """
         return float(self.device.ask('rate? 1'))
     
@@ -278,7 +350,13 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def rate_1(self,value):
+        """
+        A rate for a rate range
 
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('rate 1 {0}'.format(value))
 
     @property
@@ -288,6 +366,10 @@ class Channel(AbstractSubdevice):
     def rate_2(self):
         """
         A rate for a rate range
+
+        Returns
+        -------
+        Quantity
         """
         return float(self.device.ask('rate? 2'))
     
@@ -296,7 +378,13 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def rate_2(self,value):
-    
+        """
+        A rate for a rate range
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('rate 2 {0}'.format(value))                
     
     @property
@@ -306,8 +394,11 @@ class Channel(AbstractSubdevice):
     def rate_3(self):
         """
         A rate for a rate range
+
+        Returns
+        -------
+        Quantity
         """
-    
         return float(self.device.ask('rate? 3'))
     
     @rate_3.setter
@@ -315,7 +406,13 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def rate_3(self,value):
-    
+        """
+        A rate for a rate range
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('rate 3 {0}'.format(value))
     
     @property
@@ -325,6 +422,10 @@ class Channel(AbstractSubdevice):
     def rate_4(self):
         """
         A rate for a rate range
+
+        Returns
+        -------
+        Quantity
         """
         return float(self.device.ask('rate? 4'))
     
@@ -333,7 +434,13 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def rate_4(self,value):
+        """
+        A rate for a rate range
 
+        Parameters
+        ----------
+        value : Quantity
+        """
         self.device.write('rate 4 {0}'.format(value))
         
     @property
@@ -342,6 +449,11 @@ class Channel(AbstractSubdevice):
     def sweep(self):
         """
         The sweeper control.
+
+        Returns
+        -------
+        str
+            The sweeper control state
         """
         response = str(self.device.ask('sweep?'))
         return response
@@ -350,7 +462,14 @@ class Channel(AbstractSubdevice):
     @Synchronized()
     @_set_channel()
     def sweep(self,value):
-            
+        """
+        The sweeper control.
+
+        Parameters
+        ----------
+        value : str
+            The sweeper control state
+        """
         if value not in self.allowed_sweep:
             raise ValueError('Invalid sweep value: {0}'.format(value))
         
@@ -362,6 +481,10 @@ class Channel(AbstractSubdevice):
     def units(self):
         """
         Get current units of the device.
+
+        Returns
+        -------
+        str
         """
         self.device.active_channel = self.channel
         
@@ -383,6 +506,10 @@ class Channel(AbstractSubdevice):
     def units(self,value):
         """
         Set current units.
+
+        Parameters
+        ----------
+        value : str
         """
         if value not in self.allowed_units:
             raise ValueError('Invalid units: {0}'.format(value))
@@ -416,6 +543,10 @@ class Channel(AbstractSubdevice):
         '''
         If enabled: after incrementing virt_imag_sweep_to, the magnet will go into persistent mode, and then
         start a sweep of the power supply current to 0
+
+        Parameters
+        ----------
+        value : int
         '''
         self._energysave_mode = value
         
@@ -424,16 +555,24 @@ class Channel(AbstractSubdevice):
     @dynamic_quantity_wrapped('_units')
     def virt_imag(self):
         '''
-        Getter:
         Simply returns the magnet current.
-        Setter:
-        This wraps virt_iout_sweep_to with current syncing, as well as optional energy saving.
+        
+        Returns
+        -------
+        Quantity
         '''
         return self.magnet_current.original_value
         
     @virt_imag.setter
     @dynamic_converted_quantity_unwrapped('_units')
     def virt_imag(self, value):
+        """
+        This wraps virt_iout_sweep_to with current syncing, as well as optional energy saving.
+
+        Parameters
+        ----------
+        value : Quantity
+        """
 
         if self.virt_energysave_mode == 4:
             self.virt_sync_currents = 'start'
@@ -465,17 +604,25 @@ class Channel(AbstractSubdevice):
     @property
     @dynamic_quantity_wrapped('_units')
     def virt_imag_sweep_to(self):
-        '''
-        Getter:
+        """
         Simply returns the magnet current.
-        Setter:
-        This wraps virt_iout_sweep_to with current syncing, as well as optional energy saving.
-        '''
+
+        Returns
+        -------
+        Quantity
+        """
         return self._imag_target
        
     @virt_imag_sweep_to.setter
     @dynamic_converted_quantity_unwrapped('_units')
     def virt_imag_sweep_to(self, value):
+        """
+        This wraps virt_iout_sweep_to with current syncing, as well as optional energy saving.
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         
         if self.persistent_switch_heater != 'on':
             self.persistent_switch_heater = 'on'
@@ -492,10 +639,11 @@ class Channel(AbstractSubdevice):
     @dynamic_quantity_wrapped('_units')
     def virt_iout(self):
         """
-        Getter:
         Simply returns the power supply current.
-        Setter:
-        Used to increment the output power supply current using lower level controls.
+
+        Returns
+        -------
+        Quantity
         
         Note: power_supply_current is already wrapped with units, so no need to wrap this function.
         """            
@@ -504,6 +652,13 @@ class Channel(AbstractSubdevice):
     @virt_iout.setter
     @dynamic_converted_quantity_unwrapped('_units')
     def virt_iout(self, value):
+        """
+        Used to increment the output power supply current using lower level controls.
+
+        Parameters
+        ----------
+        value : Quantity
+        """
 
         # determine whether to set the hilim or lolim for increment, then sweep
         if value == 0:
@@ -533,10 +688,11 @@ class Channel(AbstractSubdevice):
     @dynamic_quantity_wrapped('_units')
     def virt_iout_sweep_to(self):
         """
-        Getter:
         Simply returns the power supply current.
-        Setter:
-        Used to increment the output power supply current using lower level controls.
+
+        Returns
+        -------
+        Quantity
         
         Note: power_supply_current is already wrapped with units, so no need to wrap this function.
         """
@@ -545,6 +701,13 @@ class Channel(AbstractSubdevice):
     @virt_iout_sweep_to.setter
     @dynamic_converted_quantity_unwrapped('_units')
     def virt_iout_sweep_to(self, value):
+        """
+        Used to increment the output power supply current using lower level controls.
+
+        Parameters
+        ----------
+        value : Quantity
+        """
         
         # determine whether to set the hilim or lolim for increment, then sweep
         if value == 0:
@@ -577,6 +740,10 @@ class Channel(AbstractSubdevice):
         """
         Debugging purposes, although potentially the basis for a feature in the future.
         Changes the sleep period in _wait_for_sweep after detecting the sweep is done.
+
+        Returns
+        -------
+        Quantity
         """
         return self._sweep_sleep
     
@@ -591,6 +758,11 @@ class Channel(AbstractSubdevice):
     def virt_sync_currents(self):
         """
         Used to sync the currents. Note this is a virtual feature not present in the actual device.
+
+        Returns
+        -------
+        str
+            Either 'synced' or 'not synced'
         """
         if self.magnet_current == self.power_supply_current:
             return 'synced'
@@ -613,6 +785,9 @@ class Channel(AbstractSubdevice):
     
     @virt_heater_wait_mode.setter
     def virt_heater_wait_mode(self, value):
+        """
+        This is a virtual feature that allows the user to wait for the heaters to warm up before continuing.
+        """
         
         if value not in self.allowed_heater_wait_mode:
             raise ValueError('Invalid heater wait mode value: {0}'.format(value))
@@ -728,6 +903,10 @@ class Model4G(AbstractDevice):
     def active_channel(self):
         """
         The active device channel.
+
+        Returns
+        -------
+        int
         """
         return float(self.ask('chan?'))
     
@@ -744,6 +923,11 @@ class Model4G(AbstractDevice):
     def virt_both_persistent_switch_heaters(self):
         """
         The heaters on both channels. Control over both is desirable in order to avoid eddy currents in the system.
+
+        Returns
+        -------
+        str
+            The heaters state
         """
 
         heaters = [channel.persistent_switch_heater for channel in self.channels[1:]]
@@ -757,7 +941,14 @@ class Model4G(AbstractDevice):
     
     @virt_both_persistent_switch_heaters.setter
     @Synchronized()
-    def virt_both_persistent_switch_heaters(self,value):
+    def virt_both_persistent_switch_heaters(self, value):
+        """
+        Set the heaters on both channels.
+        
+        Parameters
+        ----------
+        value : str
+        """
         if value not in self.allowed_both_heaters:
             raise ValueError('Invalid heater switch value: {0}'.format(value))
         
@@ -770,6 +961,10 @@ class Model4G(AbstractDevice):
     def virt_both_units(self):
         """
         Get current units of both device's channels.
+
+        Returns
+        -------
+        str
         """
         both_units = [channel.units for channel in self.channels[1:]]
         all_units_same = all(both_units[0] == units for units in both_units)
@@ -782,9 +977,13 @@ class Model4G(AbstractDevice):
             
     
     @virt_both_units.setter
-    def virt_both_units(self,value):
+    def virt_both_units(self, value):
         """
         Set current units on both channels.
+
+        Parameters
+        ----------
+        value : str
         """
         if value not in self.allowed_both_units:
             raise ValueError('Invalid units: {0}'.format(value))

@@ -20,6 +20,14 @@ Control the AWG's settings and output waveforms.
 class Marker(AbstractSubdevice):
 	"""
 	Marker channel of an output channel.
+
+	Parameters
+	----------
+	channel : int
+		The channel number.
+	number : int
+		The marker number.
+	device : AWG5014B
 	"""
 
 	def _setup(self):
@@ -45,6 +53,10 @@ class Marker(AbstractSubdevice):
 	def delay(self):
 		"""
 		The marker delay, as a quantity in s.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:delay?'.format(self.channel, self.number)))
@@ -52,6 +64,13 @@ class Marker(AbstractSubdevice):
 	@delay.setter
 	@quantity_unwrapped('s')
 	def delay(self, v):
+		"""
+		Set the marker delay, as a quantity in s.
+
+		Parameters
+		----------
+		v : float
+		"""
 		self.device.write('source{0}:marker{1}:delay {2}'.format(self.channel, self.number, v))
 
 	@property
@@ -59,6 +78,10 @@ class Marker(AbstractSubdevice):
 	def high(self):
 		"""
 		The marker high voltage, as a quantity in V.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:voltage:high?'.format(self.channel, self.number)))
@@ -66,6 +89,13 @@ class Marker(AbstractSubdevice):
 	@high.setter
 	@quantity_unwrapped('V')
 	def high(self, v):
+		"""
+		Set the marker high voltage, as a quantity in V.
+
+		Parameters
+		----------
+		v : float
+		"""
 		self.device.write('source{0}:marker{1}:voltage:high {2}'.format(self.channel, self.number, v))
 
 	@property
@@ -73,6 +103,10 @@ class Marker(AbstractSubdevice):
 	def low(self):
 		"""
 		The marker low voltage, as a quantity in V.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:voltage:low?'.format(self.channel, self.number)))
@@ -80,12 +114,25 @@ class Marker(AbstractSubdevice):
 	@low.setter
 	@quantity_unwrapped('V')
 	def low(self, v):
+		"""
+		Set the marker low voltage, as a quantity in V.
+
+		Parameters
+		----------
+		v : float
+		"""
 		self.device.write('source{0}:marker{1}:voltage:low {2}'.format(self.channel, self.number, v))
 
 
 class Channel(AbstractSubdevice):
 	"""
 	Output channel of the AWG.
+
+	Parameters
+	----------
+	channel : int
+		The channel number.
+	device : AWG5014B
 	"""
 
 	# Zero-to-peak amplitude range.
@@ -118,6 +165,10 @@ class Channel(AbstractSubdevice):
 	def waveform_name(self):
 		"""
 		The name of the output waveform for the channel.
+
+		Returns
+		-------
+		str
 		"""
 
 		result = self.device.ask('source{0}:waveform?'.format(self.channel))
@@ -126,6 +177,13 @@ class Channel(AbstractSubdevice):
 
 	@waveform_name.setter
 	def waveform_name(self, v):
+		"""
+		Set the name of the output waveform for the channel.
+		
+		Parameters
+		----------
+		v : str
+		"""
 		self.device.write('source{0}:waveform "{1}"'.format(self.channel, v))
 
 	@waveform_name.deleter
@@ -136,6 +194,10 @@ class Channel(AbstractSubdevice):
 	def enabled(self):
 		"""
 		The output state (on/off) of the channel.
+
+		Returns
+		-------
+		bool
 		"""
 
 		result = self.device.ask('output{0}:state?'.format(self.channel))
@@ -144,6 +206,13 @@ class Channel(AbstractSubdevice):
 
 	@enabled.setter
 	def enabled(self, v):
+		"""
+		Set the output state (on/off) of the channel.
+
+		Parameters
+		----------
+		v : bool
+		"""
 		self.device.write('output{0}:state {1}'.format(self.channel, int(v)))
 
 	@property
@@ -151,6 +220,10 @@ class Channel(AbstractSubdevice):
 	def amplitude(self):
 		"""
 		The zero-to-peak amplitude of the channel in V.
+
+		Returns
+		-------
+		float
 		"""
 
 		# Convert peak-to-peak to zero-to-peak.
@@ -159,6 +232,13 @@ class Channel(AbstractSubdevice):
 	@amplitude.setter
 	@quantity_unwrapped('V')
 	def amplitude(self, v):
+		"""
+		Set the zero-to-peak amplitude of the channel in V.
+
+		Parameters
+		----------
+		v : float
+		"""
 		# Convert zero-to-peak to peak-to-peak.
 		self.device.write('source{0}:voltage {1:E}'.format(self.channel, 2 * v))
 
@@ -167,6 +247,13 @@ class Channel(AbstractSubdevice):
 		Set the waveform on this channel.
 
 		The waveform data should be in V.
+
+		Parameters
+		----------
+		waveform : list of float
+		markers : dict of {int: list of bool}, optional
+			Marker number to list of marker values.
+		name : str, optional
 		"""
 
 		if name is None:
@@ -231,6 +318,10 @@ class AWG5014B(AbstractDevice):
 	def data_bits(self):
 		"""
 		How many bits of each data point represent the data itself.
+
+		Returns
+		-------
+		int
 		"""
 
 		return 14
@@ -239,6 +330,10 @@ class AWG5014B(AbstractDevice):
 	def value_range(self):
 		"""
 		The range of values possible for each data point.
+
+		Returns
+		-------
+		tuple of int
 		"""
 
 		# The sent values are unsigned.
@@ -249,6 +344,10 @@ class AWG5014B(AbstractDevice):
 	def sampling_rate(self):
 		"""
 		The sampling rate of the AWG in Hz.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('source1:frequency?'))
@@ -256,6 +355,13 @@ class AWG5014B(AbstractDevice):
 	@sampling_rate.setter
 	@quantity_unwrapped('Hz')
 	def sampling_rate(self, value):
+		"""
+		Set the sampling rate of the AWG in Hz.
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < 1e7 or value > 1.2e9:
 			raise ValueError('Sampling rate must be between 1e7 Hz and 1.2e9 Hz, not {0:n} Hz'.format(value))
 
@@ -265,6 +371,10 @@ class AWG5014B(AbstractDevice):
 	def run_mode(self):
 		"""
 		The run mode of the AWG. One of: continuous, triggered, gated, sequence.
+
+		Returns
+		-------
+		str
 		"""
 
 		mode = self.ask('awgcontrol:rmode?').lower()
@@ -292,6 +402,10 @@ class AWG5014B(AbstractDevice):
 	def waveform_names(self):
 		"""
 		A list of all waveforms in the AWG.
+
+		Returns
+		-------
+		list of str
 		"""
 
 		num_waveforms = int(self.ask('wlist:size?'))
@@ -307,6 +421,17 @@ class AWG5014B(AbstractDevice):
 
 	@Synchronized()
 	def get_waveform(self, name):
+		"""
+		Get a waveform from the AWG.
+
+		Parameters
+		----------
+		name : str
+
+		Returns
+		-------
+		list of float
+		"""
 		self.status.append('Getting waveform "{0}"'.format(name))
 
 		try:
@@ -334,6 +459,13 @@ class AWG5014B(AbstractDevice):
 		Create a new waveform on the AWG.
 
 		The waveform data should be on [-1, 1].
+
+		Parameters
+		----------
+		name : str
+		data : list of float
+		markers : dict of {int: list of bool}, optional
+			Marker number to list of marker values.
 		"""
 
 		self.status.append('Creating waveform "{0}"'.format(name))
@@ -378,6 +510,10 @@ class AWG5014B(AbstractDevice):
 	def delete_waveform(self, name):
 		"""
 		Remove a waveform on the AWG.
+
+		Parameters
+		----------
+		name : str
 		"""
 
 		if name not in self.waveform_names:
@@ -389,6 +525,10 @@ class AWG5014B(AbstractDevice):
 	def enabled(self):
 		"""
 		The continuous run state (on/off) of the AWG.
+
+		Returns
+		-------
+		bool
 		"""
 
 		state = self.ask('awgcontrol:rstate?')
@@ -403,6 +543,13 @@ class AWG5014B(AbstractDevice):
 
 	@enabled.setter
 	def enabled(self, v):
+		"""
+		Set the continuous run state (on/off) of the AWG.
+
+		Parameters
+		----------
+		v : bool
+		"""
 		if v:
 			log.debug('Enabling "{0}".'.format(self.name))
 
@@ -416,6 +563,10 @@ class AWG5014B(AbstractDevice):
 	def waiting_for_trigger(self):
 		"""
 		Whether the AWG is waiting for a trigger.
+
+		Returns
+		-------
+		bool
 		"""
 
 		return '1' == self.ask('awgcontrol:rstate?')

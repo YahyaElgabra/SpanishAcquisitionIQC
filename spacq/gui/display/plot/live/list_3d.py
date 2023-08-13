@@ -33,6 +33,11 @@ class PlotSettings(object):
 class PlotSettingsDialog(Dialog):
     """
     Set up the live view plot.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    ok_callback : function
     """
 
     def __init__(self, parent, ok_callback, *args, **kwargs):
@@ -80,6 +85,13 @@ class PlotSettingsDialog(Dialog):
         self.Destroy()
 
     def GetValue(self):
+        """
+        Get the settings from the dialog.
+        
+        Returns
+        -------
+        PlotSettings
+        """
         plot_settings = PlotSettings()
         plot_settings.enabled = self.enabled_checkbox.Value
         plot_settings.num_lines = self.lines_input.Value
@@ -94,6 +106,11 @@ class PlotSettingsDialog(Dialog):
 class ListLiveViewPanel(wx.Panel):
     """
     A panel to display a live view plot of a list resource.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
     """
 
     def __init__(self, parent, global_store, *args, **kwargs):
@@ -159,6 +176,13 @@ class ListLiveViewPanel(wx.Panel):
 
     @property
     def measurement_resource_name(self):
+        """
+        Get the measurement resource name.
+        
+        Returns
+        -------
+        str
+        """
         if self._measurement_resource_name is None:
             return ''
         else:
@@ -166,6 +190,13 @@ class ListLiveViewPanel(wx.Panel):
 
     @measurement_resource_name.setter
     def measurement_resource_name(self, value):
+        """
+        Set the measurement resource name.
+        
+        Parameters
+        ----------
+        value : str
+        """
         if value:
             self._measurement_resource_name = value
             try:
@@ -201,6 +232,10 @@ class ListLiveViewPanel(wx.Panel):
     def add_values(self, values):
         """
         Update the plot with a new list of values.
+
+        Parameters
+        ----------
+        values : list of (float, float)
         """
 
         if not self.plot_settings.enabled:
@@ -252,6 +287,10 @@ class ListLiveViewPanel(wx.Panel):
     def OnPlotSettings(self, evt=None):
         """
         Open the plot settings dialog.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         def ok_callback(dlg):
@@ -262,22 +301,52 @@ class ListLiveViewPanel(wx.Panel):
         dlg.Show()
 
     def msg_data_capture_start(self, name):
+        """
+        Start capturing data.
+        
+        Parameters
+        ----------
+        name : str
+        """
         if name == self.measurement_resource_name:
             if self.enabled:
                 self.capturing_data = True
 
     def msg_data_capture_data(self, name, value):
+        """
+        Captures data values for a specific measurement resource name if data capturing is enabled.
+
+        Parameters
+        ----------
+        name : str
+        value : list
+        """
         if name == self.measurement_resource_name:
             if self.capturing_data:
                 self.add_values(value)
 
     def msg_data_capture_stop(self, name):
+        """
+        Stop capturing data.
+        
+        Parameters
+        ----------
+        name : str
+        """
         if name == self.measurement_resource_name:
             if self.capturing_data:
                 self.capturing_data = False
 
 
 class ListMeasurementFrame(wx.Frame):
+    """
+    Frame for a list measurement.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+    """
     def __init__(self, parent, global_store, *args, **kwargs):
         wx.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -298,6 +367,13 @@ class ListMeasurementFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
     def OnClose(self, evt):
+        """
+        Close the frame.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         if self.live_view_panel.capturing_data:
             msg = 'Cannot close, as a sweep is currently in progress.'
             MessageDialog(self, msg, 'Sweep in progress').Show()

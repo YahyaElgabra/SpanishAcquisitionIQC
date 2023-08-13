@@ -50,12 +50,23 @@ class ABC1234(AbstractDevice):
 	def setting(self):
 		"""
 		This is a generic setting.
+
+		Returns
+		-------
+		str
 		"""
 
 		return self.ask('some:setting?')
 
 	@setting.setter
 	def setting(self, value):
+		"""
+		Set the generic setting.
+
+		Parameters
+		----------
+		value : str
+		"""
 		if value not in self.allowed_settings:
 			raise ValueError('Invalid setting: {0}'.format(value))
 
@@ -67,6 +78,10 @@ class ABC1234(AbstractDevice):
 	def reading(self):
 		"""
 		The value measured by the device.
+
+		Returns
+		-------
+		float
 		"""
 
 		log.debug('Getting reading.')

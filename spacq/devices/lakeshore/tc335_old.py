@@ -51,6 +51,10 @@ class TC335(AbstractDevice):
 	def temperature(self):
 		"""
 		The value measured by the device, as a quantity in V.
+
+		Returns
+		-------
+		temperature : float
 		"""
 
 		self.status.append('Taking reading')

@@ -10,6 +10,12 @@ from .scaling import ScalingSettings, ScalingSettingsDialog
 class MeasurementConfigPanel(wx.Panel):
     """
     Measurement configuration panel.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+    scaling : bool, optional
     """
 
     def __init__(self, parent, global_store, scaling=True, *args, **kwargs):
@@ -112,6 +118,17 @@ class MeasurementConfigPanel(wx.Panel):
         return self.parent.live_view_panel
 
     def wrap_with_scaling(self, name, resource):
+        """
+        Wrap the resource with the scaling.
+        
+        Parameters
+        ----------
+        name : str
+        resource : Resource
+        
+        Returns
+        -------
+        Resource"""
         if not self.scaling:
             return
 
@@ -130,6 +147,9 @@ class MeasurementConfigPanel(wx.Panel):
             self.global_store.resources[name] = wrapped_resource
 
     def unwrap_with_scaling(self):
+        """
+        Unwrap the resource with the scaling.
+        """
         if not self.scaling:
             return
 
@@ -166,6 +186,13 @@ class MeasurementConfigPanel(wx.Panel):
         self.resource_name_input.BackgroundColour = self.resource_name_input.default_background_color
 
     def OnResourceNameInput(self, evt=None):
+        """
+        Updates the name of a resource.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         if self.var.resource_name != self.resource_name_input.Value:
             # Ensure that the resource is unwrapped before releasing it.
             self.unwrap_with_scaling()
@@ -190,6 +217,13 @@ class MeasurementConfigPanel(wx.Panel):
         self.measurement_name_input.BackgroundColour = self.measurement_name_input.default_background_color
 
     def OnMeasurementNameInput(self, evt=None):
+        """
+        Updates the name of a measurement variable and handles any conflicts with existing variable names.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         if self.var.name != self.measurement_name_input.Value:
             # Attempt to add a new entry first.
             var_new_name = self.measurement_name_input.Value
@@ -208,6 +242,13 @@ class MeasurementConfigPanel(wx.Panel):
         self.set_title()
 
     def OnScaling(self, evt=None):
+        """
+        Opens a dialog box to allow the user to adjust scaling settings and saves  the selected settings.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         def ok_callback(dlg):
             self.scaling_settings = dlg.GetValue()
 
@@ -216,6 +257,14 @@ class MeasurementConfigPanel(wx.Panel):
         dlg.Show()
 
     def msg_resource(self, name, value=None):
+        """
+        Message handler for resource addition and removal.
+        
+        Parameters
+        ----------
+        name : str
+        value : Resource, optional
+        """
         resource_name = self.var.resource_name
 
         if name == resource_name:

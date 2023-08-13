@@ -58,32 +58,74 @@ class sm2450(AbstractDevice):
 	@property
 	@quantity_wrapped('V')
 	def voltageIn(self):
+		"""
+		The voltage measured at the input terminals.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('MEAS:VOLT?'))
 		
 	@property
 	@quantity_wrapped('A')
 	def currentIn(self):
+		"""
+		The current measured at the input terminals.
+
+		Returns
+		-------
+		float
+		"""
 		return float(self.ask('MEAS:CURR?'))
 		
 	@property
 	@quantity_wrapped('V')
 	def voltageOut(self):
+		"""
+		The voltage applied at the output terminals.
+
+		Returns
+		-------
+		float
+		"""
 		return self.currentOutputVoltage
 
 	@voltageOut.setter
 	@quantity_unwrapped('V')
 	def voltageOut(self,value):
+		"""
+		The voltage applied at the output terminals.
+
+		Returns
+		-------
+		float
+		"""
 		self.write('SOUR:VOLT {0}'.format(value))
 		self.currentOutputVoltage = value
 		
 	@property
 	@quantity_wrapped('A')
 	def currentOut(self):
+		"""
+		The current applied at the output terminals.
+
+		Returns
+		-------
+		float
+		"""
 		return self.currentOutputCurrent
 	
 	@currentOut.setter
 	@quantity_unwrapped('A')
 	def currentOut(self,value):
+		"""
+		The current applied at the output terminals.
+
+		Returns
+		-------
+		float
+		"""
 		self.write('SOUR:CURR {0}'.format(value))
 		self.currentOutputCurrent = value
 

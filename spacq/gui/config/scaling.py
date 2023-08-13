@@ -24,6 +24,14 @@ class ScalingSettings(object):
     def transform(self, x):
         """
         Perform a transform according to the scaling.
+
+        Parameters
+        ----------
+        x : float or Quantity
+
+        Returns
+        -------
+        Quantity
         """
 
         if self.offset == 0:
@@ -35,6 +43,15 @@ class ScalingSettings(object):
 
 
 class ScalingSettingsDialog(Dialog):
+    """
+    A dialog for setting scaling parameters.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    ok_callback : function
+        Called when the OK button is pressed.
+    """
     def __init__(self, parent, ok_callback, *args, **kwargs):
         Dialog.__init__(self, parent, title='Scaling settings')
 
@@ -82,6 +99,13 @@ class ScalingSettingsDialog(Dialog):
         self.SetSizerAndFit(dialog_box)
 
     def GetValue(self):
+        """
+        Get the value of the scaling settings.
+
+        Returns
+        -------
+        ScalingSettings
+        """
         result = ScalingSettings()
 
         result.linear_scale = self.linear_scale_input.GetValue()
@@ -91,6 +115,13 @@ class ScalingSettingsDialog(Dialog):
         return result
 
     def SetValue(self, value):
+        """
+        Set the value of the scaling settings.
+
+        Parameters
+        ----------
+        value : ScalingSettings
+        """
         self.linear_scale_input.SetValue(value.linear_scale)
         self.exponential_scale_input.SetValue(value.exponential_scale)
         self.offset_input.SetValue(value.offset)

@@ -21,6 +21,17 @@ class FileBrowseButton(filebrowsebutton.FileBrowseButton):
 
 
 def pos_int_converter(x):
+	"""
+	Convert a string to a positive integer, or raise ValueError if not possible.
+	
+	Parameters
+	----------
+	x : str
+	
+	Returns
+	-------
+	int
+	"""
 	try:
 		result = int(x)
 
@@ -32,6 +43,17 @@ def pos_int_converter(x):
 		raise ValueError('Expected positive integer')
 
 def quantity_converter(x, symbols='s', dimensions='time', non_negative=True):
+	"""
+	Convert a string to a Quantity, or raise ValueError if not possible.
+	
+	Parameters
+	----------
+	x : str
+	symbols : str
+	dimensions : str, optional
+		Expected dimensions of the quantity, default 'time'.
+	non_negative : bool, optional
+	"""
 	try:
 		q = Quantity(x)
 		q.assert_dimensions(symbols)
@@ -47,6 +69,12 @@ def quantity_converter(x, symbols='s', dimensions='time', non_negative=True):
 class ParameterPanel(ScrolledPanel):
 	"""
 	A generic panel to display parameters of a particular type.
+
+	Parameters
+	----------
+	parent : wx.Window
+	global_store : dict
+	prog: Program
 	"""
 
 	attributes = False
@@ -58,6 +86,14 @@ class ParameterPanel(ScrolledPanel):
 	def extract_variables(self, prog):
 		"""
 		By default, extract the variables which pertain to the current type.
+
+		Parameters
+		----------
+		prog : Program
+
+		Returns
+		-------
+		list of str
 		"""
 
 		return [k for k, v in list(prog.variables.items()) if v == self.type]
@@ -65,6 +101,14 @@ class ParameterPanel(ScrolledPanel):
 	def extract_parameters(self, prog):
 		"""
 		By default, extract the parameters which pertain to the current type.
+
+		Parameters
+		----------
+		prog : Program
+
+		Returns
+		-------
+		list of str
 		"""
 
 		variables = self.extract_variables(prog)
@@ -75,6 +119,10 @@ class ParameterPanel(ScrolledPanel):
 	def num_cols(self):
 		"""
 		Number of columns per row.
+
+		Returns
+		-------
+		int
 		"""
 
 		# Label and input field.
@@ -98,6 +146,10 @@ class ParameterPanel(ScrolledPanel):
 	def input_col(self):
 		"""
 		The 0-based position of the growable input column.
+
+		Returns
+		-------
+		int
 		"""
 
 		if self.use_resource_labels:
@@ -110,6 +162,14 @@ class ParameterPanel(ScrolledPanel):
 	def get_value(self, parameter):
 		"""
 		Get the value of a parameter as a string, or raise KeyError if not available.
+
+		Parameters
+		----------
+		parameter : str
+
+		Returns
+		-------
+		str
 		"""
 
 		return str(self.values[parameter])
@@ -117,6 +177,14 @@ class ParameterPanel(ScrolledPanel):
 	def get_resource_label(self, parameter):
 		"""
 		Get the resource label for a parameter, or empty string if not available.
+
+		Parameters
+		----------
+		parameter : str
+
+		Returns
+		-------
+		str
 		"""
 
 		try:
@@ -150,6 +218,10 @@ class ParameterPanel(ScrolledPanel):
 	def add_resource_label(self, parameter):
 		"""
 		Add a resource label input.
+
+		Parameters
+		----------
+		parameter : str
 		"""
 
 		resource_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
@@ -168,6 +240,13 @@ class ParameterPanel(ScrolledPanel):
 	def add_row(self, parameter, input_type='text', increment_row=True):
 		"""
 		Add a parameter to the sizer and display the value if it is available.
+
+		Parameters
+		----------
+		parameter : str
+		input_type : str, optional
+			'text' or 'file'
+		increment_row : bool, optional		
 		"""
 
 		self.cur_col = 0
@@ -270,6 +349,12 @@ class ParameterPanel(ScrolledPanel):
 		self.resources[parameter] = resource
 
 	def del_resource_label(self, parameter):
+		"""
+		Delete the resource label for a parameter.
+		
+		Parameters
+		----------
+		parameter : str"""
 		try:
 			label = self.resource_labels[parameter]
 		except KeyError:
@@ -286,6 +371,14 @@ class ParameterPanel(ScrolledPanel):
 		evt.EventObject.BackgroundColour = evt.EventObject.default_background_color
 
 	def OnInput(self, parameter, evt):
+		"""
+		Handle the input of a parameter.
+		
+		Parameters
+		----------
+		parameter : str
+			The parameter to which the input is attached.
+		evt : wx.Event"""
 		try:
 			value = self.converter(parameter, evt.String)
 		except ValueError as e:
@@ -305,6 +398,15 @@ class ParameterPanel(ScrolledPanel):
 		evt.EventObject.BackgroundColour = evt.EventObject.default_background_color
 
 	def OnResourceInput(self, parameter, evt):
+		"""
+		Handle the input of a resource label.
+		
+		Parameters
+		----------
+		parameter : str
+			The parameter to which the resource label is attached.
+		evt : wx.Event
+		"""
 		label = evt.String
 
 		try:
@@ -331,12 +433,26 @@ class ParameterPanel(ScrolledPanel):
 
 
 class AcqMarkerPanel(ParameterPanel):
+	"""
+	A panel for editing acquisition marker parameters.
+	"""
 	type = 'acq_marker'
 	name = 'Acquisition'
 	attributes = True
 	hide_variables = True
 
 	def converter(self, parameter, x):
+		"""
+		Converts the input to a valid value for the parameter.
+		
+		Parameters
+		----------
+		parameter : tuple
+		x : str
+		
+		Returns
+		-------
+		str"""
 		x = ParameterPanel.converter(self, parameter, x)
 
 		if parameter[1] == 'marker_num':
@@ -389,6 +505,13 @@ class AcqMarkerPanel(ParameterPanel):
 		self.times_average_input.BackgroundColour = self.times_average_input.default_background_color
 
 	def OnTimesAverageInput(self, evt=None):
+		"""
+		Convert the given string to a positive integer and set the program's times to average.
+		
+		Parameters
+		----------
+		evt : wx.Event
+		"""
 		try:
 			value = pos_int_converter(self.times_average_input.Value)
 		except ValueError as e:
@@ -404,6 +527,13 @@ class AcqMarkerPanel(ParameterPanel):
 		self.delay_input.BackgroundColour = self.delay_input.default_background_color
 
 	def OnDelayInput(self, evt=None):
+		"""
+		Convert the given string to a time and set the program's acquisition delay.
+
+		Parameters
+		----------
+		evt : wx.Event
+		"""
 		try:
 			value = quantity_converter(self.delay_input.Value, 's', 'time')
 		except ValueError as e:
@@ -417,22 +547,52 @@ class AcqMarkerPanel(ParameterPanel):
 
 
 class DelayPanel(ParameterPanel):
+	"""
+	A panel for editing delays.
+	"""
 	type = 'delay'
 	name = 'Delays'
 	use_resource_labels = True
 
 	def converter(self, parameter, x):
+		"""
+		Convert the given string to a time.
+
+		Parameters
+		----------
+		parameter : tuple
+		x : str
+
+		Returns
+		-------
+		Quantity
+		"""
 		x = ParameterPanel.converter(self, parameter, x)
 
 		return quantity_converter(x)
 
 
 class IntPanel(ParameterPanel):
+	"""
+	A panel for editing integers.
+	"""
 	type = 'int'
 	name = 'Integers'
 	use_resource_labels = True
 
 	def converter(self, parameter, x):
+		"""
+		Convert the given string to an integer.
+
+		Parameters
+		----------
+		parameter : tuple
+		x : str
+
+		Returns
+		-------
+		int
+		"""
 		x = ParameterPanel.converter(self, parameter, x)
 
 		try:
@@ -442,6 +602,9 @@ class IntPanel(ParameterPanel):
 
 
 class OutputPanel(ParameterPanel):
+	"""
+	A panel for editing output channels.
+	"""
 	type = 'output'
 	name = 'Outputs'
 
@@ -457,6 +620,17 @@ class OutputPanel(ParameterPanel):
 		return self.num_cols - 2
 
 	def get_value(self, parameter):
+		"""
+		Get the value of the given parameter.
+		
+		Parameters
+		----------
+		parameter : tuple
+		
+		Returns
+		-------
+		str
+		"""
 		result = self.prog.output_channels[parameter[0]]
 
 		if result is not None:
@@ -465,6 +639,13 @@ class OutputPanel(ParameterPanel):
 			raise KeyError(parameter[0])
 
 	def add_row(self, parameter):
+		"""
+		Add a row to the panel for the given parameter.
+		
+		Parameters
+		----------
+		parameter : tuple
+		"""
 		ParameterPanel.add_row(self, parameter, increment_row=False)
 
 		view_button = wx.Button(self, label='View')
@@ -543,6 +724,12 @@ class OutputPanel(ParameterPanel):
 		self.freq_input.BackgroundColour = self.freq_input.default_background_color
 
 	def OnFrequencyInput(self, evt=None):
+		"""
+		Handles the user pressing enter in the frequency input box.
+		
+		Parameters
+		----------
+		evt : wx.Event"""
 		try:
 			value = quantity_converter(self.freq_input.Value, 'Hz', 'frequency')
 		except ValueError as e:
@@ -571,6 +758,13 @@ class OutputPanel(ParameterPanel):
 		self.oscilloscope_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def OnView(self, parameter, evt=None):
+		"""
+		Displays the waveform for the given parameter.
+		
+		Parameters
+		----------
+		parameter : tuple
+		evt : wx.Event, optional"""
 		def show_frame(waveform, markers, frequency):
 			view_frame = WaveformFrame(self, parameter[0])
 			view_frame.SetValue(waveform, markers, frequency)
@@ -601,18 +795,40 @@ class OutputPanel(ParameterPanel):
 
 
 class PulsePanel(ParameterPanel):
+	"""
+	A panel for pulse parameters.
+	"""
 	type = 'pulse'
 	name = 'Pulses'
 	attributes = True
 	use_resource_labels = True
 
 	def add_resource_label(self, parameter):
+		"""
+		Adds a resource label to a parameter panel.
+		
+		Parameters
+		----------
+		parameter : tuple
+		"""
 		if parameter[1] == 'shape':
 			self.cur_col += 1
 		else:
 			ParameterPanel.add_resource_label(self, parameter)
 
 	def add_row(self, parameter):
+		"""
+		Adds a row to a parameter panel.
+		
+		Parameters
+		----------
+		parameter : tuple
+			The parameter tuple.
+
+		Returns
+		-------
+		None
+		"""
 		kwargs = {}
 		if parameter[1] == 'shape':
 			kwargs['input_type'] = 'file'
@@ -620,6 +836,20 @@ class PulsePanel(ParameterPanel):
 		return ParameterPanel.add_row(self, parameter, **kwargs)
 
 	def converter(self, parameter, x):
+		"""
+		Takes a parameter and a value, and based on the parameter type, it converts the value to a different unit or returns it as is.
+		
+		Parameters
+		----------
+		parameter : tuple
+			The parameter tuple.
+		x : str
+			The value to convert.
+
+		Returns
+		-------
+		str
+		"""
 		x = ParameterPanel.converter(self, parameter, x)
 
 		if parameter[1] == 'amplitude':
@@ -633,6 +863,11 @@ class PulsePanel(ParameterPanel):
 class PulseProgramPanel(wx.Panel):
 	"""
 	A panel to display and change all the parameters of a program.
+
+	Parameters
+	----------
+	parent : wx.Window
+	global_store : dict
 	"""
 
 	panel_types = {'acq_marker': AcqMarkerPanel, 'delay': DelayPanel, 'int': IntPanel,
@@ -656,6 +891,13 @@ class PulseProgramPanel(wx.Panel):
 		self.SetSizerAndFit(panel_box)
 
 	def create_parameter_panels(self, prog):
+		"""
+		Create a panel for each type of parameter in the program.
+		
+		Parameters
+		----------
+		prog : Program
+		"""
 		types = set(prog.variables.values())
 
 		for type in sorted(types):
@@ -680,6 +922,15 @@ class PulseProgramPanel(wx.Panel):
 
 
 class PulseProgramFrame(wx.Frame):
+	"""
+	A frame to display and change all the parameters of a program.
+
+	Parameters
+	----------
+	parent : wx.Window
+	global_store : GlobalStore
+	close_callback : callable
+	"""
 	default_title = 'Pulse program'
 
 	def __init__(self, parent, global_store, close_callback, *args, **kwargs):
@@ -723,11 +974,25 @@ class PulseProgramFrame(wx.Frame):
 			self.load_program(self.global_store.pulse_program)
 
 	def load_program(self, prog):
+			"""
+			Load a pulse program.
+
+			Parameters
+			----------
+			prog : Program
+			"""
 			self.Title = '{0} - {1}'.format(prog.filename, self.default_title)
 
 			self.pulse_panel.OnOpen(prog)
 
 	def OnMenuFileOpen(self, evt=None):
+		"""
+		Open a pulse program.
+
+		Parameters
+		----------
+		evt : wx.Event, optional
+		"""
 		wildcard = determine_wildcard('pulse', 'Pulse program')
 		dlg = wx.FileDialog(parent=self, message='Load...', wildcard=wildcard,
 				style=wx.FD_OPEN)
@@ -750,6 +1015,13 @@ class PulseProgramFrame(wx.Frame):
 			self.global_store.pulse_program = prog
 
 	def OnMenuFileClose(self, evt=None):
+		"""
+		Close the current program.
+		
+		Parameters
+		----------
+		evt : wx.CommandEvent, optional
+		"""
 		if self.global_store.pulse_program is None:
 			return
 

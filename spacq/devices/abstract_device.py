@@ -52,6 +52,9 @@ class DeviceTimeout(Exception):
 
 
 class SuperDevice(object):
+    """
+    A superclass for all devices.
+    """
     def _setup(self):
         """
         Pre-connection setup.
@@ -77,6 +80,32 @@ class SuperDevice(object):
 class AbstractDevice(SuperDevice):
     """
     A class for controlling devices which can be connected to either via Ethernet and (PyVISA or Telnet) or GPIB and Linux GPIB.
+
+    Parameters
+    ----------
+    Ethernet (tcpip::<ip_address>::instr):
+        ip_address : str, optional
+            Address on which the device is listening on port 111.
+
+    Telnet (<host_address>):
+        host_address : str, optional
+            String that list the IP address of the host.
+            Named this way to avoid issues with ip_address used for ethernet connections
+
+    GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
+        gpib_board : int, optional
+            GPIB board index. Defaults to 0.
+        gpib_pad : int, optional
+            Primary address of the device.
+        gpib_sad : int, optional
+            Secondary address of the device. Defaults to 0.
+
+    USB (usb_resource):
+        usb_resource : str, optional
+            VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
+
+    autoconnect : bool, optional
+    
     """
 
     max_timeout = 15  # s
@@ -93,24 +122,6 @@ class AbstractDevice(SuperDevice):
 
     def __init__(self, ip_address=None, host_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
                  usb_resource=None, autoconnect=True):
-        """
-        Ethernet (tcpip::<ip_address>::instr):
-                ip_address: Address on which the device is listening on port 111.
-
-        Telnet (<host_address>):
-                host_address: String that list the IP address of the host.
-                        Named this way to avoid issues with ip_address used for ethernet connections
-
-        GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
-                gpib_board: GPIB board index. Defaults to 0.
-                gpib_pad: Primary address of the device.
-                gpib_sad: Secondary address of the device. Defaults to 0.
-
-        USB (usb_resource):
-                usb_resource: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
-
-        autoconnect: Connect to the device upon instantiation.
-        """
 
         self._setup()
 
@@ -170,6 +181,13 @@ class AbstractDevice(SuperDevice):
             self.connect()
 
     def __repr__(self):
+        """
+        Return a string representation of the device.
+
+        Return
+        ------
+        str
+        """
         return '<{0}>'.format(self.__class__.__name__)
 
     def connect(self):
@@ -226,7 +244,10 @@ class AbstractDevice(SuperDevice):
         """
         Stop redirecting to a buffer, and send the buffered commands.
 
-        Returns the results of queries if any were expected.
+        Returns
+        -------
+        list of str
+            the results of queries if any were expected
         """
 
         log.debug(
@@ -262,6 +283,10 @@ class AbstractDevice(SuperDevice):
         Write to the device.
 
         Supports multi-command.
+
+        Parameters
+        ----------
+        message : str
         """
 
         if self.multi_command is not None:
@@ -299,6 +324,15 @@ class AbstractDevice(SuperDevice):
     def read_raw(self, chunk_size=512):
         """
         Read everything the device has to say and return it exactly.
+
+        Parameters
+        ----------
+        chunk_size : int, optional
+            The maximum number of bytes to read at once.
+
+        Returns
+        -------
+        str
         """
 
         log.debug('Reading from device "{0}".'.format(self.name))
@@ -327,6 +361,10 @@ class AbstractDevice(SuperDevice):
     def read(self):
         """
         Read from the device, but strip terminating whitespace.
+
+        Returns
+        -------
+        str
         """
 
         return self.read_raw().rstrip()
@@ -335,6 +373,14 @@ class AbstractDevice(SuperDevice):
     def ask_raw(self, message):
         """
         Write, then read_raw.
+
+        Parameters
+        ----------
+        message : str
+
+        Returns
+        -------
+        str
         """
 
         self.write(message)
@@ -346,6 +392,14 @@ class AbstractDevice(SuperDevice):
         Write, then read.
 
         Supports multi-command.
+
+        Parameters
+        ----------
+        message : str
+
+        Returns
+        -------
+        str
         """
 
         self.write(message)
@@ -359,6 +413,14 @@ class AbstractDevice(SuperDevice):
     def query(self, message):
         """
         Write then read using PyVisa's query command.
+
+        Parameters
+        ----------
+        message : str
+
+        Returns
+        -------
+        str
         """
         return self.device.query(message)
 
@@ -377,6 +439,14 @@ class AbstractDevice(SuperDevice):
         Return a Resource given a resource path spec.
 
         eg. ('subdevice A', 'subdevice B', 'resource C') -> Resource
+
+        Parameters
+        ----------
+        path : tuple of str
+
+        Returns
+        -------
+        Resource
         """
 
         log.debug('Looking for resource {0}.'.format(path))
@@ -409,6 +479,10 @@ class AbstractDevice(SuperDevice):
     def idn(self):
         """
         Ask the device for identification.
+
+        Returns
+        -------
+        str
         """
 
         if self.driver in [drivers.pyvisa]:
@@ -436,6 +510,10 @@ class AbstractDevice(SuperDevice):
 class AbstractSubdevice(SuperDevice):
     """
     A subdevice (eg. channel) of a hardware device.
+
+    Parameters
+    ----------
+    device : AbstractDevice
     """
 
     def _setup(self):

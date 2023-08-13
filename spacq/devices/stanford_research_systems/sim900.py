@@ -74,6 +74,13 @@ class Port(AbstractSubdevice):
 	@property
 	@quantity_wrapped('V')
 	def voltage(self):
+		"""
+		Return the voltage on this port, as a quantity in V.
+
+		Returns
+		-------
+		float
+		"""
 
 		return self.currentVoltage
 		
@@ -82,6 +89,10 @@ class Port(AbstractSubdevice):
 	def voltage(self, value):
 		"""
 		Set the voltage on this port, as a quantity in V.
+
+		Parameters
+		----------
+		value : float
 		"""
 		value = round(value, 3)
 		resulting_voltage = value
@@ -94,6 +105,10 @@ class Port(AbstractSubdevice):
 class sim900(AbstractDevice):
 	"""
 	Interface for the SRS Sim900+Sim928 voltage source
+
+	Parameters
+	----------
+	port_settings : dict, optional
 	"""
 	
 	def _setup(self):

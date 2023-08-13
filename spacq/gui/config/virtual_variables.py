@@ -5,7 +5,17 @@ import wx.lib.scrolledpanel as scrolled
 An interface for defining virtual swept variables and writing to
 real resources.
 """
+# The `MultipleVariableConfigPanel` class is a panel that allows the user to configure multiple
+# virtual variables by specifying their names, initial values, final values, step sizes, and orders.
 class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
+    """
+    A panel that allows the user to configure multiple virtual variables by specifying their names,
+    initial values, final values, step sizes, and orders.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    """
     def __init__(self, parent, *args, **kwargs):
         scrolled.ScrolledPanel.__init__(self, parent, -1, style=wx.HSCROLL, *args, **kwargs)
 
@@ -83,6 +93,13 @@ class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
         self.SetupScrolling(scroll_y = False)
 
     def OnUpdate(self, evt=None):
+        """
+        Adds or removes text controls based on the value of EnableCount.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         EnableCount = self.var_count.Value
 
         # Adding more than initially setup with
@@ -126,6 +143,14 @@ class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
         # self.SetSizerAndFit(self.panel_box)
 
     def GetValue(self):
+        """
+        Returns the values of the variables as lists.
+
+        Returns
+        -------
+        (list of str, list of float, list of float, list of float, list of int)
+        (names, starts, ends, steps, orders)
+        """
         try:
             starts = [float(x.Value) for x in self.start_value]
         except ValueError:
@@ -140,26 +165,15 @@ class MultipleVariableConfigPanel(scrolled.ScrolledPanel):
         orders = [x.Value for x in self.order_value]
 
         return names, starts, ends, steps, orders
-
-
-    def GetValue(self):
-        try:
-            starts = [float(x.Value) for x in self.start_value]
-        except ValueError:
-            raise ValueError('Invalid initial value.')
-        try:
-            ends = [float(x.Value) for x in self.end_value]
-        except ValueError:
-            raise ValueError('Invalid initial value.')
-
-        names = [x.Value for x in self.name_value]
-        steps = [x.Value for x in self.step_value]
-        orders = [x.Value for x in self.order_value]
-
-        return names, starts, ends, steps, orders
-
-
+    
 class DependentVariableConfigPanel(scrolled.ScrolledPanel):
+    """
+    A panel for configuring the dependent variables.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    """
     def __init__(self, parent, *args, **kwargs):
         scrolled.ScrolledPanel.__init__(self, parent, -1, style=wx.VSCROLL, *args, **kwargs)
 
@@ -219,6 +233,13 @@ class DependentVariableConfigPanel(scrolled.ScrolledPanel):
         self.SetupScrolling(scroll_x = False)
 
     def OnUpdate(self, evt=None):
+        """
+        Adds entries to a list based on the value of `EnableCount` and updates the layout of the GUI.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         EnableCount = self.dependent_count.Value
 
         # Add entries to store
@@ -261,6 +282,14 @@ class DependentVariableConfigPanel(scrolled.ScrolledPanel):
             self.enable[i] = False
 
     def GetValue(self):
+        """
+        Returns the values of the dependent variables
+        
+        Returns
+        -------
+        (list of str, list of str)
+        (names, expressions)
+        """
         names = [x.Value for x in self.name_value]
         expressions = [x.Value for x in self.expression_value]
 

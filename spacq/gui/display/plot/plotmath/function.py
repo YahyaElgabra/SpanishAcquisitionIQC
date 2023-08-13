@@ -5,6 +5,15 @@ from .common.math_setup import MathSetupDialog_Function
 from numpy import *
 
 class FunctionMathSetupDialog(MathSetupDialog_Function):
+	"""
+	A dialog for setting up a function of one variable.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 
 	dheading = []
 	ddata = []
@@ -33,6 +42,15 @@ class FunctionMathSetupDialog(MathSetupDialog_Function):
 
 
 class FunctionMathSetupDialog2arg(MathSetupDialog_Function):
+	"""
+	A dialog for setting up a function of two variables.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 
 	dheading = []
 	ddata = []

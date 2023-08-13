@@ -21,6 +21,20 @@ from ..tool.box import Dialog, MessageDialog, YesNoQuestionDialog
 class DataCaptureDialog(Dialog, SweepController):
     """
     A progress dialog which runs over iterators, sets the corresponding resources, and captures the measured data.
+
+    Parameters
+    ----------
+    resources : list of list of (str, Resource)
+        The resources to set.
+    variables : list of list of OutputVariable
+        The variables to set.
+    num_items : int
+    measurement_resources : list of (str, Resource)
+    measurement_variables : list of InputVariable
+    condition_resources : list of list of (str, Resource)
+    condition_variables : list of list of ConditionVariable
+    pulse_config : PulseConfiguration
+    continuous : bool, optional
     """
 
     max_value_len = 50  # characters
@@ -197,6 +211,9 @@ class DataCaptureDialog(Dialog, SweepController):
         self.abort(fatal=write)
 
     def start(self):
+        """
+        Start the sweep.
+        """
         thr = Thread(target=SweepController.run, args=(self,))
         thr.daemon = True
         thr.start()
@@ -212,6 +229,9 @@ class DataCaptureDialog(Dialog, SweepController):
         return result
 
     def end(self):
+        """
+        Ends sweep and closes dialog.
+        """
         try:
             SweepController.end(self)
         except AssertionError:
@@ -233,6 +253,14 @@ class DataCaptureDialog(Dialog, SweepController):
         self.cancelling = True
 
     def OnTimer(self, evt=None):
+        """
+        Updates the status message, progress bar, and elapsed time, and prompts the user to
+        abort the processing if necessary.
+
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         self.status_message_output.Value = self.status_messages[self.current_f]
         if self.continuous:
             self.last_continuous = self.last_continuous_input.Value
@@ -282,8 +310,7 @@ class DataCaptureDialog(Dialog, SweepController):
             self.last_checked_time = -1
             self.timer.Stop()
 
-            YesNoQuestionDialog(self, 'Abort processing?',
-                                abort, resume).Show()
+            YesNoQuestionDialog(self, 'Abort processing?', abort, resume).Show()
 
             return
 
@@ -291,6 +318,11 @@ class DataCaptureDialog(Dialog, SweepController):
 class DataCapturePanel(wx.Panel):
     """
     A panel to start the data capture process, optionally exporting the results to a file.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
     """
 
     def __init__(self, parent, global_store, *args, **kwargs):
@@ -350,6 +382,14 @@ class DataCapturePanel(wx.Panel):
         self.SetSizer(panel_box)
 
     def OnBeginCapture(self, evt=None):
+        """
+        Starts the data capture process When the user clicks the 'Begin Capture' button. 
+        validates the required resources and devices, and opens a DataCaptureDialog to capture data from the specified resources.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         # Prevent accidental double-clicking.
         self.start_button.Disable()
 
@@ -389,6 +429,8 @@ class DataCapturePanel(wx.Panel):
         missing_devices = set()
 
         pulse_program = self.global_store.pulse_program
+
+        # Validating the pulse program.
 
         if pulse_program is not None:
             pulse_program = pulse_program.with_resources
@@ -442,6 +484,8 @@ class DataCapturePanel(wx.Panel):
                 return
         else:
             pulse_config = None
+
+        # Preparing resources.
 
         resources = []
         for group in resource_names:
@@ -627,8 +671,8 @@ class DataCapturePanel(wx.Panel):
 
         self.capture_dialogs += 1
 
-        dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources,
-                                input_variables, condition_resources, condition_variables, pulse_config, continuous=continuous)
+        dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources, input_variables,
+                                 condition_resources, condition_variables, pulse_config, continuous=continuous)
         dlg.SetMinSize((500, -1))
 
         for name in measurement_resource_names:

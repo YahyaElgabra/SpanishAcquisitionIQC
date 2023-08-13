@@ -12,6 +12,11 @@ An embeddable two-dimensional plot.
 class TwoDimensionalPlot(ChacoPlot):
 	"""
 	A 2D plot.
+
+	Parameters
+	----------
+	parent : wx.Window
+	color : str, optional
 	"""
 
 	auto_color_idx = 0

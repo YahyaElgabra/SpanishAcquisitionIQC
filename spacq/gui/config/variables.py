@@ -17,6 +17,12 @@ An interface for creating and editing Variable objects.
 class VariableColumnDefn(ObjectListView.ColumnDefn):
     """
     A column with useful defaults.
+
+    Parameters
+    ----------
+    width : int, optional
+    align : str, optional
+    groupKeyGetter : str, optional
     """
 
     def __init__(self, width=90, align='centre', groupKeyGetter='order', *args, **kwargs):
@@ -29,6 +35,13 @@ class VariableColumnDefn(ObjectListView.ColumnDefn):
 
 
 class LinSpaceConfigPanel(wx.Panel):
+    """
+    A panel for editing a Variable object.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    """
     def __init__(self, parent, *args, **kwargs):
         wx.Panel.__init__(self, parent, *args, **kwargs)
 
@@ -61,6 +74,13 @@ class LinSpaceConfigPanel(wx.Panel):
         self.SetSizerAndFit(panel_box)
 
     def GetValue(self):
+        """
+        Get the values from the input.
+        
+        Returns
+        -------
+        LinSpaceConfig
+        """
         # Ensure the values are sane.
         try:
             initial = float(self.initial_input.Value)
@@ -80,6 +100,13 @@ class LinSpaceConfigPanel(wx.Panel):
 
 
 class ArbitraryConfigPanel(wx.Panel):
+    """
+    A panel for editing a Variable object.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    """
     def __init__(self, parent, *args, **kwargs):
         wx.Panel.__init__(self, parent, *args, **kwargs)
 
@@ -100,6 +127,13 @@ class ArbitraryConfigPanel(wx.Panel):
         self.SetSizerAndFit(panel_box)
 
     def GetValue(self):
+        """
+        Get the values from the input.
+        
+        Returns
+        -------
+        ArbitraryConfig
+        """
         raw_values = self.values_input.Value.split(',')
 
         # Ensure the values are sane.
@@ -118,6 +152,13 @@ class ArbitraryConfigPanel(wx.Panel):
 
 
 class FileConfigPanel(wx.Panel):
+    """
+    A panel for editing a Variable object.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    """
     def __init__(self, parent, *args, **kwargs):
         wx.Panel.__init__(self, parent, *args, **kwargs)
 
@@ -173,6 +214,13 @@ class FileConfigPanel(wx.Panel):
     # TODO: return to finishing this up or what not
     # From math_setup for data explorer function for callback
     def OnAxisSelection(self, evt=None):
+        """
+        Callback for when a variable is selected from the list.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         # Get what list index was selected
         if self.variable_list.Selection == wx.NOT_FOUND:
             resultIndex = None
@@ -199,6 +247,13 @@ class FileConfigPanel(wx.Panel):
 
     # loads csv and adds headers and data to self.object
     def OnMenuFileOpen(self, evt=None):
+        """
+        Load a CSV file.
+        
+        Parameters
+        ----------
+        evt : wx.Event, optional
+        """
         try:
             result = load_csv(self.parent)
         except IOError as e:
@@ -233,6 +288,13 @@ class FileConfigPanel(wx.Panel):
 
     # Regular Get and Set that finally set variables
     def GetValue(self):
+        """
+        Get the current configuration.
+        
+        Returns
+        -------
+        ArbitraryConfig
+        """
         raw_values = self.values_input
 
         # Ensure the values are sane.
@@ -249,6 +311,14 @@ class FileConfigPanel(wx.Panel):
 
 
 class ConditionEditor(Dialog):
+    """
+    Dialog for editing a condition.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    ok_callback : callable
+    """
     def __init__(self, parent, ok_callback, *args, **kwargs):
         kwargs['style'] = kwargs.get(
             'style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
@@ -344,6 +414,13 @@ class ConditionEditor(Dialog):
             self.Destroy()
 
     def SetValue(self, condition):
+        """
+        Sets the values of the editor to match the given Condition.
+        
+        Parameters
+        ----------
+        condition : Condition
+        """
         self.arg_type_setters[0][condition.type1].Value = True
         self.arg_type_setters[1][condition.type2].Value = True
         self.args[0].Value = str(condition.arg1)
@@ -351,6 +428,13 @@ class ConditionEditor(Dialog):
         self.op_menu.SetStringSelection(condition.op_symbol)
 
     def GetValue(self):
+        """
+        Returns a Condition object.
+        
+        Returns
+        -------
+        Condition
+        """
         cond_args = []
         arg_types = []
         for i, type in enumerate(self.arg_type_setters):
@@ -378,6 +462,14 @@ class ConditionEditor(Dialog):
 
 
 class ConditionVariableEditor(Dialog):
+    """
+    A dialog for editing a condition variable.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    ok_callback : function
+    """
     col_conditions = VariableColumnDefn(title='Condition', valueGetter=lambda x: str(x),
                                         isSpaceFilling=True, align='left')
 
@@ -433,6 +525,13 @@ class ConditionVariableEditor(Dialog):
         self.SetSizerAndFit(dialog_box)
 
     def GetValue(self):
+        """
+        Get the resource_names and conditions from the listctrl
+        
+        Returns
+        -------
+        (list of str, list of Condition)
+        """
         conditions = self.condition_olv.GetObjects()
 
         # Get the resource_names from the conditions.
@@ -456,6 +555,10 @@ class ConditionVariableEditor(Dialog):
     def OnAddCondition(self, evt=None):
         """
         Add a condition to the listctrl
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         def ok_callback(dlg):
@@ -476,6 +579,10 @@ class ConditionVariableEditor(Dialog):
     def OnRemoveConditions(self, evt=None):
         """
         Remove all selected conditions from the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         selected = self.condition_olv.GetSelectedObjects()
@@ -484,6 +591,13 @@ class ConditionVariableEditor(Dialog):
             self.condition_olv.RemoveObjects(selected)
 
     def OnCellEditStarting(self, evt):
+        """
+        Start up the condition editor when a cell is double clicked.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         condition = evt.rowModel
 
         # Ignore frivolous requests.
@@ -514,6 +628,14 @@ class ConditionVariableEditor(Dialog):
 
 
 class OutputVariableEditor(Dialog):
+    """
+    Dialog for editing an output variable.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    ok_callback : callable
+    """
     def __init__(self, parent, ok_callback, *args, **kwargs):
         kwargs['style'] = kwargs.get(
             'style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
@@ -607,6 +729,15 @@ class OutputVariableEditor(Dialog):
         self.SetSizerAndFit(dialog_box)
 
     def GetValue(self):
+        """
+        Get the value of the editor.
+        
+        Returns
+        -------
+        (Config, int, bool, bool, bool, str, str)
+        (config, smooth_steps, smooth_from, smooth_to, smooth_transition, type, units)
+
+        """
         if self.type_float.Value:
             type = 'float'
             units = None
@@ -625,6 +756,23 @@ class OutputVariableEditor(Dialog):
                 self.smooth_transition_checkbox.Value, type, units)
 
     def SetValue(self, config, smooth_steps, smooth_from, smooth_to, smooth_transition, type, units):
+        """
+        Set the value of the editor.
+
+        Parameters
+        ----------
+        config : Config
+        smooth_steps : int
+            the number of steps to smooth over
+        smooth_from : bool
+            whether to smooth from a constant
+        smooth_to : bool
+            whether to smooth to a constant
+        smooth_transition : bool
+            whether to smooth the transition
+        type : str
+        units : str
+        """
         config_type = self.config_panel_types.index(config.__class__)
         self.config_notebook.ChangeSelection(config_type)
         self.config_notebook.CurrentPage.SetValue(config)
@@ -647,6 +795,14 @@ class OutputVariableEditor(Dialog):
 
 
 class VariablesPanel(wx.Panel):
+    """
+    Panel for editing variables.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+    """
     col_name = VariableColumnDefn(checkStateGetter='enabled', title='Name', valueGetter='name',
                                   width=150, align='left')
     col_order = VariableColumnDefn(title='#', valueGetter='order', width=40)
@@ -719,6 +875,10 @@ class VariablesPanel(wx.Panel):
     def max_order(self):
         """
         Find the highest-used order in the OLV.
+
+        Returns
+        -------
+        int
         """
 
         try:
@@ -727,6 +887,14 @@ class VariablesPanel(wx.Panel):
             return 0
 
     def OnCellEditStarting(self, evt):
+        """
+        Handle the start of a cell edit.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        
+        """
         col = evt.objectListView.columns[evt.subItemIndex]
         var = evt.rowModel
 
@@ -769,6 +937,13 @@ class VariablesPanel(wx.Panel):
             evt.Veto()
 
     def OnCellEditFinishing(self, evt):
+        """
+        Handles the editing of cells in a table.
+
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         col = evt.objectListView.columns[evt.subItemIndex]
 
         if col == self.col_name:
@@ -804,6 +979,13 @@ class VariablesPanel(wx.Panel):
                 pass # Assumed not an int was given in this cell
 
     def OnCellEditFinished(self, evt):
+        """
+        Update the OLV after a cell edit.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         col = evt.objectListView.columns[evt.subItemIndex]
 
         if col == self.col_order:
@@ -813,6 +995,10 @@ class VariablesPanel(wx.Panel):
     def OnSave(self, evt=None):
         """
         Save all the rows in the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         try:
@@ -825,6 +1011,10 @@ class VariablesPanel(wx.Panel):
     def OnLoad(self, evt=None):
         """
         Load some rows to the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         try:
@@ -856,6 +1046,10 @@ class VariablesPanel(wx.Panel):
     def OnAddVariable(self, evt=None):
         """
         Add a blank variable to the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         # Ensure that we get a unique name.
@@ -882,6 +1076,10 @@ class VariablesPanel(wx.Panel):
     def OnAddConditionVariable(self, evt=None):
         """
         Add a blank conditional variable to the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         with self.global_store.variables.lock:
@@ -907,6 +1105,10 @@ class VariablesPanel(wx.Panel):
     def OnRemoveVariables(self, evt=None):
         """
         Remove all selected variables from the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         selected = self.olv.GetSelectedObjects()
@@ -925,6 +1127,12 @@ class GuiVariable(object):
     describing how the values should be edited.
     If the variable doesn't have the attribute, then this class creates that attribute
     and assigns it a value of 'N/A'.
+
+    Parameters
+    ----------
+    var : Variable
+    vartype : str
+        'condition' or 'output'
     """
 
     def __init__(self, var, vartype):

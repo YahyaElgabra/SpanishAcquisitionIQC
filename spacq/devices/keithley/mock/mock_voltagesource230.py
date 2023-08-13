@@ -22,6 +22,17 @@ class MockvoltageSource230(MockAbstractDevice, voltageSource230):
 		self.mock_state['setting'] = 'default value'
 
 	def write(self, message, result=None, done=False):
+		"""
+		Write to the mock device.
+
+		Parameters
+		----------
+		message : str	
+		result : str, optional
+			The result to return.
+		done : bool, optional
+			Whether the command is done.
+		"""
 		if not done:
 			cmd, args, query = self._split_message(message)
 

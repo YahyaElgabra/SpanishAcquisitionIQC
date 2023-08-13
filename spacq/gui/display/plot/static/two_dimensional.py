@@ -6,6 +6,17 @@ from .common.plot_setup import PlotSetupDialog
 
 
 class TwoDimensionalPlotPanel(wx.Panel):
+	"""
+	Panel for a two-dimensional plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	x_data : numpy.ndarray
+	y_data : numpy.ndarray
+	x_label : str
+	y_label : str
+	"""
 	def __init__(self, parent, x_data, y_data, x_label, y_label, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
@@ -23,6 +34,17 @@ class TwoDimensionalPlotPanel(wx.Panel):
 
 
 class TwoDimensionalPlotFrame(wx.Frame):
+	"""
+	Frame for a two-dimensional plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	x_data : numpy.ndarray
+	y_data : numpy.ndarray
+	x_label : str
+	y_label : str
+	"""
 	def __init__(self, parent, x_data, y_data, x_label, y_label, *args, **kwargs):
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -38,6 +60,15 @@ class TwoDimensionalPlotFrame(wx.Frame):
 
 
 class TwoDimensionalPlotSetupDialog(PlotSetupDialog):
+	"""
+	Dialog for setting up a two-dimensional plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+	data : numpy.ndarray
+	"""
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y'],
 				*args, **kwargs)
@@ -47,6 +78,14 @@ class TwoDimensionalPlotSetupDialog(PlotSetupDialog):
 		self.data = data
 
 	def make_plot(self):
+		"""
+		Make the plot.
+		
+		Returns
+		-------
+		bool
+			True if the plot was made, False otherwise.
+		"""
 		try:
 			x_data, y_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:

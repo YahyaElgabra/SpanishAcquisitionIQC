@@ -11,6 +11,12 @@ from ..tool.box import MessageDialog
 class SmoothResetPanel(wx.Panel):
     """
     A panel to change variables smoothly to and from preset values.
+
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+        The global store of all devices, resources, and variables.
     """
 
     def __init__(self, parent, global_store, *args, **kwargs):
@@ -54,6 +60,10 @@ class SmoothResetPanel(wx.Panel):
     def choose_variables(self):
         """
         Return all the selected variables, ensuring that their resources are valid.
+
+        Returns
+        -------
+        list of OutputVariable
         """
 
         all_vars = sift(
@@ -82,6 +92,16 @@ class SmoothResetPanel(wx.Panel):
         return vars
 
     def reset(self, sweep_setting):
+        """
+        Reset all the selected variables depending on their settings.
+
+        Parameters
+        ----------
+        sweep_setting : int
+            0: from current value to zero
+            1: from zero to current value
+            2: from current value to const
+        """
         vars = self.choose_variables()
         if vars is None:
             return

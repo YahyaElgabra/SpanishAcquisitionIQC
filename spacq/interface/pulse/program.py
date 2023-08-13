@@ -13,6 +13,12 @@ Pulse programs as compiled entities.
 class Program(object):
 	"""
 	A prepared, compiled pulse program.
+
+	Parameters
+	----------
+	env : Environment
+	ast : Block
+		The abstract syntax tree to use.
 	"""
 
 	filename = ''
@@ -21,6 +27,16 @@ class Program(object):
 	def from_string(cls, s):
 		"""
 		Create a program from a string.
+
+		Parameters
+		----------
+		cls : Program
+		s : str	
+			The program text.
+
+		Returns
+		-------
+		The loaded program.
 		"""
 
 		env = Environment()
@@ -32,6 +48,17 @@ class Program(object):
 	def from_file(cls, path):
 		"""
 		Load a program from a file.
+
+		Parameters
+		----------
+		cls : Program
+		path : str
+			The path to the file.
+
+		Returns
+		-------
+		The loaded program.
+
 		"""
 
 		with open(path) as f:
@@ -107,6 +134,10 @@ class Program(object):
 	def generate_waveforms(self, dry_run=False):
 		"""
 		Generate the waveforms, given that the values are all filled in.
+
+		Returns
+		-------
+		A dictionary of waveforms, keyed by name.
 		"""
 
 		self._env.stage = self._env.stages.waveforms
@@ -126,6 +157,10 @@ class Program(object):
 		Produce a copy object, with a cloned Environment, and with all resources which exist mutated to point to the corresponding values.
 
 		Note: Because the Resource objects must be shared between copies, there may only ever exist one copy at a time.
+
+		Returns
+		-------
+		A copy of the program.
 		"""
 
 		result = copy(self)

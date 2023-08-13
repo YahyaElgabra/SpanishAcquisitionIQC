@@ -16,6 +16,10 @@ An interface for creating and editing DeviceConfig objects.
 class DeviceColumnDefn(ObjectListView.ColumnDefn):
     """
     A column with useful defaults.
+
+    Parameters
+    ----------
+    align : str, optional
     """
 
     def __init__(self, align='left', *args, **kwargs):
@@ -27,6 +31,15 @@ class DeviceColumnDefn(ObjectListView.ColumnDefn):
 
 
 class DevicesPanel(wx.Panel):
+    """
+    A panel for editing DeviceConfig objects.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+    dialog_owner : wx.Window
+    """
     col_name = DeviceColumnDefn(title='Name', valueGetter='name', width=200)
     col_connection = DeviceColumnDefn(title='Connection', width=110,
                                       valueGetter=lambda x: '{0}onnected'.format('C' if x.device is not None else 'Disc'))
@@ -84,6 +97,13 @@ class DevicesPanel(wx.Panel):
     def update_resources(self, old, new):
         """
         Inform everybody of updated resources.
+
+        Parameters
+        ----------
+        old : DeviceConfig
+            The old device.
+        new : DeviceConfig
+            The new device.
         """
 
         (appeared, changed, disappeared) = old.diff_resources(new)
@@ -105,6 +125,13 @@ class DevicesPanel(wx.Panel):
         return []
 
     def OnCellEditStarting(self, evt):
+        """
+        Open a dialog to edit the device.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         col = evt.objectListView.columns[evt.subItemIndex]
         dev = evt.rowModel
 
@@ -156,6 +183,13 @@ class DevicesPanel(wx.Panel):
             evt.Veto()
 
     def OnCellEditFinishing(self, evt):
+        """
+        Update the device name in the global store.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         col = evt.objectListView.columns[evt.subItemIndex]
 
         if col == self.col_name:
@@ -181,6 +215,10 @@ class DevicesPanel(wx.Panel):
     def OnAddDevice(self, evt=None):
         """
         Add a blank variable to the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         # Ensure that we get a unique name.
@@ -206,6 +244,10 @@ class DevicesPanel(wx.Panel):
     def OnRemoveDevices(self, evt=None):
         """
         Remove all selected variables from the OLV.
+
+        Parameters
+        ----------
+        evt : wx.Event, optional
         """
 
         selected = self.olv.GetSelectedObjects()
@@ -228,6 +270,14 @@ class DevicesPanel(wx.Panel):
 
 
 class DeviceConfigFrame(wx.Frame):
+    """
+    Frame for configuring devices.
+    
+    Parameters
+    ----------
+    parent : wx.Window
+    global_store : GlobalStore
+    """
     def __init__(self, parent, global_store, *args, **kwargs):
         wx.Frame.__init__(
             self, parent, title='Device Configuration', *args, **kwargs)
@@ -261,6 +311,13 @@ class DeviceConfigFrame(wx.Frame):
             sleep(0.2)
 
     def OnClose(self, evt):
+        """
+        Close the frame.
+        
+        Parameters
+        ----------
+        evt : wx.Event
+        """
         info = AboutDialogInfo()
         info.SetName("Don't close this")
         info.SetDescription(

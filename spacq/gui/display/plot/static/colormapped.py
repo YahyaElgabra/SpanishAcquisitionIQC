@@ -7,6 +7,19 @@ from ..colormapped import ColormappedPlot
 from .common.plot_setup import PlotSetupDialog
 
 class ColormappedPlotPanel(wx.Panel):
+	"""
+	Panel for a colormapped plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	color_data : numpy.ndarray
+		The data to be plotted.
+	x_bounds : tuple of float
+	y_bounds : tuple of float
+	x_label : str
+	y_label : str
+	"""
 	def __init__(self, parent, color_data, x_bounds, y_bounds, x_label, y_label,
 			*args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
@@ -25,6 +38,19 @@ class ColormappedPlotPanel(wx.Panel):
 
 
 class ColormappedPlotFrame(wx.Frame):
+	"""
+	Frame for a colormapped plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	color_data : numpy.ndarray
+		The data to be plotted.
+	x_bounds : tuple of float
+	y_bounds : tuple of float
+	x_label : str
+	y_label : str
+	"""
 	bounds_format = '{0:.4e}'
 
 	def __init__(self, parent, color_data, x_bounds, y_bounds, x_label, y_label,
@@ -64,6 +90,13 @@ class ColormappedPlotFrame(wx.Frame):
 		self.SetSizerAndFit(frame_box)
 
 	def OnMinValue(self, evt=None):
+		"""
+		Handle the user entering a new minimum value.
+		
+		Parameters
+		----------
+		evt : wx.Event, optional
+		"""
 		value = self.minimum_value_input.Value
 		try:
 			value = float(value)
@@ -77,6 +110,13 @@ class ColormappedPlotFrame(wx.Frame):
 		self.minimum_value_input.Value = self.bounds_format.format(self.panel.plot.low_setting)
 
 	def OnMaxValue(self, evt=None):
+		"""
+		Handle the user entering a new maximum value.
+		
+		Parameters
+		----------
+		evt : wx.Event, optional
+		"""
 		value = self.maximum_value_input.Value
 		try:
 			value = float(value)
@@ -91,6 +131,16 @@ class ColormappedPlotFrame(wx.Frame):
 
 
 class ColormappedPlotSetupDialog(PlotSetupDialog):
+	"""
+	Dialog for setting up a colormapped plot.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	headings : list of str
+		The headings of the data columns.
+	data : numpy.ndarray
+	"""
 	def __init__(self, parent, headings, data, *args, **kwargs):
 		#Limit the number of grid points on each axis:
 		self.max_mesh = [401, 401] #default value passed to parent constructor. Pass [-1,-1] to remove feature from all colorplots
@@ -102,6 +152,14 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 		self.data = data
 
 	def make_plot(self):
+		"""
+		Make the plot.
+		
+		Returns
+		-------
+		bool
+			True if the plot was made, False otherwise.
+		"""
 		try:
 			x_data, y_data, z_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:

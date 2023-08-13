@@ -70,6 +70,10 @@ class IPS120_10(AbstractDevice):
 	def device_status(self):
 		"""
 		All the status information for the device.
+
+		Returns
+		-------
+		Status
 		"""
 
 		result = self.ask('X')
@@ -89,6 +93,10 @@ class IPS120_10(AbstractDevice):
 	def activity(self):
 		"""
 		What the device is currently up to.
+
+		Returns
+		-------
+		str
 		"""
 
 		return self.activities[self.device_status.activity]
@@ -101,12 +109,23 @@ class IPS120_10(AbstractDevice):
 	def heater_on(self):
 		"""
 		Whether the heater is enabled.
+
+		Returns
+		-------
+		bool
 		"""
 
 		return bool(self.device_status.heater & 1)
 
 	@heater_on.setter
 	def heater_on(self, value):
+		"""
+		Change the heater state.
+
+		Parameters
+		----------
+		value : float
+		"""
 		self.status.append('Turning heater o{0}'.format('n' if value else 'ff'))
 
 		try:
@@ -122,12 +141,23 @@ class IPS120_10(AbstractDevice):
 	def perma_hot(self):
 		"""
 		Whether the heater should always remain on.
+
+		Returns
+		-------
+		bool
 		"""
 
 		return self._perma_hot
 
 	@perma_hot.setter
 	def perma_hot(self, value):
+		"""
+		Set whether the heater should always remain on.
+
+		Parameters
+		----------
+		value : bool
+		"""
 		self._perma_hot = value
 
 	@property
@@ -136,6 +166,10 @@ class IPS120_10(AbstractDevice):
 	def sweep_rate(self):
 		"""
 		The rate of the field sweep, as a quantity in T/s.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('R9')[1:])
@@ -143,6 +177,13 @@ class IPS120_10(AbstractDevice):
 	@sweep_rate.setter
 	@quantity_unwrapped('T.s-1', 60)
 	def sweep_rate(self, value):
+		"""
+		Set the rate of the field sweep.
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value <= 0:
 			raise ValueError('Sweep rate must be positive, not {0}.'.format(value))
 
@@ -153,6 +194,10 @@ class IPS120_10(AbstractDevice):
 	def persistent_field(self):
 		"""
 		The output field when the heater was last disabled, as a quantity in T.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('R18')[1:])
@@ -162,6 +207,10 @@ class IPS120_10(AbstractDevice):
 	def output_field(self):
 		"""
 		The actual field due to the output current in T.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('R7')[1:])
@@ -171,6 +220,10 @@ class IPS120_10(AbstractDevice):
 	def set_point(self):
 		"""
 		The set point, as a quantity in T.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('R8')[1:])
@@ -178,12 +231,23 @@ class IPS120_10(AbstractDevice):
 	@set_point.setter
 	@quantity_unwrapped('T')
 	def set_point(self, value):
+		"""
+		Set the set point.
+
+		Parameters
+		----------
+		float
+		"""
 		self.write('$J{0}'.format(value))
 
 	@property
 	def field(self):
 		"""
 		The magnetic field, as a quantity in T.
+
+		Returns
+		-------
+		float
 		"""
 
 		return self.output_field
@@ -191,6 +255,10 @@ class IPS120_10(AbstractDevice):
 	def set_field(self, value):
 		"""
 		Go through all the steps for setting the output field.
+
+		Parameters
+		----------
+		float
 		"""
 
 		if self.output_field == value:
@@ -220,6 +288,13 @@ class IPS120_10(AbstractDevice):
 	@field.setter
 	@Synchronized()
 	def field(self, value):
+		"""
+		Set the magnetic field.
+
+		Parameters
+		----------
+		value : float
+		"""
 		status = self.device_status
 		assert status.system_status == 0, 'System status: {0}'.format(status.system_status)
 		assert status.limits == 0, 'Limits: {0}'.format(status.limits)

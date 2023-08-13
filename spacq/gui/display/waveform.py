@@ -10,6 +10,13 @@ from .plot.two_dimensional import TwoDimensionalPlot
 
 
 class WaveformDisplay(TwoDimensionalPlot):
+	"""
+	A plot for displaying a waveform.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	"""
 	marker_height = 50
 
 	def __init__(self, parent, *args, **kwargs):
@@ -28,6 +35,14 @@ class WaveformDisplay(TwoDimensionalPlot):
 		return Window(self.parent, component=self.vplot_container).control
 
 	def add_marker(self, num, data):
+		"""
+		Add a marker to the plot.
+		
+		Parameters
+		----------
+		num : int
+		data : array
+		"""
 		marker_plot = TwoDimensionalPlot(self, height=self.marker_height, resizable='h')
 		marker_plot.padding_left = self.padding_left
 
@@ -42,6 +57,13 @@ class WaveformDisplay(TwoDimensionalPlot):
 
 
 class WaveformPanel(wx.Panel):
+	"""
+	A panel for displaying a waveform.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	"""
 	def __init__(self, parent, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
@@ -55,6 +77,16 @@ class WaveformPanel(wx.Panel):
 		self.SetSizer(panel_box)
 
 	def SetValue(self, waveform, marker_data, frequency):
+		"""
+		Set the value of the waveform.
+		
+		Parameters
+		----------
+		waveform : array
+		marker_data : dict
+			Keys are marker numbers, values are arrays.
+		frequency : Quantity
+		"""
 		max_time = len(waveform) / frequency.value
 		# Find the order of magnitude (to within 3 orders, to keep it at n, u, m, etc).
 		magnitude = 3 * floor(floor(log10(max_time)) / 3)
@@ -72,6 +104,14 @@ class WaveformPanel(wx.Panel):
 
 
 class WaveformFrame(wx.Frame):
+	"""
+	A frame for displaying a waveform.
+
+	Parameters
+	----------
+	parent : wx.Window
+	output_name : str
+	"""
 	def __init__(self, parent, output_name, *args, **kwargs):
 		wx.Frame.__init__(self, parent, title=output_name, *args, **kwargs)
 

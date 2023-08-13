@@ -50,6 +50,11 @@ class PlotSettings(object):
 class PlotSettingsDialog(Dialog):
 	"""
 	Set up the live view plot.
+
+	Parameters
+	----------
+	parent : wx.Window
+	ok_callback : callable
 	"""
 
 	def __init__(self, parent, ok_callback, *args, **kwargs):
@@ -162,6 +167,12 @@ class PlotSettingsDialog(Dialog):
 		self.Destroy()
 
 	def GetValue(self):
+		"""
+		Get the values of the controls in the dialog.
+		
+		Returns
+		-------
+		PlotSettings"""
 		plot_settings = PlotSettings()
 		plot_settings.enabled = self.enabled_checkbox.Value
 		plot_settings.num_points = self.points_input.Value
@@ -177,6 +188,13 @@ class PlotSettingsDialog(Dialog):
 		return plot_settings
 
 	def SetValue(self, plot_settings):
+		"""
+		Set the values of the controls in the dialog to the values in the plot settings object.
+
+		Parameters
+		----------
+		plot_settings : PlotSettings		
+		"""
 		self.enabled_checkbox.Value = plot_settings.enabled
 		self.points_input.Value = plot_settings.num_points
 		self.delay_input.SetValue(plot_settings.delay.value)
@@ -192,6 +210,11 @@ class PlotSettingsDialog(Dialog):
 class ScalarLiveViewPanel(wx.Panel):
 	"""
 	A panel to display a live view plot of a scalar resource.
+
+	Parameters
+	----------
+	parent : wx.Window
+	global_store : GlobalStore
 	"""
 
 	def __init__(self, parent, global_store, *args, **kwargs):
@@ -297,6 +320,13 @@ class ScalarLiveViewPanel(wx.Panel):
 
 	@resource.setter
 	def resource(self, value):
+		"""
+		Set the resource to acquire from.
+		
+		Parameters
+		----------
+		value : Resource
+		"""
 		# Ignore unreadable resources.
 		if value is not None and not value.readable:
 			value = None
@@ -318,6 +348,13 @@ class ScalarLiveViewPanel(wx.Panel):
 
 	@property
 	def measurement_resource_name(self):
+		"""
+		Get the measurement resource name.
+		
+		Returns
+		-------
+		str
+		"""
 		if self._measurement_resource_name is None:
 			return ''
 		else:
@@ -325,6 +362,13 @@ class ScalarLiveViewPanel(wx.Panel):
 
 	@measurement_resource_name.setter
 	def measurement_resource_name(self, value):
+		"""
+		Set the measurement resource name.
+		
+		Parameters
+		----------
+		value : str
+		"""
 		if value:
 			self._measurement_resource_name = value
 			try:
@@ -387,6 +431,10 @@ class ScalarLiveViewPanel(wx.Panel):
 	def add_value(self, value):
 		"""
 		Update the plot with a new value.
+
+		Parameters
+		----------
+		value : float
 		"""
 
 		if not self.plot_settings.enabled:
@@ -449,6 +497,10 @@ class ScalarLiveViewPanel(wx.Panel):
 	def OnRun(self, evt=None):
 		"""
 		Let the acquisition thread run.
+
+		Parameters
+		----------
+		evt : wx.Event, optional
 		"""
 
 		self.run_button.Disable()
@@ -463,6 +515,10 @@ class ScalarLiveViewPanel(wx.Panel):
 	def OnPause(self, evt=None):
 		"""
 		Block the acquisition thread.
+
+		Parameters
+		----------
+		evt : wx.Event, optional
 		"""
 
 		if not self.running:
@@ -481,6 +537,10 @@ class ScalarLiveViewPanel(wx.Panel):
 	def OnPlotSettings(self, evt=None):
 		"""
 		Open the plot settings dialog.
+
+		Parameters
+		----------
+		evt : wx.Event, optional
 		"""
 
 		def ok_callback(dlg):
@@ -525,6 +585,13 @@ class ScalarLiveViewPanel(wx.Panel):
 			self.resource = value
 
 	def msg_data_capture_start(self, name):
+		"""
+		Start capturing data.
+		
+		Parameters
+		----------
+		name : str
+		"""
 		if name == self.measurement_resource_name:
 			if self.enabled:
 				self.capturing_data = True
@@ -537,11 +604,26 @@ class ScalarLiveViewPanel(wx.Panel):
 				self.resource = None
 
 	def msg_data_capture_data(self, name, value):
+		"""
+		Handle new data from the data capture system.
+		
+		Parameters
+		----------
+		name : str
+		value : float
+		"""
 		if name == self.measurement_resource_name:
 			if self.capturing_data:
 				self.add_value(value)
 
 	def msg_data_capture_stop(self, name):
+		"""
+		Stop capturing data.
+		
+		Parameters
+		----------
+		name : str
+		"""
 		if name == self.measurement_resource_name:
 			if self.capturing_data:
 				self.capturing_data = False
@@ -555,6 +637,14 @@ class ScalarLiveViewPanel(wx.Panel):
 
 
 class ScalarMeasurementFrame(wx.Frame):
+	"""
+	Frame for scalar measurements.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	global_store : GlobalStore
+	"""
 	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -575,6 +665,13 @@ class ScalarMeasurementFrame(wx.Frame):
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
 	def OnClose(self, evt):
+		"""
+		Perform cleanup.
+		
+		Parameters
+		----------
+		evt : wx.Event
+		"""
 		if self.live_view_panel.capturing_data:
 			msg = 'Cannot close, as a sweep is currently in progress.'
 			MessageDialog(self, msg, 'Sweep in progress').Show()

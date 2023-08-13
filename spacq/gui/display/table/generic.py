@@ -23,6 +23,10 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		Determine the type of a column based on a single value.
 
 		The type is one of: scalar, list, string.
+
+		Parameters
+		----------
+		parent : wx.Window
 		"""
 
 		try:
@@ -59,6 +63,13 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.types = []
 
 	def refresh_with_values(self, data):
+		"""
+		Refresh the display with new data.
+		
+		Parameters
+		----------
+		data: A 2D NumPy array.
+		"""
 		self.ItemCount = len(data)
 
 		if self.ItemCount > 0:
@@ -74,11 +85,15 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		"""
 		Set the data to be the old data, along with the application of a filter.
 
-		f is a function of two parameters: the index of the row and the row itself.
-		f must return True if the row is to be kept and False otherwise.
+		Parameters
+		----------
+		f: A function of two parameters.
+			the index of the row and the row itself.
+			f must return True if the row is to be kept and False otherwise.
 
-		If afresh is True, all old filtered data is discarded.
-		Otherwise, a new filter can be quickly applied.
+		afresh: bool, optional
+			If True, all old filtered data is discarded.
+			Otherwise, a new filter can be quickly applied.
 		"""
 
 		if afresh:
@@ -94,6 +109,19 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.refresh_with_values(self.filtered_data)
 
 	def GetValue(self, types=None):
+		"""
+		Get the headings, data, and types.
+		
+		Parameters
+		----------
+		types: A list of strings, or None.
+			If None, all types are returned.
+			
+		Returns
+		-------
+		(list of str, 2D NumPy array, list of str)
+		(headings, data, types)
+		"""
 		# Get all types by default.
 		if types is None:
 			types = set(self.types)
@@ -112,6 +140,10 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 	def SetValue(self, headings, data):
 		"""
+		Set the headings and data to be displayed.
+		
+		Parameters
+		----------
 		headings: A list of strings.
 		data: A 2D NumPy array.
 		"""
@@ -138,6 +170,15 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 	def OnGetItemText(self, item, col):
 		"""
 		Return cell value for LC_VIRTUAL.
+
+		Parameters
+		----------
+		item : int
+		col : int
+
+		Returns
+		-------
+		str
 		"""
 
 		return self.display_data[item,col]
@@ -146,6 +187,10 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 class TabularDisplayPanel(wx.Panel):
 	"""
 	A panel to display arbitrary tabular data.
+
+	Parameters
+	----------
+	parent : wx.Window
 	"""
 
 	def __init__(self, parent, *args, **kwargs):
@@ -168,7 +213,11 @@ class TabularDisplayPanel(wx.Panel):
 		"""
 		Import the given CSV data into the table.
 
-		If has_header is True, the first row is treated specially.
+		Parameters
+		----------
+		has_header : bool
+			If True, the first row is treated specially.
+		values : list of lists
 		"""
 
 		if has_header:
@@ -191,6 +240,13 @@ class TabularDisplayPanel(wx.Panel):
 
 
 class TabularDisplayFrame(wx.Frame):
+	"""
+	A frame to display arbitrary tabular data.
+	
+	Parameters
+	----------
+	parent : wx.Window
+	"""
 	def __init__(self, parent, *args, **kwargs):
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 

@@ -34,8 +34,17 @@ def Predicate(predicate):
     """
     Display only those objects that match the given predicate
 
-    Example::
+    Example
+    -------
         self.olv.SetFilter(Filter.Predicate(lambda x: x.IsOverdue()))
+
+    Parameters
+    ----------
+    predicate : function
+
+    Returns
+    -------
+    function
     """
     return lambda modelObjects: [x for x in modelObjects if predicate(x)]
 
@@ -44,8 +53,17 @@ def Head(num):
     """
     Display at most the first N of the model objects
 
-    Example::
+    Example
+    -------
         self.olv.SetFilter(Filter.Head(1000))
+
+    Parameters
+    ----------
+    num : int
+
+    Returns
+    -------
+    function
     """
     return lambda modelObjects: modelObjects[:num]
 
@@ -54,8 +72,17 @@ def Tail(num):
     """
     Display at most the last N of the model objects
 
-    Example::
+    Example
+    -------
         self.olv.SetFilter(Filter.Tail(1000))
+
+    Parameters
+    ----------
+    num : int
+
+    Returns
+    -------
+    function
     """
     return lambda modelObjects: modelObjects[-num:]
 
@@ -83,6 +110,14 @@ class TextSearch(object):
     def __call__(self, modelObjects):
         """
         Return the model objects that contain our text in one of the columns to consider
+
+        Parameters
+        ----------
+        modelObjects : list of object
+
+        Returns
+        -------
+        list of object
         """
         if not self.text:
             return modelObjects
@@ -106,6 +141,10 @@ class TextSearch(object):
     def SetText(self, text):
         """
         Set the text that this filter will match. Set this to None or "" to disable the filter.
+
+        Parameters
+        ----------
+        text : str
         """
         self.text = text
 
@@ -127,12 +166,24 @@ class Chain(object):
         Create a filter that performs all the given filters.
 
         The order of the filters is important.
+
+        Parameters
+        ----------
+        filters : list of Filter
         """
         self.filters = filters
 
     def __call__(self, modelObjects):
         """
         Return the model objects that match all of our filters
+
+        Parameters
+        ----------
+        modelObjects : list of object
+
+        Returns
+        -------
+        list of object
         """
         for filter in self.filters:
             modelObjects = filter(modelObjects)

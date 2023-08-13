@@ -8,6 +8,13 @@ log = logging.getLogger(__name__)
 
 
 def update_current_f(f):
+    """
+    Decorator to update the current function name.
+
+    Parameters
+    ----------
+    f : function
+    """
     @wraps(f)
     def wrapped(self):
         self.current_f = f.__name__
@@ -22,6 +29,14 @@ def update_current_f(f):
 class PulseConfiguration(object):
     """
     The configuration necessary to execute a pulse program with a device.
+
+    Parameters
+    ----------
+    program : PulseProgram
+    channels : dict
+        A dictionary of output names and channel numbers
+    awg : object
+    oscilloscope : object
     """
 
     # All the directly-used attributes.
@@ -32,6 +47,20 @@ class PulseConfiguration(object):
 
     @staticmethod
     def verify_device(name, device, attributes):
+        """
+        Verify that a device has the necessary attributes.
+
+        Parameters
+        ----------
+        name : str
+        device : object
+        attributes : list
+
+        Raises
+        ------
+        TypeError if the device is none or does not have the necessary attributes
+            
+        """
         if device is None:
             raise TypeError('No "{0}" device configured'.format(name))
 
@@ -69,21 +98,15 @@ class SweepController(object):
     resources : list of tuples
         A list of tuples containing the name and the resource object to be swept
     variables : list of lists
-        A list of lists of variables to be swept
     num_items : int
-        The number of items to be swept
     measurement_resources : list of tuples
         A list of tuples containing the name and the resource object to be measured
     measurement_variables : list of lists
-        A list of lists of variables to be measured
     condition_resources : list of tuples, optional
         A list of tuples containing the name and the resource object to be used for conditional waiting
     condition_variables : list of lists, optional
-        A list of lists of variables to be used for conditional waiting
     pulse_config : PulseConfiguration, optional
-        The configuration necessary to execute a pulse program with a device
     continuous : bool, optional
-        Whether to run the sweep continuously
 
     """
 
@@ -180,7 +203,6 @@ class SweepController(object):
         Parameters
         ----------
         pos : int
-            The position of the order of variables
         
         Returns
         -------
@@ -198,9 +220,7 @@ class SweepController(object):
         resources : list of tuples
             A list of tuples containing the name and the resource object to be swept
         values_from : list
-            A list of starting values for each resource being swept
         values_to : list
-            The final values that the resources will be swept to
         steps : list
             The number of steps to take between the starting value and ending value for each resource being swept
         """
@@ -232,11 +252,8 @@ class SweepController(object):
         Parameters
         ----------
         name : str
-            The name of the resource
         resource : object
-            The resource object to write to
         value : object
-            The value to write to the resource
         """
 
         try:
@@ -253,11 +270,8 @@ class SweepController(object):
         Parameters
         ----------
         name : str
-            The name of the resource
         resource : object
-            The resource object to read from
         save_callback : function
-            The function to call to save the value read from the resource
         """
 
         try:
@@ -327,7 +341,7 @@ class SweepController(object):
 
         Returns
         -------
-        start next step
+        Start next step
         """
 
         self.iterators = None
@@ -360,7 +374,7 @@ class SweepController(object):
 
         Returns
         -------
-        start transition step
+        Start transition step
         """
 
         self.item += 1
@@ -400,7 +414,7 @@ class SweepController(object):
 
         Returns
         -------
-        start write step
+        Start write step
         """
 
         if self.last_values is None:
@@ -455,7 +469,7 @@ class SweepController(object):
 
         Returns
         -------
-        start dwelling
+        Start dwelling
         """
 
         thrs = []
@@ -483,7 +497,7 @@ class SweepController(object):
 
         Returns
         -------
-        start read step if no pulse program, pulse otherwise
+        Start read step if no pulse program, pulse otherwise
         """
 
         delay = max(
@@ -502,7 +516,7 @@ class SweepController(object):
 
         Returns
         -------
-        start read step
+        Start read step
         """
 
         if self.pulse_config.channels:
@@ -583,7 +597,7 @@ class SweepController(object):
 
         Returns
         -------
-        start condition step
+        Start condition step
         """
         measurements = [None] * len(self.measurement_resources)
 
@@ -619,16 +633,14 @@ class SweepController(object):
     @update_current_f
     def condition(self):
         """
-        Stalls an order's loop (after the order's variables have been exhausted)
-        with repeated measurements until conditions are true.
-        Once conditions are true, then the sweep controller moves on to the next order
-        and continues as usual.
+        Stalls an order's loop (after the order's variables have been exhausted) with repeated measurements until conditions are true.
+        Once conditions are true, then the sweep controller moves on to the next order and continues as usual.
 
         Returns
         -------
-        ramps down if conditions are true and all variables are exhausted
-        goes to next value if conditions are true and not all variables are exhausted
-        dwells if conditions are false
+        Ramp down if conditions are true and all variables are exhausted
+        Go to next value if conditions are true and not all variables are exhausted
+        Dwell if conditions are false
         """
         boolean = True
 
@@ -674,7 +686,7 @@ class SweepController(object):
 
         Returns
         -------
-        start read process
+        Start read process.
         """
         sleep(self.conditional_wait)
         return self.read
@@ -686,7 +698,7 @@ class SweepController(object):
 
         Returns
         -------
-        start the init step if continuous
+        Start the init step if continuous and not last_continuous.
         """
 
         if not self.current_values:
@@ -752,11 +764,6 @@ class SweepController(object):
     def abort(self, fatal=False):
         """
         Ending abruptly for any reason.
-
-        Parameters
-        ----------
-        fatal : bool, optional
-            Whether to abort fatally. Default is False.
         """
 
         log.debug('Aborting.')

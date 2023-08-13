@@ -11,6 +11,11 @@ Mock hardware device.
 class MockAbstractDevice(AbstractDevice):
 	"""
 	A class for controlling fake devices.
+
+	Parameters
+	----------
+	autoconnect : bool, optional
+		Whether to connect automatically.
 	"""
 
 	output = None
@@ -19,6 +24,16 @@ class MockAbstractDevice(AbstractDevice):
 	def _split_message(message):
 		"""
 		Split a message into usable components.
+
+		Parameters
+		----------
+		message : str
+
+		Returns
+		-------
+		list of str
+		str
+		bool
 		"""
 
 		message = message.split(None, 1)
@@ -83,6 +98,10 @@ class MockAbstractDevice(AbstractDevice):
 	def multi_command_stop(self):
 		"""
 		Return buffered responses.
+
+		Returns
+		-------
+		list of str
 		"""
 
 		responses = self.multi_command_responses
@@ -93,6 +112,14 @@ class MockAbstractDevice(AbstractDevice):
 	def write(self, message, result=None, done=False):
 		"""
 		Act on what is being written.
+
+		Parameters
+		----------
+		message : str
+		result : str, optional
+			What to return when the message is a query.
+		done : bool, optional
+			Whether the message is complete.
 		"""
 
 		log.debug('Writing to device: {0!r}'.format(message))
@@ -122,6 +149,10 @@ class MockAbstractDevice(AbstractDevice):
 	def read_raw(self, **kwargs):
 		"""
 		Return the result of the last write operation.
+
+		Returns
+		-------
+		str
 		"""
 
 		log.debug('Read from device: {0!r}'.format(self.output))
@@ -131,6 +162,10 @@ class MockAbstractDevice(AbstractDevice):
 	def ask(self, *args, **kwargs):
 		"""
 		Ask, but possibly buffer the answer.
+
+		Returns
+		-------
+		str
 		"""
 
 		result = AbstractDevice.ask(self, *args, **kwargs)

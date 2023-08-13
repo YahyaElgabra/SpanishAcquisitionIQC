@@ -36,6 +36,10 @@ class Model9700(AbstractDevice):
 	def temperature(self):
 		"""
 		The value measured by the device, as a quantity in K.
+
+		Returns
+		-------
+		float
 		"""
 
 		while True:
@@ -50,6 +54,10 @@ class Model9700(AbstractDevice):
 	def power(self):
 		'''
 		The value of the PID as a percentage.
+
+		Returns
+		-------
+		float
 		'''
 
 		# Sometimes does not answer the correct query, so need to ask until we get the desired response

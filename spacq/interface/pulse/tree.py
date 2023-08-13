@@ -17,6 +17,10 @@ Abstract syntax tree bits for pulse programs.
 def draw_thing(thing, depth):
 	"""
 	Draws something at a given depth.
+
+	Returns
+	-------
+	A string which is the drawing.
 	"""
 
 	if isinstance(thing, ASTNode):
@@ -144,6 +148,12 @@ class Environment(object):
 	def set_value(self, target, value):
 		"""
 		Set a value if the types work out. TypeError otherwise.
+
+		Parameters
+		----------
+		target : tuple
+			The target variable or attribute.
+		value : object
 		"""
 
 		# Type checking.
@@ -201,6 +211,13 @@ class Environment(object):
 		self.post_stage()
 
 	def format_errors(self):
+		"""
+		Format errors for printing.
+
+		Returns
+		-------
+		List of formatted errors.
+		"""
 		result = []
 
 		# Sort by line number, then column number, and ignore duplicates.
@@ -215,6 +232,9 @@ class Environment(object):
 
 
 class ASTNode(object):
+	"""
+	Abstract base class for AST nodes.
+	"""
 	names = []
 	is_list = False
 
@@ -255,10 +275,22 @@ class ASTNode(object):
 
 
 class Acquire(ASTNode):
+	"""
+	Acquire node.
+	"""
 	def __repr__(self):
 		return 'acquire'
 
 	def visit(self, env):
+		"""
+		If the environment is in the declarations stage, add the acquisition marker.
+		If the environment is in the commands stage, verify that acquisition has not already been requested.
+		If the environment is in the waveforms stage, set the acquisition marker and output then generate the waveform.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.declarations:
 			if len(env.stack) != 1:
 				env.add_error('Acquisition not at top level', self.location)
@@ -277,6 +309,9 @@ class Acquire(ASTNode):
 
 
 class Assignment(ASTNode):
+	"""
+	Assignment node.
+	"""
 	names = ['target', 'value']
 
 	def __repr__(self):
@@ -294,6 +329,14 @@ class Assignment(ASTNode):
 			env.add_error(str(e), self.location)
 
 	def visit(self, env):
+		"""
+		If the environment is in the declarations stage, add the variable.
+		If the environment is in the values stage, set the value.
+
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.declarations:
 			if isinstance(self.target, ASTNode):
 				return self.target.visit(env)
@@ -321,6 +364,9 @@ class Assignment(ASTNode):
 
 
 class Attribute(ASTNode):
+	"""
+	Attribute node.
+	"""
 	names = ['variable', 'name']
 
 	def __repr__(self):
@@ -330,6 +376,18 @@ class Attribute(ASTNode):
 		return 'Attribute\n' + draw_thing(self.variable, depth + 1) + draw_thing(self.name, depth + 1)
 
 	def visit(self, env):
+		"""
+		Return the attribute.
+		if the environment is in the values stage and the attribute is not recognized, add an error.
+
+		Parameters
+		----------
+		env : Environment
+
+		Returns
+		-------
+		A tuple of the attribute.
+		"""
 		result = (self.variable, self.name)
 
 		if env.stage == env.stages.values:
@@ -340,6 +398,9 @@ class Attribute(ASTNode):
 
 
 class Block(ASTNode):
+	"""
+	Block node.
+	"""
 	is_list = True
 
 	def __repr__(self):
@@ -351,6 +412,13 @@ class Block(ASTNode):
 		return draw_thing(self, depth)
 
 	def visit(self, env):
+		"""
+		Visit each item in the block.
+
+		Parameters
+		----------
+		env : Environment
+		"""
 		env.stack.append(self)
 		for item in self.items:
 			item.visit(env)
@@ -358,6 +426,9 @@ class Block(ASTNode):
 
 
 class Declaration(ASTNode):
+	"""
+	Declaration node.
+	"""
 	names = ['type', 'variables']
 
 	def __repr__(self):
@@ -372,6 +443,14 @@ class Declaration(ASTNode):
 		return ''.join(result)
 
 	def visit(self, env):
+		"""
+		If the environment is in the declarations stage, visit each variable then check for re-declarations and add the variable.
+		Else, visit each variable.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.declarations:
 			if len(env.stack) != 1:
 				env.add_error('Declaration not at top level', self.location)
@@ -396,6 +475,9 @@ class Declaration(ASTNode):
 
 
 class Delay(ASTNode):
+	"""	
+	Delay node.
+	"""
 	names = ['length']
 
 	def __repr__(self):
@@ -405,6 +487,14 @@ class Delay(ASTNode):
 		return 'Delay\n' + draw_thing(self.length, depth + 1)
 
 	def visit(self, env):
+		"""
+		If the environment is in the commands stage, check that the variable is a delay.
+		If the environment is in the waveforms stage, set the delay then generate the waveform.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.commands:
 			if isinstance(self.length, str):
 				try:
@@ -427,6 +517,9 @@ class Delay(ASTNode):
 
 
 class Dictionary(ASTNode):
+	"""
+	Dictionary node.
+	"""
 	is_list = True
 
 	def __repr__(self):
@@ -437,6 +530,9 @@ class Dictionary(ASTNode):
 
 
 class DictionaryItem(ASTNode):
+	"""
+	Dictionary item node.
+	"""
 	names = ['key', 'value']
 
 	def __repr__(self):
@@ -450,6 +546,9 @@ class DictionaryItem(ASTNode):
 
 
 class Loop(ASTNode):
+	"""
+	Loop node.
+	"""
 	names = ['times', 'block']
 
 	def __repr__(self):
@@ -459,6 +558,15 @@ class Loop(ASTNode):
 		return 'Loop\n' + draw_thing(self.times, depth + 1) + draw_thing(self.block, depth + 1)
 
 	def visit(self, env):
+		"""
+		If the environment is in the commands stage, check that the variable is an int.
+		If the environment is in the waveforms stage, visit the block the specified number of times.
+		Else, visit the block.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.commands:
 			if isinstance(self.times, str):
 				try:
@@ -484,12 +592,23 @@ class Loop(ASTNode):
 
 
 class ParallelPulses(ASTNode):
+	"""
+	Parallel pulses node.
+	"""
 	is_list = True
 
 	def __repr__(self):
 		return '{0}'.format(' '.join(repr(item) for item in self.items))
 
 	def visit(self, env):
+		"""
+		Visit each item in the block.
+		If the environment is in the waveforms stage, generate the waveform.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		env.stack.append(self)
 		for item in self.items:
 			item.visit(env)
@@ -504,6 +623,9 @@ class ParallelPulses(ASTNode):
 
 
 class Pulse(ASTNode):
+	"""
+	Pulse node.
+	"""
 	names = ['sequence', 'target']
 
 	def __repr__(self):
@@ -513,6 +635,14 @@ class Pulse(ASTNode):
 		return 'Pulse\n' + draw_thing(self.sequence, depth + 1) + draw_thing(self.target, depth + 1)
 
 	def visit(self, env):
+		"""
+		If the environment is in the commands stage, check that the variable is recognized.
+		Visit the sequence.
+		
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.commands:
 			if self.target not in env.generators:
 				env.add_error('Undefined output "{0}"'.format(self.target), self.location)
@@ -523,12 +653,23 @@ class Pulse(ASTNode):
 
 
 class PulseSequence(ASTNode):
+	"""
+	Pulse sequence node.
+	"""
 	is_list = True
 
 	def __repr__(self):
 		return '({0})'.format(', '.join(repr(item) for item in self.items))
 
 	def visit(self, env):
+		"""
+		If the environment is in the commands stage, check that the variable is a pulse or a delay.
+		If the environment is in the waveforms stage, visit each item in the sequence.
+
+		Parameters
+		----------
+		env : Environment
+		"""
 		if env.stage == env.stages.commands:
 			for item in self.items:
 				if isinstance(item, Delay):
@@ -590,6 +731,9 @@ class PulseSequence(ASTNode):
 
 
 class Variable(ASTNode):
+	"""
+	Variable node.
+	"""
 	names = ['name']
 
 	def __repr__(self):

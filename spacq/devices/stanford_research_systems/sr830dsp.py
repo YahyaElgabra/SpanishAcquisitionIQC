@@ -76,6 +76,10 @@ class SR830DSP(AbstractDevice):
 	def reference_freq(self):
 		"""
 		The frequency of the internal oscillator
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('FREQ?'))
@@ -84,6 +88,13 @@ class SR830DSP(AbstractDevice):
 	@Synchronized()
 	@quantity_unwrapped('Hz')
 	def reference_freq(self, value):
+		"""
+		Set the frequency of the internal oscillator
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.min_freq or value > self.max_freq:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_freq, self.max_freq))
 
@@ -93,12 +104,23 @@ class SR830DSP(AbstractDevice):
 	def reference_phase(self):
 		"""
 		The phase of the internal oscillator
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('PHAS?'))
 
 	@reference_phase.setter
 	def reference_phase(self, value):
+		"""
+		Set the phase of the internal oscillator
+
+		Parameters
+		----------
+		value : float
+		"""
 		if float(value) < self.min_phase or float(value) > self.max_phase:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value, self.min_phase, self.max_phase))
 
@@ -110,6 +132,10 @@ class SR830DSP(AbstractDevice):
 	def reference_amplitude(self):
 		"""
 		The amplitude of the internal oscillator sine wave
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('SLVL?'))
@@ -129,6 +155,10 @@ class SR830DSP(AbstractDevice):
 	def amplitude_x(self):
 		"""
 		The amplitude of the x component of lock-in signal
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('OUTP? 1'))
@@ -139,6 +169,10 @@ class SR830DSP(AbstractDevice):
 	def amplitude_y(self):
 		"""
 		The amplitude of the y component of lock-in signal
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('OUTP? 2'))
@@ -149,6 +183,10 @@ class SR830DSP(AbstractDevice):
 	def amplitude_R(self):
 		"""
 		The amplitude of the R magnitude of lock-in signal
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('OUTP? 3'))
@@ -158,6 +196,10 @@ class SR830DSP(AbstractDevice):
 	def angle_theta(self):
 		"""
 		The amplitude of the angle theta of lock-in signal
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('OUTP? 4'))

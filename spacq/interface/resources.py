@@ -35,11 +35,10 @@ class Resource(object):
 
     Parameters
     ----------
-    obj: The device to which the resource belongs.
-    getter: The method used to get the value.
-    setter: The method used to set the value.
-    converter: A function which returns a valid value for the resource, given a string.
-    allowed_values: A set of all values which are valid for the resource.
+    obj : object, optional
+    getter : function or str, optional
+    setter : function or str, optional
+    converter : function, optional
 
     """
 
@@ -92,11 +91,13 @@ class Resource(object):
         Parameters
         ----------
         value : object
-            The value to check.
         exception : bool, optional
             Whether to raise an exception if the value is not valid.
         from_string : bool, optional
-            Whether the value is expected to be a unit symbol string.
+
+        Returns
+        -------
+        Whether the value is valid.
         """
 
         if from_string:
@@ -126,7 +127,11 @@ class Resource(object):
     @property
     def value(self):
         """
-        The value of the resource.
+        Gets the value of the resource.
+
+        Returns
+        -------
+        The value.
         """
 
         if self.getter is None:
@@ -153,6 +158,13 @@ class Resource(object):
 
     @value.setter
     def value(self, v):
+        """
+        Set the value of a resource, applying any necessary filters and validations.
+        
+        Parameters
+        ----------
+        v : object
+        """
         if self.setter is None:
             raise NotWritable('Resource not writable.')
 
@@ -180,6 +192,14 @@ class Resource(object):
     def convert(self, value):
         """
         Either use the specified converter, treat as a quantity, or do nothing.
+
+        Parameters
+        ----------
+        value : object
+
+        Returns
+        -------
+        The converted value.
         """
 
         if self.converter is not None:
@@ -207,7 +227,10 @@ class Resource(object):
         Parameters
         ----------
         name : str
-            The name of the wrapper to find.
+
+        Returns
+        -------
+        The index of the wrapper.
         """
 
         for i, (n, _, _) in reversed(list(enumerate(self.wrappers))):
@@ -223,7 +246,10 @@ class Resource(object):
         Parameters
         ----------
         name : str
-            The name of the wrapper to check for.
+
+        Returns
+        -------
+        Whether the given wrapper is present.
         """
         try:
             self._find_wrapper_by_name(name)
@@ -239,11 +265,12 @@ class Resource(object):
         Parameters
         ----------
         name : str
-            The name of the wrapper.
         getter_filter : function, optional
-            A function of one argument through which to pass any obtained values.
         setter_filter : function, optional
-            A function of one argument through which to pass values when setting.
+
+        Returns
+        -------
+        The wrapped Resource.
         """
 
         result = copy(self)
@@ -260,7 +287,10 @@ class Resource(object):
         Parameters
         ----------
         name : str
-            The name of the wrapper to remove.
+
+        Returns
+        -------
+        The unwrapped Resource.
         """
         result = copy(self)
 
@@ -276,15 +306,10 @@ class Resource(object):
         Parameters
         ----------
         value_from : object 
-            The starting value.
         value_to : object
-            The ending value.
         steps : int
-            The number of steps to take.
         delay : float, optional
-            The delay between steps.
         exception_callback : function, optional
-            A function to call if an exception occurs.
         """
 
         # Check for dimension mismatches.
@@ -320,9 +345,7 @@ class AcquisitionThread(Thread):
     Parameters
     ----------
     delay : Quantity
-        The delay between calls to the callback.
     callback : function
-        The function to call with the value.
     resource : Resource, optional
         The resource to read from. If not specified, the callback will be called with no arguments.
     running_lock : Lock, optional
@@ -346,6 +369,9 @@ class AcquisitionThread(Thread):
         self.done = False
 
     def run(self):
+        """
+        Run the thread.
+        """
         while not self.done:
             # If something goes wrong, sleep the maximum.
             delay = self.delay.value

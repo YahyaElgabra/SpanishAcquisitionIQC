@@ -17,6 +17,14 @@ Control the output voltages on all the ports.
 class Port(AbstractSubdevice):
     """
     An output port on the voltage source.
+
+    Parameters
+    ----------
+    device : AbstractDevice
+        The voltage source to which this Port belongs.  
+    num : int
+        The index of this port.
+
     """
 
     def _setup(self):
@@ -31,6 +39,9 @@ class Port(AbstractSubdevice):
 
     @Synchronized()
     def _connected(self):
+        """
+        Turn on the port and get the current voltage.
+        """
         AbstractSubdevice._connected(self)
 
         # Turn on port
@@ -59,8 +70,6 @@ class Port(AbstractSubdevice):
     def __init__(self, device, num, *args, **kwargs):
         """
         Initialize the output port.
-        device: The voltage source to which this Port belongs.
-        num: The index of this port.
         """
         AbstractSubdevice.__init__(self, device, *args, **kwargs)
         self.num = num
@@ -91,6 +100,11 @@ class Port(AbstractSubdevice):
 class dacsp927(AbstractDevice):
     """
     Interface for the Physics Basel DAC SP 927 voltage source
+
+    Parameters
+    ----------
+    port_settings : dict, optional
+        A dictionary of values to give to each port upon creation.
     """
 
     def _setup(self):
@@ -106,7 +120,6 @@ class dacsp927(AbstractDevice):
     def __init__(self, port_settings=None, *args, **kwargs):
         """
         Initialize the voltage source and all its ports.
-        port_settings: A dictionary of values to give to each port upon creation.
         """
 
         if port_settings is None:

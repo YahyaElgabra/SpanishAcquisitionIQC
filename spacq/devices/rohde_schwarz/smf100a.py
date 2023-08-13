@@ -51,12 +51,23 @@ class SMF100A(AbstractDevice):
 	def enabled(self):
 		"""
 		Whether the RF output is enabled.
+
+		Returns
+		-------
+		bool
 		"""
 
 		return bool(int(self.ask('output:state?')))
 
 	@enabled.setter
 	def enabled(self, value):
+		"""
+		Set whether the RF output is enabled.
+
+		Parameters
+		----------
+		value : bool
+		"""
 		self.write('output:state {0}'.format(int(value)))
 
 	@property
@@ -64,6 +75,10 @@ class SMF100A(AbstractDevice):
 	def power(self):
 		"""
 		The RF output power, as a quantity in V.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('source:power:power?'))
@@ -71,6 +86,13 @@ class SMF100A(AbstractDevice):
 	@power.setter
 	@quantity_unwrapped('V')
 	def power(self, value):
+		"""
+		Set the RF output power.
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.min_power or value > self.max_power:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value,
 				self.min_power, self.max_power))
@@ -82,6 +104,10 @@ class SMF100A(AbstractDevice):
 	def frequency(self):
 		"""
 		The RF output frequency, as a quantity in Hz.
+
+		Returns
+		-------
+		float
 		"""
 
 		return float(self.ask('source:frequency:cw?'))
@@ -89,6 +115,13 @@ class SMF100A(AbstractDevice):
 	@frequency.setter
 	@quantity_unwrapped('Hz')
 	def frequency(self, value):
+		"""
+		Set the RF output frequency.
+
+		Parameters
+		----------
+		value : float
+		"""
 		if value < self.min_freq or value > self.max_freq:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value,
 				self.min_freq, self.max_freq))

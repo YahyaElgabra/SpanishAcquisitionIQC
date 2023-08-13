@@ -11,10 +11,11 @@ def find_location(s, loc):
 	"""
 	Find where loc (linear index) in s.
 
-	Returns:
-		line number
-		column number
-		line itself
+	Returns
+	-------
+	line number
+	column number
+	line itself
 
 	Note: Tabs are not handled specially.
 	"""
@@ -43,8 +44,8 @@ def format_error(msg, row=None, col=None, line=None):
 	if row is None or col is None or line is None:
 		return 'error: {0}'.format(msg)
 	else:
-		return 'error: {0} at column {1} on line {2}:\n{3}{4}\n{5}^'.format(msg,
-				col, row, ' ' * 2, line, ' ' * (col + 1))
+		return 'error: {0} at column {1} on line {2}:\n{3}{4}\n{5}^'.format(msg, col, row, ' ' * 2,
+																			line, ' ' * (col + 1))
 
 
 def load_values(f):
